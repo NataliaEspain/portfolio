@@ -1,13 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Playfair_Display, Space_Mono } from "next/font/google"
+import { Roboto, Playfair_Display, Space_Mono } from "next/font/google"
 import "./globals.css"
 
-const inter = Inter({
+const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-roboto",
 })
 
 const playfair = Playfair_Display({
@@ -25,10 +25,19 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Natalia Espain — Artista Multidisciplinaria",
+  title: "Natalia Espain/Artista multimedia",
   description:
     "Portfolio de Natalia Espain: diseño multimedia, pinturas, arte digital y tatuajes. Estudiante de Diseño Multimedia en Escuela Da Vinci.",
   generator: "v0.app",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.png",
+        type: "image/png",
+      },
+    ],
+    apple: "/favicon.png",
+  },
 }
 
 export default function RootLayout({
@@ -37,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${playfair.variable} ${spaceMono.variable}`}>
+    <html lang="es" className={`${roboto.variable} ${playfair.variable} ${spaceMono.variable}`}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   )

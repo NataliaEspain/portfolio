@@ -1,320 +1,497 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import {
-  Mail,
-  Twitter,
-  Palette,
-  Brush,
-  Zap,
-  Heart,
-  Layout,
-  Upload,
-  Plus,
-  Briefcase,
-  Linkedin,
-  Camera,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  ArrowUpRight,
-} from "lucide-react"
+import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react"
 
-const paintings = [
-  {
-    id: 1,
-    title: "Sunset Dreams",
-    category: "painting",
-    image: "/placeholder-t7yiv.png",
-    description: "A vibrant exploration of color and emotion, capturing the essence of twilight.",
-    images: ["/placeholder-t7yiv.png", "/sunset-painting-detail-1.jpg", "/sunset-painting-detail-2.jpg"],
-  },
-  {
-    id: 2,
-    title: "Ocean Waves",
-    category: "painting",
-    image: "/placeholder-1lffd.png",
-    description: "The rhythm of the sea captured in bold brushstrokes and flowing forms.",
-    images: ["/placeholder-1lffd.png", "/ocean-waves-painting-detail-1.jpg", "/ocean-waves-painting-detail-2.jpg"],
-  },
-  {
-    id: 3,
-    title: "Floral Sleeve",
-    category: "painting",
-    image: "/placeholder-zg4x3.png",
-    description: "Delicate botanicals intertwined in a symphony of ink and skin.",
-    images: ["/placeholder-zg4x3.png", "/floral-painting-detail-1.jpg", "/floral-painting-detail-2.jpg"],
-  },
+// Colores de la marca por categoría
+const categoryColors = {
+  todos: { r: 140, g: 92, b: 242 },    // violeta #8C5CF2
+  diseno: { r: 242, g: 131, b: 34 },   // naranja #F28322
+  paintings: { r: 242, g: 179, b: 61 }, // dorado #F2B33D
+  digital: { r: 140, g: 92, b: 242 },  // violeta #8C5CF2
+  tattoos: { r: 242, g: 131, b: 34 },  // naranja #F28322
+}
+
+// Componente de estela del mouse
+function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
+  const [trails, setTrails] = useState<{ x: number; y: number; id: number }[]>([])
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const newTrail = {
+      x: e.clientX,
+      y: e.clientY,
+      id: Date.now(),
+    }
+    setTrails((prev) => [...prev.slice(-12), newTrail])
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [handleMouseMove])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTrails((prev) => prev.slice(1))
+    }, 50)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999]">
+      {trails.map((trail, index) => (
+        <div
+          key={trail.id}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            left: trail.x,
+            top: trail.y,
+            width: `${8 + index * 1.5}px`,
+            height: `${8 + index * 1.5}px`,
+            background: `radial-gradient(circle, rgba(${color.r}, ${color.g}, ${color.b}, ${0.1 + index * 0.06}) 0%, transparent 70%)`,
+            transform: "translate(-50%, -50%)",
+            transition: "opacity 0.1s ease-out",
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+const navLinks = [
+  { href: "#inicio", label: "Inicio" },
+  { href: "#trabajo", label: "Trabajo" },
+  { href: "#contacto", label: "Contacto" },
 ]
 
-const digitalArt = [
-  {
-    id: 1,
-    title: "Neon City",
-    category: "digital",
-    image: "/neon-cyberpunk-city.png",
-    description: "Ilustración digital de una ciudad futurista con luces de neón.",
-    images: ["/neon-cyberpunk-city.png", "/neon-city-detail-1.jpg", "/neon-city-detail-2.jpg"],
-  },
-  {
-    id: 2,
-    title: "Fantasy Portrait",
-    category: "digital",
-    image: "/fantasy-character-portrait-digital-painting.jpg",
-    description: "Retrato digital de un personaje de fantasía con detalles mágicos.",
-    images: [
-      "/fantasy-character-portrait-digital-painting.jpg",
-      "/fantasy-portrait-detail-1.jpg",
-      "/fantasy-portrait-detail-2.jpg",
-    ],
-  },
-  {
-    id: 3,
-    title: "Abstract Dreams",
-    category: "digital",
-    image: "/colorful-abstract-digital-art.png",
-    description: "Arte digital abstracto con colores vibrantes y formas fluidas.",
-    images: ["/colorful-abstract-digital-art.png", "/abstract-art-detail-1.jpg", "/abstract-art-detail-2.jpg"],
-  },
-]
+interface Work {
+  id: number
+  title: string
+  category: string
+  type: string
+  image: string
+  description: string
+  link?: string
+  size: string
+  cardType?: "expander" | "slider" | "default" // expander = modal con info, slider = modal con carrusel de imágenes
+  images?: string[] // array de imágenes para el slider
+}
 
-const tattoos = [
-  {
-    id: 1,
-    title: "Mandala Design",
-    category: "tattoo",
-    image: "/mandala-tattoo-design-black-ink.jpg",
-    description: "Diseño de mandala intrincado con patrones geométricos detallados.",
-    images: [
-      "/mandala-tattoo-design-black-ink.jpg",
-      "/mandala-tattoo-detail-1.jpg",
-      "/placeholder.svg?height=600&width=600",
-    ],
-  },
-  {
-    id: 2,
-    title: "Botanical Sleeve",
-    category: "tattoo",
-    image: "/placeholder.svg?height=600&width=600",
-    description: "Manga completa con diseño botánico de flores y hojas.",
-    images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-    ],
-  },
-  {
-    id: 3,
-    title: "Geometric Wolf",
-    category: "tattoo",
-    image: "/placeholder.svg?height=600&width=600",
-    description: "Diseño de lobo con estilo geométrico y líneas precisas.",
-    images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-    ],
-  },
-]
-
-const graphicDesigns = [
+const allWorks: Work[] = [
+  // ============ EXPANDER CARDS (Diseño Multimedia) ============
   {
     id: 1,
     title: "Identidad Corporativa Buka",
+    category: "diseno",
     type: "Branding",
     image: "/gym-branding-design.png",
-    description:
-      "Diseño completo de identidad visual para un gimnasio ficticio, incluyendo logo, una one page y expansiones de la marca. Para ver más ingresa aquí.",
+    description: "Diseño completo de identidad visual para un gimnasio ficticio, incluyendo logo, una one page y expansiones de la marca.",
     link: "https://www.behance.net/gallery/231852521/Identidad-de-marca-BUKA",
+    size: "tall",
+    cardType: "expander",
   },
   {
     id: 2,
     title: "Trabajo realizado con malla",
+    category: "diseno",
     type: "Illustration",
     image: "/robot-illustration.jpg",
-    description:
-      "Este robot se realizó con el programa illustrator, utilizando todas las herramientas del programa, desde malla hasta pluma y degradados.",
+    description: "Robot realizado con Illustrator, utilizando herramientas de malla, pluma y degradados.",
+    size: "normal",
+    cardType: "expander",
   },
   {
     id: 3,
     title: "Fotomontaje Photoshop",
+    category: "diseno",
     type: "Photomontage",
     image: "/photomontage-artwork.jpg",
-    description: "Fotomontaje realista realizado con el programa photoshop",
+    description: "Fotomontaje realista realizado con Photoshop.",
+    size: "wide",
+    cardType: "expander",
   },
   {
     id: 4,
     title: "Pagina web desde cero",
+    category: "diseno",
     type: "Web Development",
     image: "/website-project.png",
-    description:
-      "Esta pagina la realice con HTML y CSS en Visual Studio Code para un proyecto de da vinci. Si queres verla completa ingresá aquí.",
+    description: "Página web realizada con HTML y CSS en Visual Studio Code para un proyecto de Da Vinci.",
     link: "https://www.behance.net/gallery/234360823/Web-page-Marandina",
+    size: "normal",
+    cardType: "expander",
   },
   {
     id: 5,
     title: "Collage",
+    category: "diseno",
     type: "Collage",
     image: "/collage-artwork.jpg",
-    description: "Collage realizado en photoshop con elementos centrados en un molino.",
+    description: "Collage realizado en Photoshop con elementos centrados en un molino.",
+    size: "tall",
+    cardType: "expander",
   },
   {
     id: 6,
     title: "Portada película",
+    category: "diseno",
     type: "Movie Poster",
     image: "/movie-poster.jpg",
-    description: "Portada para película infantil realizada con photoshop e inteligencia artificial.",
+    description: "Portada para película infantil realizada con Photoshop e inteligencia artificial.",
+    size: "full",
+    cardType: "expander",
+  },
+  // ============ DEFAULT CARDS ============
+  // ============ EXPANDER CARDS (Paintings) ============
+  {
+    id: 7,
+    title: "Pintura Acuarela",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/acuarela.jpg",
+    description: "Técnica artística que utiliza pigmentos diluidos en agua, creando transparencias y capas sutiles que permiten que la luz del papel brille a través de los colores.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 8,
+    title: "Cerebro",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/cerebro.jpg",
+    description: "Representación artística del órgano más complejo del cuerpo humano, explorando la conexión entre mente, creatividad y emociones a través del color y la forma.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 9,
+    title: "Dragón",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/dragon.jpg",
+    description: "Criatura mitológica capturada en lienzo, simbolizando poder, sabiduría y la magia que habita en las leyendas ancestrales de diversas culturas.",
+    size: "full",
+    cardType: "expander",
+  },
+  {
+    id: 16,
+    title: "Gorriones",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/gorriones.jpg",
+    description: "Pequeñas aves que representan la libertad y la simplicidad de la naturaleza, capturadas con delicadeza en cada pincelada.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 17,
+    title: "Medusas",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/medusas.jpg",
+    description: "Criaturas marinas etéreas que flotan en las profundidades del océano, sus formas translúcidas danzan con gracia y misterio.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 18,
+    title: "Peces",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/peces.jpg",
+    description: "Vida acuática en movimiento, colores vibrantes que capturan la esencia del mundo submarino y su belleza natural.",
+    size: "full",
+    cardType: "expander",
+  },
+  {
+    id: 19,
+    title: "Tristeza",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/tristeza.jpg",
+    description: "Expresión emocional profunda plasmada en el lienzo, explorando la melancolía como parte esencial de la experiencia humana.",
+    size: "full",
+    cardType: "expander",
+  },
+  // ============ SLIDER CARDS (Digital Art) ============
+  {
+    id: 10,
+    title: "Ilustración en Procreate",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/moth-violeta.jpg",
+    description: "",
+    size: "tall",
+    cardType: "slider",
+    images: ["/images/moth-violeta.jpg", "/images/moth-bordo.jpg", "/images/moth-negra.jpg"],
+  },
+  {
+    id: 20,
+    title: "Sketchbook Digital",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/sketchbook/rana.png",
+    description: "",
+    size: "normal",
+    cardType: "slider",
+    images: [
+      "/images/sketchbook/rana.png",
+      "/images/sketchbook/IMG_2066.PNG",
+      "/images/sketchbook/sketch1637193809721.png",
+      "/images/sketchbook/sketch1638294831353.png",
+      "/images/sketchbook/sketch1647983506990.png",
+    ],
+  },
+  {
+    id: 21,
+    title: "Pink Background Series",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/pinkbg/ave.png",
+    description: "",
+    size: "wide",
+    cardType: "slider",
+    images: [
+      "/images/pinkbg/ave.png",
+      "/images/pinkbg/sketch1656138197403.png",
+      "/images/pinkbg/sketch1663033521765.png",
+      "/images/pinkbg/sketch1666725493437.png",
+      "/images/pinkbg/sketch1671645802405.png",
+    ],
+  },
+  {
+    id: 13,
+    title: "Mandala Design",
+    category: "tattoos",
+    type: "Tattoo",
+    image: "/mandala-tattoo-design-black-ink.jpg",
+    description: "Diseño de mandala intrincado con patrones geométricos detallados.",
+    size: "normal",
+  },
+  {
+    id: 14,
+    title: "Botanical Sleeve",
+    category: "tattoos",
+    type: "Tattoo",
+    image: "/placeholder.svg?height=600&width=600",
+    description: "Manga completa con diseño botánico de flores y hojas.",
+    size: "tall",
+  },
+  {
+    id: 15,
+    title: "Geometric Wolf",
+    category: "tattoos",
+    type: "Tattoo",
+    image: "/placeholder.svg?height=600&width=600",
+    description: "Diseño de lobo con estilo geométrico y líneas precisas.",
+    size: "normal",
   },
 ]
 
 const categories = [
-  { id: "all", label: "Diseño Multimedia", icon: Palette },
-  { id: "painting", label: "Paintings", icon: Brush },
-  { id: "digital", label: "Digital Art", icon: Zap },
-  { id: "tattoo", label: "Tattoos", icon: Heart },
+  { id: "todos", label: "Todos" },
+  { id: "diseno", label: "Diseño" },
+  { id: "paintings", label: "Paintings" },
+  { id: "digital", label: "Digital" },
+  { id: "tattoos", label: "Tattoos" },
 ]
 
-const UploadCard = ({ title, description }: { title: string; description: string }) => (
-  <Card className="art-card group cursor-pointer overflow-hidden border-2 border-dashed border-muted-foreground/20 hover:border-primary/50 bg-transparent">
-    <CardContent className="p-0">
-      <AspectRatio ratio={1}>
-        <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-muted/10 to-muted/30 group-hover:from-primary/5 group-hover:to-primary/10 transition-all duration-700">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-all duration-500 animate-morph">
-              <Plus
-                className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors duration-300 group-hover:rotate-90 transform"
-                style={{ transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)" }}
-              />
-            </div>
-          </div>
-          <Upload className="w-5 h-5 text-muted-foreground/50 mb-3 group-hover:translate-y-[-4px] transition-transform duration-300" />
-          <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground/60">Nueva Obra</p>
-        </div>
-      </AspectRatio>
-      <div className="p-6 border-t border-border/50">
-        <h3 className="font-serif text-lg font-bold mb-1 group-hover:text-primary transition-colors">{title}</h3>
-        <p className="text-muted-foreground/70 text-sm leading-relaxed">{description}</p>
-      </div>
-    </CardContent>
-  </Card>
-)
-
-interface CarouselItem {
-  id: number
-  title: string
-  category: string
-  image: string
-  description: string
-  images: string[]
-}
-
-const ImageCarousel = ({
-  item,
-  onClose,
-}: {
-  item: CarouselItem
-  onClose: () => void
-}) => {
+// Modal con slider de imágenes (mobile) / grid (desktop)
+function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isExiting, setIsExiting] = useState(false)
+  const images = work.images || [work.image]
 
-  const handleClose = () => {
-    setIsExiting(true)
-    setTimeout(onClose, 300)
-  }
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % item.images.length)
-  }
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
+      if (e.key === 'ArrowLeft') setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [onClose, images.length])
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + item.images.length) % item.images.length)
-  }
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length)
+  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
 
   return (
     <div
-      className={`fixed inset-0 z-50 gallery-view flex flex-col transition-all duration-300 ${isExiting ? "opacity-0" : "opacity-100"}`}
+      className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
+      style={{ animationDuration: '0.3s' }}
     >
-      {/* Minimal header */}
-      <div className="gallery-controls absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6 md:p-10">
-        <div className="animate-slide-in">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/40 mb-1">{item.category}</p>
-          <h2 className="font-serif text-2xl md:text-4xl font-bold text-white">{item.title}</h2>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleClose}
-          className="w-12 h-12 rounded-full border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300"
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Título */}
+      <div className="absolute top-6 left-6 z-10">
+        <h2
+          className="text-2xl md:text-3xl font-bold text-foreground"
+          style={{ fontFamily: "var(--font-playfair)" }}
         >
-          <X className="w-5 h-5" />
-        </Button>
+          {work.title}
+        </h2>
       </div>
 
-      {/* Image display */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-16 relative">
-        <Button
-          variant="ghost"
-          size="icon"
+      {/* Mobile: Slider */}
+      <div className="md:hidden w-full h-full flex items-center justify-center">
+        {/* Navegación izquierda */}
+        <button
           onClick={prevSlide}
-          className="gallery-controls absolute left-4 md:left-10 z-10 w-14 h-14 rounded-full border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300"
+          className="absolute left-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
         >
-          <ChevronLeft className="w-6 h-6" />
-        </Button>
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        <div className="relative w-full max-w-5xl h-full max-h-[70vh] animate-scale-in">
-          {item.images.map((img, index) => (
-            <div
+        <div className="w-full h-full flex items-center justify-center p-16">
+          <div className="relative w-full h-full max-h-[70vh]">
+            {images.map((img, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
+                  index === currentIndex ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                }`}
+              >
+                <Image
+                  src={img}
+                  alt={`${work.title} - ${index + 1}`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Navegación derecha */}
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+
+        {/* Indicadores mobile */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+          {images.map((_, index) => (
+            <button
               key={index}
-              className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ${
-                index === currentIndex
-                  ? "opacity-100 scale-100"
-                  : index < currentIndex
-                    ? "opacity-0 scale-95 -translate-x-full"
-                    : "opacity-0 scale-95 translate-x-full"
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === currentIndex ? "bg-primary w-8" : "bg-muted hover:bg-foreground"
               }`}
-            >
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: Grid de imágenes */}
+      <div className="hidden md:flex w-full h-full items-center justify-center p-24 gap-6">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className="relative flex-1 h-[70vh] max-w-md"
+          >
+            <Image
+              src={img}
+              alt={`${work.title} - ${index + 1}`}
+              fill
+              className="object-contain"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Modal de pantalla completa para trabajos de diseño
+function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void }) {
+  useEffect(() => {
+    // Bloquear scroll del body cuando el modal está abierto
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
+  // Cerrar con Escape
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
+      style={{ animationDuration: '0.3s' }}
+    >
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Contenido */}
+      <div className="h-full overflow-y-auto">
+        <div className="min-h-full flex flex-col md:flex-row">
+          {/* Imagen - lado izquierdo */}
+          <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8">
+            <div className="relative w-full h-full max-w-2xl">
               <Image
-                src={img || "/placeholder.svg"}
-                alt={`${item.title} - Image ${index + 1}`}
+                src={work.image}
+                alt={work.title}
                 fill
                 className="object-contain"
               />
             </div>
-          ))}
-        </div>
+          </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={nextSlide}
-          className="gallery-controls absolute right-4 md:right-10 z-10 w-14 h-14 rounded-full border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </Button>
-      </div>
+          {/* Info - lado derecho */}
+          <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+            <span className="inline-block px-4 py-2 mb-6 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+              {work.type}
+            </span>
 
-      {/* Minimal footer */}
-      <div className="gallery-controls absolute bottom-0 left-0 right-0 p-6 md:p-10">
-        <div className="flex items-center justify-between">
-          <p className="text-white/60 text-sm max-w-xl leading-relaxed hidden md:block">{item.description}</p>
-          <div className="flex items-center gap-3 mx-auto md:mx-0">
-            {item.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`transition-all duration-500 ${
-                  index === currentIndex ? "w-12 h-1 bg-white" : "w-6 h-1 bg-white/30 hover:bg-white/50"
-                }`}
-              />
-            ))}
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              {work.title}
+            </h2>
+
+            <p className="text-lg text-muted leading-relaxed mb-8">
+              {work.description}
+            </p>
+
+            {work.link && (
+              <a
+                href={work.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors w-fit"
+              >
+                Ver proyecto completo
+                <ExternalLink className="w-5 h-5" />
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -322,486 +499,376 @@ const ImageCarousel = ({
   )
 }
 
-const ArtworkCard = ({
-  item,
-  onSelect,
-  index = 0,
-}: {
-  item: CarouselItem
-  onSelect: (item: CarouselItem) => void
-  index?: number
-}) => (
-  <Card
-    className="art-card group cursor-pointer overflow-hidden border-0 bg-card"
-    onClick={() => onSelect(item)}
-    style={{ animationDelay: `${index * 0.1}s` }}
-  >
-    <CardContent className="p-0">
-      <AspectRatio ratio={1}>
-        <div className="relative w-full h-full overflow-hidden">
-          <Image src={item.image || "/placeholder.svg"} alt={item.title} fill className="art-card-image object-cover" />
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-            <Badge className="w-fit mb-2 bg-white/10 backdrop-blur-sm text-white border-0 font-mono text-[10px] uppercase tracking-wider">
-              {item.category}
-            </Badge>
-            <h3 className="font-serif text-xl text-white font-bold">{item.title}</h3>
-          </div>
-          {/* Corner accent */}
-          <div className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:rotate-45">
-            <ArrowUpRight className="w-4 h-4 text-white" />
-          </div>
-        </div>
-      </AspectRatio>
-      <div className="p-5 border-t border-border/30">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-serif text-lg font-bold leading-tight group-hover:text-primary transition-colors duration-300">
-            {item.title}
-          </h3>
-        </div>
-        <p className="text-muted-foreground/70 text-sm line-clamp-2 leading-relaxed">{item.description}</p>
-      </div>
-    </CardContent>
-  </Card>
-)
-
 export default function MarandinaPortfolio() {
-  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [activeFilter, setActiveFilter] = useState("todos")
   const [isVisible, setIsVisible] = useState(false)
-  const [selectedArtwork, setSelectedArtwork] = useState<CarouselItem | null>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null)
+  const [trailColor, setTrailColor] = useState(categoryColors.todos)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      })
-    }
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      const progress = Math.min(scrollTop / docHeight, 1)
-      setScrollProgress(progress)
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const closeCarousel = () => {
-    setSelectedArtwork(null)
+  // Cambiar color cuando cambia el filtro
+  const handleFilterChange = (filterId: string) => {
+    setActiveFilter(filterId)
+    setTrailColor(categoryColors[filterId as keyof typeof categoryColors] || categoryColors.todos)
   }
 
-  const getBackgroundStyle = () => {
-    const hue1 = 45 + scrollProgress * 30
-    const sat1 = 10 + scrollProgress * 15
-    const light1 = 98 - scrollProgress * 3
+  const filteredWorks = activeFilter === "todos"
+    ? allWorks
+    : allWorks.filter(work => work.category === activeFilter)
 
-    const hue2 = 270 - scrollProgress * 40
-    const sat2 = 20 + scrollProgress * 10
-    const light2 = 95 - scrollProgress * 5
+  const handleCardClick = (work: Work) => {
+    // Cambiar color de la estela según la categoría del trabajo
+    setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.todos)
 
-    return {
-      background: `
-        linear-gradient(
-          ${135 + scrollProgress * 45}deg,
-          hsl(${hue1}, ${sat1}%, ${light1}%) 0%,
-          hsl(${hue2}, ${sat2}%, ${light2}%) 50%,
-          hsl(${hue1 + 20}, ${sat1 + 5}%, ${light1 - 2}%) 100%
-        )
-      `,
-      transition: "background 0.3s ease-out",
+    // Abrir modal para cards tipo "expander" o "slider"
+    if (work.cardType === "expander" || work.cardType === "slider") {
+      setSelectedWork(work)
     }
   }
 
   return (
-    <div className="min-h-screen grain-overlay" style={getBackgroundStyle()}>
-      {selectedArtwork && <ImageCarousel item={selectedArtwork} onClose={closeCarousel} />}
-
-      <section className="relative flex items-center justify-center py-16 md:py-24 overflow-hidden px-4">
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
+      {/* Manchas de pintura / glow de fondo */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Mancha violeta arriba izquierda */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full"
           style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, #8C5CF2 0%, transparent 50%),
-                             radial-gradient(circle at 80% 50%, #F28322 0%, transparent 50%)`,
-            transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
-            transition: "transform 0.3s ease-out",
+            background: "radial-gradient(circle, rgba(140, 92, 242, 0.35) 0%, transparent 60%)",
+            filter: "blur(40px)",
           }}
         />
+        {/* Mancha naranja arriba derecha */}
+        <div
+          className="absolute top-40 -right-10 w-[400px] h-[400px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(242, 131, 34, 0.3) 0%, transparent 60%)",
+            filter: "blur(50px)",
+          }}
+        />
+        {/* Mancha dorada centro izquierda */}
+        <div
+          className="absolute top-[60%] -left-10 w-[450px] h-[450px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(242, 179, 61, 0.25) 0%, transparent 60%)",
+            filter: "blur(45px)",
+          }}
+        />
+        {/* Mancha violeta abajo derecha */}
+        <div
+          className="absolute bottom-20 right-10 w-[500px] h-[500px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(140, 92, 242, 0.3) 0%, transparent 60%)",
+            filter: "blur(50px)",
+          }}
+        />
+      </div>
 
-        <div className="relative z-10 text-center max-w-6xl mx-auto">
-          <div className={`transition-all duration-1000 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
-            <div
-              className="mb-8 animate-float"
-              style={{
-                transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)`,
-                transition: "transform 0.5s ease-out",
-              }}
-            >
+      {/* Estela del mouse */}
+      <MouseTrail color={trailColor} />
+
+      {/* Modal de pantalla completa */}
+      {selectedWork && selectedWork.cardType === "slider" && (
+        <SliderModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+      {selectedWork && selectedWork.cardType === "expander" && (
+        <FullscreenModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <a href="#inicio" className="flex items-center group">
+            <Image
+              src="/images/marandina-logo.png"
+              alt="Marandina"
+              width={280}
+              height={80}
+              className="h-20 md:h-24 w-auto object-contain"
+            />
+          </a>
+
+          {/* Nav links */}
+          <nav className="flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm text-muted hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      {/* Header Image */}
+      <div className="w-full relative mt-[88px] md:mt-[104px] flex justify-center bg-background">
+        <Image
+          src="/images/header.jpg"
+          alt="Header"
+          width={1200}
+          height={400}
+          className="w-full max-w-5xl h-auto object-contain"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+      </div>
+
+      {/* Hero Section con logo flotante y info completa */}
+      <section id="inicio" className="hero-gradient animate-gradient min-h-[80vh] flex items-center relative px-6 md:px-12 py-16">
+        {/* Background gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="max-w-6xl mx-auto w-full relative z-10">
+          <div className={`grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+            {/* Left: Logo + Name + Description */}
+            <div className="order-2 md:order-1">
+              {/* Logo flotante */}
               <div
-                className="inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-full flex-shrink-0"
-                style={{ backgroundColor: "#8C5CF2" }}
+                className="mb-8 animate-float opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "0.1s" }}
+              >
+                <div className="inline-flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full bg-primary/20 animate-pulse-glow">
+                  <Image
+                    src="/images/marandina-logo-float.png"
+                    alt="Marandina Logo"
+                    width={100}
+                    height={100}
+                    className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Nombre */}
+              <h1
+                className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] mb-4 opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "0.2s", fontFamily: "var(--font-playfair)" }}
+              >
+                <span className="text-secondary">Natalia</span>{" "}
+                <span className="text-foreground">Espain</span>
+              </h1>
+
+              {/* Subtítulo */}
+              <p
+                className="text-xs uppercase tracking-[0.3em] text-primary mb-8 opacity-0 animate-fade-in-up font-medium"
+                style={{ animationDelay: "0.3s" }}
+              >
+                Artista Multidisciplinaria
+              </p>
+
+              {/* Descripción completa */}
+              <p
+                className="text-muted leading-relaxed mb-4 opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "0.4s" }}
+              >
+                Soy una artista multidisciplinaria apasionada que cree en el poder del color,
+                la forma y la emoción para transformar espacios y almas. Actualmente soy estudiante
+                de la Escuela Da Vinci en la carrera de Diseño Multimedia, donde perfecciono mis
+                habilidades técnicas y creativas.
+              </p>
+
+              <p
+                className="text-muted/70 leading-relaxed mb-8 opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "0.5s" }}
+              >
+                Mi trayectoria abarca pinturas tradicionales, arte digital de vanguardia y diseños
+                de tatuajes significativos. Cada medio ofrece un lenguaje único para expresar las
+                historias vibrantes que viven dentro de todos nosotros.
+              </p>
+
+              {/* Social links */}
+              <div>
+                <p
+                  className="text-xs uppercase tracking-[0.2em] text-muted mb-4 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: "0.6s" }}
+                >
+                  Conectemos
+                </p>
+                <div
+                  className="flex gap-3 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: "0.7s" }}
+                >
+                  <a href="mailto:nataliaespain97@gmail.com" className="social-btn" aria-label="Email">
+                    <Mail className="w-5 h-5" />
+                  </a>
+                  <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Instagram">
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                  <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Behance">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
+                    </svg>
+                  </a>
+                  <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="LinkedIn">
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Photo with glow effect */}
+            <div className="order-1 md:order-2 flex justify-center md:justify-end">
+              <div
+                className="photo-glow rounded-2xl overflow-hidden opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "0.3s" }}
               >
                 <Image
-                  src="/images/marandina-logo-float.png"
-                  alt="Marandina Logo"
-                  width={140}
-                  height={140}
-                  className="drop-shadow-2xl w-24 h-24 md:w-32 md:h-32 object-contain flex-shrink-0"
+                  src="/images/natalia-photo.jpg"
+                  alt="Natalia Espain"
+                  width={400}
+                  height={500}
+                  className="w-64 md:w-72 lg:w-80 h-auto object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="overflow-hidden mb-4">
-              <h1
-                className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
-                style={{ color: "#F28322" }}
-              >
-                Natalia
-              </h1>
-            </div>
-            <div className="overflow-hidden">
-              <h1
-                className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground leading-[0.95]"
-                style={{ animationDelay: "0.2s" }}
-              >
-                Espain
-              </h1>
-            </div>
-
-            <p
-              className="mt-6 font-mono text-xs uppercase tracking-[0.4em] text-muted-foreground/60 animate-fade-in-up"
-              style={{ animationDelay: "0.6s" }}
+      {/* Gallery Section */}
+      <section id="trabajo" className="py-16 md:py-24 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Section header */}
+          <div className="mb-10 text-center">
+            <h2
+              className="text-4xl md:text-5xl font-bold text-foreground mb-3"
+              style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Artista Multidisciplinaria
+              Mis <span className="text-primary">Proyectos</span>
+            </h2>
+            <p className="text-muted max-w-xl mx-auto">
+              Una colección de mis proyectos de diseño, ilustración y arte digital
             </p>
           </div>
-        </div>
-      </section>
 
-      <section className="py-8 md:py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="border border-border/30 bg-white/60 backdrop-blur-md p-8 md:p-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent" />
+          {/* Filter pills */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleFilterChange(cat.id)}
+                className={`filter-pill ${activeFilter === cat.id ? "active" : ""}`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
-            <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
-              <div className="md:col-span-7">
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-3">Sobre mí</p>
-                <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 text-foreground leading-[0.95]">Natalia</h2>
-                <p className="text-base md:text-lg text-foreground/60 leading-relaxed mb-6">
-                  Soy una artista multidisciplinaria apasionada que cree en el poder del color, la forma y la emoción para
-                  transformar espacios y almas. Actualmente soy estudiante de la Escuela Da Vinci en la carrera de Diseño
-                  Multimedia, donde perfecciono mis habilidades técnicas y creativas.
-                </p>
-                <p className="text-sm text-foreground/40 leading-relaxed mb-8">
-                  Mi trayectoria abarca pinturas tradicionales, arte digital de vanguardia y diseños de tatuajes
-                  significativos. Cada medio ofrece un lenguaje único para expresar las historias vibrantes que viven
-                  dentro de todos nosotros.
-                </p>
-
-                <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Conectemos</p>
-                  <div className="flex gap-3">
-                    {[
-                      { icon: Mail, label: "Email" },
-                      { icon: Camera, label: "Instagram" },
-                      { icon: Briefcase, label: "Behance" },
-                      { icon: Linkedin, label: "LinkedIn" },
-                      { icon: Twitter, label: "TikTok" },
-                    ].map(({ icon: Icon, label }) => (
-                      <Button
-                        key={label}
-                        variant="outline"
-                        size="icon"
-                        className="magnetic-btn w-12 h-12 border-border/50 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 bg-transparent"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="md:col-span-5 flex justify-end">
-                <div className="relative">
+          {/* Masonry Grid */}
+          <div className="masonry-grid">
+            {filteredWorks.map((work, idx) => (
+              <div
+                key={work.id}
+                className="masonry-item opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${idx * 0.08}s` }}
+              >
+                <div
+                  className="gallery-card group cursor-pointer"
+                  onClick={() => handleCardClick(work)}
+                >
                   <div
-                    className="absolute -inset-4 border border-primary/20 -z-10"
-                    style={{ transform: "translate(8px, 8px)" }}
-                  />
-                  <div className="w-72 h-72 md:w-80 md:h-80 overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
+                    className={`relative overflow-hidden ${
+                      work.size === "tall" ? "aspect-[3/4]" :
+                      work.size === "wide" ? "aspect-[4/3]" :
+                      work.size === "full" ? "aspect-[2/3]" :
+                      "aspect-square"
+                    }`}
+                  >
                     <Image
-                      src="/images/natalia-photo.jpg"
-                      alt="Natalia Espain"
-                      width={320}
-                      height={320}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                      src={work.image}
+                      alt={work.title}
+                      fill
+                      className="gallery-card-image object-cover"
                     />
+
+                    {/* Hover overlay */}
+                    <div className="gallery-card-overlay">
+                      <span className="inline-block px-3 py-1 mb-2 text-[10px] uppercase tracking-wider bg-primary/80 text-primary-foreground rounded-full w-fit">
+                        {work.type}
+                      </span>
+
+                      <h3
+                        className="text-xl font-bold text-white mb-2"
+                        style={{ fontFamily: "var(--font-playfair)" }}
+                      >
+                        {work.title}
+                      </h3>
+
+                      <p className="text-white/70 text-sm line-clamp-2 mb-2">
+                        {work.description}
+                      </p>
+
+                      {/* Solo mostrar link en cards que NO son expander ni slider */}
+                      {work.cardType !== "expander" && work.cardType !== "slider" && work.link && (
+                        <a
+                          href={work.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary text-sm font-medium hover:text-accent transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Ver en Behance
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
+
+                      {/* Indicador de click para expander y slider cards */}
+                      {(work.cardType === "expander" || work.cardType === "slider") && (
+                        <span className="text-primary text-sm font-medium">
+                          Click para ver más
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="py-8 md:py-16 px-4">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <div className="mb-16 border-b border-border/30">
-              <TabsList className="bg-transparent h-auto p-0 gap-0 w-full justify-start">
-                {categories.map((category, idx) => {
-                  const Icon = category.icon
-                  return (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className="relative px-6 py-4 font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground/60 data-[state=active]:text-foreground bg-transparent border-0 rounded-none transition-all duration-300 hover:text-foreground data-[state=active]:shadow-none"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        <span className="hidden sm:inline">{category.label}</span>
-                      </span>
-                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary scale-x-0 data-[state=active]:scale-x-100 transition-transform duration-300 origin-left" />
-                    </TabsTrigger>
-                  )
-                })}
-              </TabsList>
-            </div>
+      {/* Footer */}
+      <footer id="contacto" className="py-6 px-6 border-t border-border">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Copyright - izquierda */}
+          <p className="text-xs text-muted order-3 md:order-1">
+            &copy; 2026 Todos los derechos reservados
+          </p>
 
-            <TabsContent value="all" className="mt-0 animate-fade-in-up">
-              <div className="max-w-7xl mx-auto">
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "#8C5CF2" }}
-                    >
-                      <Layout className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/60">Portfolio</p>
-                  </div>
-                  <h2 className="font-serif text-5xl md:text-7xl font-bold text-foreground leading-[0.9]">
-                    Diseñadora
-                    <br />
-                    <span className="text-primary">Multimedia</span>
-                  </h2>
-                </div>
+          {/* Logo - centro */}
+          <Image
+            src="/images/marandina-logo.png"
+            alt="Marandina"
+            width={220}
+            height={60}
+            className="h-16 w-auto object-contain order-1 md:order-2"
+          />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  <UploadCard title="Agregar Diseño" description="Sube un nuevo proyecto de diseño multimedia" />
-                  {graphicDesigns.map((design, idx) => (
-                    <Dialog key={design.id}>
-                      <DialogTrigger asChild>
-                        <Card
-                          className="art-card group cursor-pointer overflow-hidden border-0 bg-card"
-                          style={{ animationDelay: `${idx * 0.1}s` }}
-                        >
-                          <CardContent className="p-0">
-                            <AspectRatio ratio={1}>
-                              <div className="relative w-full h-full overflow-hidden">
-                                <Image
-                                  src={design.image || "/placeholder.svg"}
-                                  alt={design.title}
-                                  fill
-                                  className={`art-card-image object-cover ${design.id === 6 ? "object-bottom" : ""}`}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                                  <Badge className="w-fit mb-2 bg-white/10 backdrop-blur-sm text-white border-0 font-mono text-[10px] uppercase tracking-wider">
-                                    {design.type}
-                                  </Badge>
-                                  <h3 className="font-serif text-xl text-white font-bold">{design.title}</h3>
-                                </div>
-                                <div className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:rotate-45">
-                                  <ArrowUpRight className="w-4 h-4 text-white" />
-                                </div>
-                              </div>
-                            </AspectRatio>
-                            <div className="p-5 border-t border-border/30">
-                              <h3 className="font-serif text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                                {design.title}
-                              </h3>
-                              <p className="text-muted-foreground leading-relaxed mb-8">
-                                {design.link ? (
-                                  <>
-                                    {design.description.split("aquí")[0]}
-                                    <a
-                                      href={design.link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-primary hover:underline"
-                                    >
-                                      aquí
-                                    </a>
-                                    {design.description.split("aquí")[1] || ""}
-                                  </>
-                                ) : (
-                                  design.description
-                                )}
-                              </p>
-                              <Button className="w-full bg-primary hover:bg-primary/90 font-mono text-xs uppercase tracking-wider">
-                                Solicitar Cotización
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl border-0 bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
-                        <div className="grid md:grid-cols-2">
-                          <div className="relative aspect-square">
-                            <Image
-                              src={design.image || "/placeholder.svg"}
-                              alt={design.title}
-                              fill
-                              className={`object-cover ${design.id === 6 ? "object-bottom" : ""}`}
-                            />
-                          </div>
-                          <div className="p-8 md:p-10 flex flex-col justify-center">
-                            <Badge className="w-fit mb-4 bg-primary/10 text-primary border-0 font-mono text-[10px] uppercase tracking-wider">
-                              {design.type}
-                            </Badge>
-                            <h3 className="font-serif text-3xl font-bold mb-4">{design.title}</h3>
-                            <p className="text-muted-foreground leading-relaxed mb-8">
-                              {design.link ? (
-                                <>
-                                  {design.description.split("aquí")[0]}
-                                  <a
-                                    href={design.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:underline"
-                                  >
-                                    aquí
-                                  </a>
-                                  {design.description.split("aquí")[1] || ""}
-                                </>
-                              ) : (
-                                design.description
-                              )}
-                            </p>
-                            <Button className="w-full bg-primary hover:bg-primary/90 font-mono text-xs uppercase tracking-wider">
-                              Solicitar Cotización
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="painting" className="mt-0 animate-fade-in-up">
-              <div className="max-w-7xl mx-auto">
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "#8C5CF2" }}
-                    >
-                      <Brush className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/60">Colección</p>
-                  </div>
-                  <h2 className="font-serif text-5xl md:text-7xl font-bold text-foreground leading-[0.9]">Paintings</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  <UploadCard title="Agregar Pintura" description="Sube una nueva pintura para tu colección" />
-                  {paintings.map((item, idx) => (
-                    <ArtworkCard key={item.id} item={item} onSelect={setSelectedArtwork} index={idx} />
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="digital" className="mt-0 animate-fade-in-up">
-              <div className="max-w-7xl mx-auto">
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "#8C5CF2" }}
-                    >
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/60">Exploración</p>
-                  </div>
-                  <h2 className="font-serif text-5xl md:text-7xl font-bold text-foreground leading-[0.9]">
-                    Digital
-                    <br />
-                    <span className="text-secondary">Art</span>
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  <UploadCard title="Agregar Arte Digital" description="Sube una nueva obra de arte digital" />
-                  {digitalArt.map((item, idx) => (
-                    <ArtworkCard key={item.id} item={item} onSelect={setSelectedArtwork} index={idx} />
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="tattoo" className="mt-0 animate-fade-in-up">
-              <div className="max-w-7xl mx-auto">
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "#8C5CF2" }}
-                    >
-                      <Heart className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/60">
-                      Arte en piel
-                    </p>
-                  </div>
-                  <h2 className="font-serif text-5xl md:text-7xl font-bold text-foreground leading-[0.9]">Tattoos</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  <UploadCard title="Agregar Tatuaje" description="Sube un nuevo diseño de tatuaje" />
-                  {tattoos.map((item, idx) => (
-                    <ArtworkCard key={item.id} item={item} onSelect={setSelectedArtwork} index={idx} />
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      <footer className="py-16 md:py-24 px-4 border-t border-border/30 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-end">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/60 mb-4">Sígueme</p>
-              <div className="flex gap-3">
-                {[Mail, Camera, Briefcase, Linkedin, Twitter].map((Icon, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    size="icon"
-                    className="magnetic-btn w-12 h-12 border-border/50 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 bg-transparent"
-                  >
-                    <Icon className="w-4 h-4" />
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="font-serif text-2xl md:text-3xl font-bold mb-2">Marandina</p>
-              <p className="font-mono text-xs text-muted-foreground/60">© 2026 Todos los derechos reservados</p>
-            </div>
+          {/* Redes sociales - derecha */}
+          <div className="flex gap-3 order-2 md:order-3">
+            <a href="mailto:nataliaespain97@gmail.com" className="social-btn !w-9 !h-9" aria-label="Email">
+              <Mail className="w-4 h-4" />
+            </a>
+            <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="Instagram">
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="Behance">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="LinkedIn">
+              <Linkedin className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </footer>
