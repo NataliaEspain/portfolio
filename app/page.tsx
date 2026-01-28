@@ -439,7 +439,7 @@ const allWorks: Work[] = [
     type: "Experimental",
     image: "/videos/portada-clip.png",
     description: "Clip experimental para la materia Guion y Narrativa, concientizando sobre el estrés laboral. Editado con Premiere Pro.",
-    size: "full",
+    size: "wide",
     cardType: "video",
     youtubeId: "hQLif2a9h18",
   },
