@@ -456,7 +456,7 @@ const allWorks: Work[] = [
   },
   {
     id: 32,
-    title: "Mockup Vía Pública",
+    title: "Video Vía Pública",
     category: "videos",
     type: "Advertising",
     image: "https://img.youtube.com/vi/ohnjv39kp-Q/maxresdefault.jpg",
