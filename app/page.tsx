@@ -899,7 +899,7 @@ export default function MarandinaPortfolio() {
                 className="text-xs uppercase tracking-[0.3em] text-primary mb-8 opacity-0 animate-fade-in-up font-medium"
                 style={{ animationDelay: "0.3s" }}
               >
-                Artista Multidisciplinaria
+                Artista Multimedia
               </p>
 
               {/* Descripción completa */}
