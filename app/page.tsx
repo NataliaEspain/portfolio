@@ -10,6 +10,7 @@ const categoryColors = {
   paintings: { r: 242, g: 179, b: 61 }, // dorado #F2B33D
   digital: { r: 140, g: 92, b: 242 },  // violeta #8C5CF2
   tattoos: { r: 242, g: 131, b: 34 },  // naranja #F28322
+  videos: { r: 242, g: 179, b: 61 },   // dorado #F2B33D
 }
 
 // Componente de estela del mouse
@@ -82,8 +83,10 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "default" // expander = modal con info, slider = modal con carrusel de imágenes
+  cardType?: "expander" | "slider" | "video" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video
   images?: string[] // array de imágenes para el slider
+  video?: string // ruta al archivo de video local
+  youtubeId?: string // ID del video de YouTube
 }
 
 const allWorks: Work[] = [
@@ -428,6 +431,18 @@ const allWorks: Work[] = [
       "/images/tattoos/varios/20250426_124030.jpg",
     ],
   },
+  // ============ VIDEO CARDS ============
+  {
+    id: 30,
+    title: "No llegues a tu punto de quiebre",
+    category: "videos",
+    type: "Experimental",
+    image: "https://img.youtube.com/vi/hQLif2a9h18/maxresdefault.jpg",
+    description: "Clip experimental para la materia Guion y Narrativa, concientizando sobre el estrés laboral. Editado con Premiere Pro.",
+    size: "full",
+    cardType: "video",
+    youtubeId: "hQLif2a9h18",
+  },
 ]
 
 const categories = [
@@ -435,6 +450,7 @@ const categories = [
   { id: "paintings", label: "Paintings" },
   { id: "digital", label: "Digital" },
   { id: "tattoos", label: "Tattoos" },
+  { id: "videos", label: "Videos" },
 ]
 
 // Skills/herramientas
@@ -687,6 +703,84 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
   )
 }
 
+// Modal para videos
+function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up flex flex-col"
+      style={{ animationDuration: '0.3s' }}
+    >
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Contenido */}
+      <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+        {/* Video - lado izquierdo */}
+        <div className="md:w-2/3 h-[50vh] md:h-full bg-black flex items-center justify-center p-4 md:p-8">
+          {work.youtubeId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${work.youtubeId}?autoplay=1&rel=0`}
+              title={work.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full max-w-4xl rounded-lg"
+              style={{ aspectRatio: '16/9', maxHeight: '80vh' }}
+            />
+          ) : (
+            <video
+              src={work.video}
+              controls
+              autoPlay
+              className="max-w-full max-h-full rounded-lg"
+              style={{ maxHeight: '80vh' }}
+            >
+              Tu navegador no soporta el tag de video.
+            </video>
+          )}
+        </div>
+
+        {/* Info - lado derecho */}
+        <div className="md:w-1/3 p-6 md:p-10 flex flex-col justify-center bg-surface/50 overflow-y-auto">
+          <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-accent/20 text-accent rounded-full w-fit">
+            {work.type}
+          </span>
+
+          <h2
+            className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
+            {work.title}
+          </h2>
+
+          <p className="text-base text-muted leading-relaxed">
+            {work.description}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MarandinaPortfolio() {
   const [activeFilter, setActiveFilter] = useState("diseno")
   const [isVisible, setIsVisible] = useState(false)
@@ -710,8 +804,8 @@ export default function MarandinaPortfolio() {
     // Cambiar color de la estela según la categoría del trabajo
     setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
 
-    // Abrir modal para cards tipo "expander" o "slider"
-    if (work.cardType === "expander" || work.cardType === "slider") {
+    // Abrir modal para cards tipo "expander", "slider" o "video"
+    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video") {
       setSelectedWork(work)
     }
   }
@@ -763,6 +857,9 @@ export default function MarandinaPortfolio() {
       )}
       {selectedWork && selectedWork.cardType === "expander" && (
         <FullscreenModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+      {selectedWork && selectedWork.cardType === "video" && (
+        <VideoModal work={selectedWork} onClose={() => setSelectedWork(null)} />
       )}
 
       {/* Header */}
@@ -971,12 +1068,28 @@ export default function MarandinaPortfolio() {
                       "aspect-square"
                     }`}
                   >
-                    <Image
-                      src={work.image}
-                      alt={work.title}
-                      fill
-                      className="gallery-card-image object-cover"
-                    />
+                    {work.cardType === "video" && work.video && !work.youtubeId ? (
+                      <video
+                        src={work.video}
+                        muted
+                        loop
+                        playsInline
+                        className="gallery-card-image object-cover w-full h-full absolute inset-0"
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause()
+                          e.currentTarget.currentTime = 0
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        src={work.image}
+                        alt={work.title}
+                        fill
+                        className="gallery-card-image object-cover"
+                        unoptimized={work.image.startsWith('https://')}
+                      />
+                    )}
 
                     {/* Hover overlay */}
                     <div className="gallery-card-overlay">
@@ -995,8 +1108,8 @@ export default function MarandinaPortfolio() {
                         {work.description}
                       </p>
 
-                      {/* Solo mostrar link en cards que NO son expander ni slider */}
-                      {work.cardType !== "expander" && work.cardType !== "slider" && work.link && (
+                      {/* Solo mostrar link en cards que NO son expander, slider ni video */}
+                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.link && (
                         <a
                           href={work.link}
                           target="_blank"
@@ -1009,10 +1122,10 @@ export default function MarandinaPortfolio() {
                         </a>
                       )}
 
-                      {/* Indicador de click para expander y slider cards */}
-                      {(work.cardType === "expander" || work.cardType === "slider") && (
+                      {/* Indicador de click para expander, slider y video cards */}
+                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video") && (
                         <span className="text-primary text-sm font-medium">
-                          Click para ver más
+                          {work.cardType === "video" ? "Click para reproducir" : "Click para ver más"}
                         </span>
                       )}
                     </div>
