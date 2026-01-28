@@ -146,7 +146,7 @@ const allWorks: Work[] = [
     category: "diseno",
     type: "Photomontage",
     image: "/photomontage-artwork.jpg",
-    description: "Fotomontaje realista realizado con Photoshop.",
+    description: "Fotomontaje creativo/experimental realizado con Photoshop.",
     size: "wide",
     cardType: "expander",
   },
@@ -907,18 +907,18 @@ export default function MarandinaPortfolio() {
                 className="text-muted leading-relaxed mb-4 opacity-0 animate-fade-in-up"
                 style={{ animationDelay: "0.4s" }}
               >
-                Soy una artista multidisciplinaria apasionada que cree en el poder del color,
-                la forma y la emoción para transformar espacios y almas. Actualmente soy estudiante
-                de la Escuela Da Vinci en la carrera de Diseño Multimedia, donde perfecciono mis
+                Soy una artista multidisciplinaria apasionada que cree en el poder del <span className="text-secondary">color</span>,
+                la <span className="text-secondary">forma</span> y la <span className="text-secondary">emoción</span> para transformar espacios y almas. Actualmente soy estudiante
+                de la <span className="text-secondary">Escuela Da Vinci</span> en la carrera de Diseño Multimedia, donde perfecciono mis
                 habilidades técnicas y creativas.
               </p>
 
               <p
-                className="text-muted/70 leading-relaxed mb-8 opacity-0 animate-fade-in-up"
+                className="text-muted leading-relaxed mb-8 opacity-0 animate-fade-in-up"
                 style={{ animationDelay: "0.5s" }}
               >
-                Mi trayectoria abarca pinturas tradicionales, arte digital de vanguardia y diseños
-                de tatuajes significativos. Cada medio ofrece un lenguaje único para expresar las
+                Mi trayectoria abarca <span className="text-secondary">pinturas tradicionales</span>, <span className="text-secondary">arte digital</span> de vanguardia y <span className="text-secondary">diseños
+                de tatuajes</span> significativos. Cada medio ofrece un lenguaje único para expresar las
                 historias vibrantes que viven dentro de todos nosotros.
               </p>
 
@@ -1126,7 +1126,7 @@ export default function MarandinaPortfolio() {
               <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#00005b]">
                 <span className="text-[#9999ff] font-bold text-lg md:text-xl">Pr</span>
               </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Premiere</span>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Premiere Pro</span>
             </div>
 
             {/* Canva */}
