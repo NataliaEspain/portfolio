@@ -613,7 +613,7 @@ const skills = [
   { name: "Illustrator", icon: "/images/skills/illustrator.svg" },
   { name: "Photoshop", icon: "/images/skills/photoshop.svg" },
   { name: "After Effects", icon: "/images/skills/aftereffects.svg" },
-  { name: "Premiere", icon: "/images/skills/premiere.svg" },
+  { name: "Premiere Pro", icon: "/images/skills/premiere.svg" },
   { name: "Canva", icon: "/images/skills/canva.svg" },
   { name: "Procreate", icon: "/images/skills/procreate.svg" },
 ]
