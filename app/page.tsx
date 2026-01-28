@@ -437,7 +437,7 @@ const allWorks: Work[] = [
     title: "No llegues a tu punto de quiebre",
     category: "videos",
     type: "Experimental",
-    image: "https://img.youtube.com/vi/hQLif2a9h18/maxresdefault.jpg",
+    image: "/videos/portada-clip.png",
     description: "Clip experimental para la materia Guion y Narrativa, concientizando sobre el estrés laboral. Editado con Premiere Pro.",
     size: "full",
     cardType: "video",
