@@ -2,38 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight, Globe } from "lucide-react"
-
-// Componente de banner de traducción
-function TranslateBanner({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 z-[60] bg-surface border border-border rounded-xl p-4 shadow-2xl animate-fade-in-up">
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 text-muted hover:text-foreground transition-colors"
-      >
-        <X className="w-4 h-4" />
-      </button>
-
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-          <Globe className="w-5 h-5 text-primary" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-foreground text-sm mb-1">
-            🌍 Translate this page
-          </h3>
-          <p className="text-xs text-muted mb-3">
-            Select your language from the dropdown in the navigation bar.
-          </p>
-          <p className="text-xs text-muted/70">
-            Selecciona tu idioma en la barra de navegación.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react"
 
 // Colores de la marca por categoría
 const categoryColors = {
@@ -723,25 +692,9 @@ export default function MarandinaPortfolio() {
   const [isVisible, setIsVisible] = useState(false)
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [trailColor, setTrailColor] = useState(categoryColors.diseno)
-  const [showTranslateBanner, setShowTranslateBanner] = useState(false)
-
   useEffect(() => {
     setIsVisible(true)
-    // Mostrar banner de traducción si no se ha cerrado antes
-    const hasSeenBanner = localStorage.getItem('translateBannerClosed')
-    if (!hasSeenBanner) {
-      // Mostrar rápidamente al entrar a la página
-      const timer = setTimeout(() => {
-        setShowTranslateBanner(true)
-      }, 500)
-      return () => clearTimeout(timer)
-    }
   }, [])
-
-  const closeTranslateBanner = () => {
-    setShowTranslateBanner(false)
-    localStorage.setItem('translateBannerClosed', 'true')
-  }
 
   // Cambiar color cuando cambia el filtro
   const handleFilterChange = (filterId: string) => {
@@ -839,8 +792,6 @@ export default function MarandinaPortfolio() {
             ))}
           </nav>
 
-          {/* Google Translate */}
-          <div id="google_translate_element" className="translate-widget" />
         </div>
       </header>
 
@@ -904,7 +855,7 @@ export default function MarandinaPortfolio() {
 
               {/* Descripción completa */}
               <p
-                className="text-muted leading-relaxed mb-4 opacity-0 animate-fade-in-up"
+                className="text-foreground leading-relaxed mb-4 opacity-0 animate-fade-in-up"
                 style={{ animationDelay: "0.4s" }}
               >
                 Soy una artista multidisciplinaria apasionada que cree en el poder del <span className="text-secondary">color</span>,
@@ -914,7 +865,7 @@ export default function MarandinaPortfolio() {
               </p>
 
               <p
-                className="text-muted leading-relaxed mb-8 opacity-0 animate-fade-in-up"
+                className="text-foreground leading-relaxed mb-8 opacity-0 animate-fade-in-up"
                 style={{ animationDelay: "0.5s" }}
               >
                 Mi trayectoria abarca <span className="text-secondary">pinturas tradicionales</span>, <span className="text-secondary">arte digital</span> de vanguardia y <span className="text-secondary">diseños
@@ -1184,9 +1135,6 @@ export default function MarandinaPortfolio() {
           </div>
         </div>
       </footer>
-
-      {/* Banner de traducción */}
-      {showTranslateBanner && <TranslateBanner onClose={closeTranslateBanner} />}
     </div>
   )
 }
