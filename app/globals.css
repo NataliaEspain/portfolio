@@ -278,3 +278,48 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
+
+/* Google Translate Widget */
+.translate-widget {
+  display: flex;
+  align-items: center;
+}
+
+.goog-te-gadget {
+  font-family: inherit !important;
+  font-size: 0 !important;
+}
+
+.goog-te-gadget .goog-te-combo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.goog-te-gadget .goog-te-combo:hover {
+  border-color: var(--primary);
+  color: var(--foreground);
+}
+
+.goog-te-gadget .goog-te-combo:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Hide Google Translate banner */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.skiptranslate {
+  display: none !important;
+}

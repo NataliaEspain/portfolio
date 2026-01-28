@@ -2,7 +2,38 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight, Globe } from "lucide-react"
+
+// Componente de banner de traducción
+function TranslateBanner({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 z-[60] bg-surface border border-border rounded-xl p-4 shadow-2xl animate-fade-in-up">
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 text-muted hover:text-foreground transition-colors"
+      >
+        <X className="w-4 h-4" />
+      </button>
+
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+          <Globe className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-foreground text-sm mb-1">
+            🌍 Translate this page
+          </h3>
+          <p className="text-xs text-muted mb-3">
+            Select your language from the dropdown in the navigation bar.
+          </p>
+          <p className="text-xs text-muted/70">
+            Selecciona tu idioma en la barra de navegación.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Colores de la marca por categoría
 const categoryColors = {
@@ -222,6 +253,16 @@ const allWorks: Work[] = [
     size: "full",
     cardType: "expander",
   },
+  {
+    id: 25,
+    title: "Omniman",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/omniman.jpg",
+    description: "Fan art del icónico personaje de Invincible, capturando su presencia imponente y poder absoluto.",
+    size: "tall",
+    cardType: "expander",
+  },
   // ============ SLIDER CARDS (Digital Art) ============
   {
     id: 10,
@@ -267,6 +308,59 @@ const allWorks: Work[] = [
       "/images/pinkbg/sketch1666725493437.png",
       "/images/pinkbg/sketch1671645802405.png",
     ],
+  },
+  {
+    id: 26,
+    title: "Procreate Art",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/procreate/portada1.JPG",
+    description: "Colección de ilustraciones y dibujos creados en Procreate, explorando diferentes estilos y técnicas digitales.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/procreate/portada1.JPG",
+      "/images/procreate/draw1.JPG",
+      "/images/procreate/draw2.JPG",
+      "/images/procreate/draw3.png",
+      "/images/procreate/formas.JPG",
+      "/images/procreate/samurai.JPG",
+    ],
+  },
+  {
+    id: 27,
+    title: "Flash Tattoos",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/flash-tattoos/portada.png",
+    description: "Diseños creados para flash tattoos.",
+    size: "normal",
+    cardType: "slider",
+    images: [
+      "/images/flash-tattoos/portada.png",
+      "/images/flash-tattoos/illustraciones-varias1.png",
+      "/images/flash-tattoos/illustraciones-varias2.png",
+    ],
+  },
+  {
+    id: 28,
+    title: "Anime Fan Art",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/anime.PNG",
+    description: "Ilustración de personaje anime con estilo digital vibrante.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 29,
+    title: "Geométrico",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/geometrico.JPG",
+    description: "Composición geométrica abstracta con formas y patrones precisos.",
+    size: "normal",
+    cardType: "expander",
   },
   // ============ SLIDER CARDS (Tattoos) ============
   {
@@ -629,10 +723,25 @@ export default function MarandinaPortfolio() {
   const [isVisible, setIsVisible] = useState(false)
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [trailColor, setTrailColor] = useState(categoryColors.diseno)
+  const [showTranslateBanner, setShowTranslateBanner] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
+    // Mostrar banner de traducción si no se ha cerrado antes
+    const hasSeenBanner = localStorage.getItem('translateBannerClosed')
+    if (!hasSeenBanner) {
+      // Mostrar rápidamente al entrar a la página
+      const timer = setTimeout(() => {
+        setShowTranslateBanner(true)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
   }, [])
+
+  const closeTranslateBanner = () => {
+    setShowTranslateBanner(false)
+    localStorage.setItem('translateBannerClosed', 'true')
+  }
 
   // Cambiar color cuando cambia el filtro
   const handleFilterChange = (filterId: string) => {
@@ -718,7 +827,7 @@ export default function MarandinaPortfolio() {
           </a>
 
           {/* Nav links */}
-          <nav className="flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -729,6 +838,9 @@ export default function MarandinaPortfolio() {
               </a>
             ))}
           </nav>
+
+          {/* Google Translate */}
+          <div id="google_translate_element" className="translate-widget" />
         </div>
       </header>
 
@@ -811,7 +923,7 @@ export default function MarandinaPortfolio() {
               </p>
 
               {/* Social links */}
-              <div>
+              <div className="relative z-10">
                 <p
                   className="text-xs uppercase tracking-[0.2em] text-muted mb-4 opacity-0 animate-fade-in-up"
                   style={{ animationDelay: "0.6s" }}
@@ -819,21 +931,21 @@ export default function MarandinaPortfolio() {
                   Conectemos
                 </p>
                 <div
-                  className="flex gap-3 opacity-0 animate-fade-in-up"
+                  className="flex gap-3 opacity-0 animate-fade-in-up relative z-10"
                   style={{ animationDelay: "0.7s" }}
                 >
-                  <a href="mailto:nataliaespain97@gmail.com" className="social-btn" aria-label="Email">
+                  <a href="mailto:nataliaespain97@gmail.com" className="social-btn relative z-20" aria-label="Email" onClick={(e) => e.stopPropagation()}>
                     <Mail className="w-5 h-5" />
                   </a>
-                  <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Instagram">
+                  <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="Instagram" onClick={(e) => e.stopPropagation()}>
                     <Instagram className="w-5 h-5" />
                   </a>
-                  <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Behance">
+                  <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="Behance" onClick={(e) => e.stopPropagation()}>
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
                     </svg>
                   </a>
-                  <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="LinkedIn">
+                  <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="LinkedIn" onClick={(e) => e.stopPropagation()}>
                     <Linkedin className="w-5 h-5" />
                   </a>
                 </div>
@@ -1054,24 +1166,27 @@ export default function MarandinaPortfolio() {
           />
 
           {/* Redes sociales - derecha */}
-          <div className="flex gap-3 order-2 md:order-3">
-            <a href="mailto:nataliaespain97@gmail.com" className="social-btn !w-9 !h-9" aria-label="Email">
+          <div className="flex gap-3 order-2 md:order-3 relative z-10">
+            <a href="mailto:nataliaespain97@gmail.com" className="social-btn !w-9 !h-9 relative z-20" aria-label="Email" onClick={(e) => e.stopPropagation()}>
               <Mail className="w-4 h-4" />
             </a>
-            <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="Instagram">
+            <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="Instagram" onClick={(e) => e.stopPropagation()}>
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="Behance">
+            <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="Behance" onClick={(e) => e.stopPropagation()}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
               </svg>
             </a>
-            <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="LinkedIn" onClick={(e) => e.stopPropagation()}>
               <Linkedin className="w-4 h-4" />
             </a>
           </div>
         </div>
       </footer>
+
+      {/* Banner de traducción */}
+      {showTranslateBanner && <TranslateBanner onClose={closeTranslateBanner} />}
     </div>
   )
 }

@@ -47,6 +47,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${roboto.variable} ${playfair.variable} ${spaceMono.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                  pageLanguage: 'es',
+                  includedLanguages: 'en,es,pt,fr,de,it,ja,ko,zh-CN',
+                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                  autoDisplay: false
+                }, 'google_translate_element');
+              }
+            `,
+          }}
+        />
+        <script
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          async
+        />
+      </head>
       <body className="font-sans antialiased">{children}</body>
     </html>
   )
