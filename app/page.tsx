@@ -442,7 +442,7 @@ const allWorks: Work[] = [
     id: 30,
     title: "Video para TikTok",
     category: "videos",
-    type: "Motion Graphics",
+    type: "Social Media",
     image: "https://img.youtube.com/vi/lO-05i7ye2s/maxresdefault.jpg",
     description: "Video editado con Premiere Pro para un proyecto de la universidad Da Vinci.",
     size: "tall",
