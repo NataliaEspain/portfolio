@@ -476,6 +476,17 @@ const allWorks: Work[] = [
     cardType: "video",
     youtubeId: "hQLif2a9h18",
   },
+  {
+    id: 34,
+    title: "Portfolio de Video",
+    category: "videos",
+    type: "Showreel",
+    image: "https://img.youtube.com/vi/rBCkVrD6Das/maxresdefault.jpg",
+    description: "Video realizado para el final de la materia Edición. Integra todos los proyectos del cuatrimestre utilizando principalmente After Effects.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "rBCkVrD6Das",
+  },
 ]
 
 const categories = [
