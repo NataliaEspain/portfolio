@@ -11,6 +11,7 @@ const categoryColors = {
   digital: { r: 140, g: 92, b: 242 },  // violeta #8C5CF2
   tattoos: { r: 242, g: 131, b: 34 },  // naranja #F28322
   videos: { r: 242, g: 179, b: 61 },   // dorado #F2B33D
+  tienda: { r: 140, g: 92, b: 242 },   // violeta #8C5CF2
 }
 
 // Componente de estela del mouse
@@ -83,10 +84,14 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "video" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video
+  cardType?: "expander" | "slider" | "video" | "store" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda
   images?: string[] // array de imágenes para el slider
   video?: string // ruta al archivo de video local
   youtubeId?: string // ID del video de YouTube
+  // Campos para tienda
+  price?: number // precio en pesos
+  dimensions?: string // medidas del producto
+  available?: boolean // disponibilidad
 }
 
 const allWorks: Work[] = [
@@ -487,6 +492,107 @@ const allWorks: Work[] = [
     cardType: "video",
     youtubeId: "rBCkVrD6Das",
   },
+  // ============ TIENDA - STORE CARDS ============
+  {
+    id: 35,
+    title: "Bolsas de Tela",
+    category: "tienda",
+    type: "Accesorios",
+    image: "/images/tienda/bolsas/bolsa-1.jpg",
+    description: "Bolsa de tela estampada con diseños de Marandina.",
+    size: "wide",
+    cardType: "store",
+    images: [
+      "/images/tienda/bolsas/bolsa-1.jpg",
+      "/images/tienda/bolsas/bolsa-2.jpg",
+      "/images/tienda/bolsas/bolsa-3.jpg",
+      "/images/tienda/bolsas/bolsa-4.jpg",
+      "/images/tienda/bolsas/bolsa-5.jpg",
+      "/images/tienda/bolsas/bolsa-6.jpg",
+      "/images/tienda/bolsas/bolsa-7.jpg",
+    ],
+    price: 8000,
+    dimensions: "35x40 cm",
+    available: true,
+  },
+  {
+    id: 36,
+    title: "Cuarzos",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/cuarzos.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "tall",
+    cardType: "store",
+    price: 18000,
+    dimensions: "22x27 cm",
+    available: true,
+  },
+  {
+    id: 37,
+    title: "Cactus",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/cactus.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "normal",
+    cardType: "store",
+    price: 13000,
+    dimensions: "15x15 cm",
+    available: true,
+  },
+  {
+    id: 38,
+    title: "Corazón Psicodélico",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/corazon-psicodelico.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "normal",
+    cardType: "store",
+    price: 13000,
+    dimensions: "15x15 cm",
+    available: true,
+  },
+  {
+    id: 39,
+    title: "Mandarinas",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/mandarinas.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "normal",
+    cardType: "store",
+    price: 13000,
+    dimensions: "15x15 cm",
+    available: true,
+  },
+  {
+    id: 40,
+    title: "Ojos",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/ojos.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "normal",
+    cardType: "store",
+    price: 13000,
+    dimensions: "15x15 cm",
+    available: true,
+  },
+  {
+    id: 41,
+    title: "Palmeras",
+    category: "tienda",
+    type: "Cuadro",
+    image: "/images/tienda/cuadros/palmeras.jpg",
+    description: "Cuadro pintado a mano con acrílico, diseño único.",
+    size: "normal",
+    cardType: "store",
+    price: 13000,
+    dimensions: "15x15 cm",
+    available: true,
+  },
 ]
 
 const categories = [
@@ -495,6 +601,7 @@ const categories = [
   { id: "digital", label: "Digital" },
   { id: "tattoos", label: "Tattoos" },
   { id: "videos", label: "Videos" },
+  { id: "tienda", label: "Tienda" },
 ]
 
 // Skills/herramientas
@@ -825,6 +932,166 @@ function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
   )
 }
 
+// Modal para tienda
+function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const images = work.images || [work.image]
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (images.length > 1) {
+        if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
+        if (e.key === 'ArrowLeft') setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+      }
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [onClose, images.length])
+
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length)
+  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price)
+  }
+
+  const whatsappLink = `https://wa.me/5491134249079?text=Hola! Me interesa ${work.title}`
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
+      style={{ animationDuration: '0.3s' }}
+    >
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Contenido */}
+      <div className="h-full overflow-y-auto">
+        <div className="min-h-full flex flex-col md:flex-row">
+          {/* Imagen/Slider - lado izquierdo */}
+          <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8 relative">
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 z-10 w-10 h-10 rounded-full bg-background/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 z-10 w-10 h-10 rounded-full bg-background/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+
+            <div className="relative w-full h-full max-w-2xl">
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-all duration-500 ${
+                    index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none"
+                  }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${work.title} - ${index + 1}`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentIndex ? "bg-primary w-8" : "bg-muted hover:bg-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Info - lado derecho */}
+          <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+              {work.type}
+            </span>
+
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              {work.title}
+            </h2>
+
+            {/* Precio */}
+            {work.price && (
+              <p className="text-3xl md:text-4xl font-bold text-secondary mb-4">
+                {formatPrice(work.price)}
+              </p>
+            )}
+
+            {/* Medidas */}
+            {work.dimensions && (
+              <p className="text-muted mb-2">
+                <span className="font-medium text-foreground">Medidas:</span> {work.dimensions}
+              </p>
+            )}
+
+            {/* Disponibilidad */}
+            <p className="mb-6">
+              {work.available ? (
+                <span className="text-green-500 font-medium">✓ Disponible</span>
+              ) : (
+                <span className="text-red-500 font-medium">✗ No disponible</span>
+              )}
+            </p>
+
+            <p className="text-muted leading-relaxed mb-8">
+              {work.description}
+            </p>
+
+            {/* Botón WhatsApp */}
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-full font-medium transition-colors w-fit"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Contactame
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MarandinaPortfolio() {
   const [activeFilter, setActiveFilter] = useState("diseno")
   const [isVisible, setIsVisible] = useState(false)
@@ -848,8 +1115,8 @@ export default function MarandinaPortfolio() {
     // Cambiar color de la estela según la categoría del trabajo
     setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
 
-    // Abrir modal para cards tipo "expander", "slider" o "video"
-    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video") {
+    // Abrir modal para cards tipo "expander", "slider", "video" o "store"
+    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store") {
       setSelectedWork(work)
     }
   }
@@ -904,6 +1171,9 @@ export default function MarandinaPortfolio() {
       )}
       {selectedWork && selectedWork.cardType === "video" && (
         <VideoModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+      {selectedWork && selectedWork.cardType === "store" && (
+        <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />
       )}
 
       {/* Header */}
@@ -1152,8 +1422,15 @@ export default function MarandinaPortfolio() {
                         {work.description}
                       </p>
 
-                      {/* Solo mostrar link en cards que NO son expander, slider ni video */}
-                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.link && (
+                      {/* Mostrar precio en cards de tienda */}
+                      {work.cardType === "store" && work.price && (
+                        <p className="text-secondary font-bold text-lg mb-2">
+                          ${work.price.toLocaleString('es-AR')}
+                        </p>
+                      )}
+
+                      {/* Solo mostrar link en cards que NO son expander, slider, video ni store */}
+                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.cardType !== "store" && work.link && (
                         <a
                           href={work.link}
                           target="_blank"
@@ -1166,10 +1443,10 @@ export default function MarandinaPortfolio() {
                         </a>
                       )}
 
-                      {/* Indicador de click para expander, slider y video cards */}
-                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video") && (
+                      {/* Indicador de click para expander, slider, video y store cards */}
+                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store") && (
                         <span className="text-primary text-sm font-medium">
-                          {work.cardType === "video" ? "Click para reproducir" : "Click para ver más"}
+                          {work.cardType === "video" ? "Click para reproducir" : work.cardType === "store" ? "Click para comprar" : "Click para ver más"}
                         </span>
                       )}
                     </div>
