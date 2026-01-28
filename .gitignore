@@ -22,6 +22,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local folders
+Nueva carpeta/
+.claude/
+public/videos/*.mp4
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
