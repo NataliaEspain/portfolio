@@ -6,7 +6,6 @@ import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight }
 
 // Colores de la marca por categoría
 const categoryColors = {
-  todos: { r: 140, g: 92, b: 242 },    // violeta #8C5CF2
   diseno: { r: 242, g: 131, b: 34 },   // naranja #F28322
   paintings: { r: 242, g: 179, b: 61 }, // dorado #F2B33D
   digital: { r: 140, g: 92, b: 242 },  // violeta #8C5CF2
@@ -62,6 +61,7 @@ function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#trabajo", label: "Trabajo" },
+  { href: "#skills", label: "Skills" },
   { href: "#contacto", label: "Contacto" },
 ]
 
@@ -290,11 +290,21 @@ const allWorks: Work[] = [
 ]
 
 const categories = [
-  { id: "todos", label: "Todos" },
   { id: "diseno", label: "Diseño" },
   { id: "paintings", label: "Paintings" },
   { id: "digital", label: "Digital" },
   { id: "tattoos", label: "Tattoos" },
+]
+
+// Skills/herramientas
+const skills = [
+  { name: "Figma", icon: "/images/skills/figma.svg" },
+  { name: "Illustrator", icon: "/images/skills/illustrator.svg" },
+  { name: "Photoshop", icon: "/images/skills/photoshop.svg" },
+  { name: "After Effects", icon: "/images/skills/aftereffects.svg" },
+  { name: "Premiere", icon: "/images/skills/premiere.svg" },
+  { name: "Canva", icon: "/images/skills/canva.svg" },
+  { name: "Procreate", icon: "/images/skills/procreate.svg" },
 ]
 
 // Modal con slider de imágenes (mobile) / grid (desktop)
@@ -500,10 +510,10 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
 }
 
 export default function MarandinaPortfolio() {
-  const [activeFilter, setActiveFilter] = useState("todos")
+  const [activeFilter, setActiveFilter] = useState("diseno")
   const [isVisible, setIsVisible] = useState(false)
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
-  const [trailColor, setTrailColor] = useState(categoryColors.todos)
+  const [trailColor, setTrailColor] = useState(categoryColors.diseno)
 
   useEffect(() => {
     setIsVisible(true)
@@ -512,7 +522,7 @@ export default function MarandinaPortfolio() {
   // Cambiar color cuando cambia el filtro
   const handleFilterChange = (filterId: string) => {
     setActiveFilter(filterId)
-    setTrailColor(categoryColors[filterId as keyof typeof categoryColors] || categoryColors.todos)
+    setTrailColor(categoryColors[filterId as keyof typeof categoryColors] || categoryColors.diseno)
   }
 
   const filteredWorks = activeFilter === "todos"
@@ -521,7 +531,7 @@ export default function MarandinaPortfolio() {
 
   const handleCardClick = (work: Work) => {
     // Cambiar color de la estela según la categoría del trabajo
-    setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.todos)
+    setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
 
     // Abrir modal para cards tipo "expander" o "slider"
     if (work.cardType === "expander" || work.cardType === "slider") {
@@ -579,16 +589,16 @@ export default function MarandinaPortfolio() {
       )}
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <a href="#inicio" className="flex items-center group">
             <Image
               src="/images/marandina-logo.png"
               alt="Marandina"
-              width={280}
-              height={80}
-              className="h-20 md:h-24 w-auto object-contain"
+              width={200}
+              height={56}
+              className="h-12 md:h-14 w-auto object-contain"
             />
           </a>
 
@@ -608,7 +618,7 @@ export default function MarandinaPortfolio() {
       </header>
 
       {/* Header Image */}
-      <div className="w-full relative mt-[88px] md:mt-[104px] flex justify-center bg-background">
+      <div className="w-full relative mt-[64px] md:mt-[72px] flex justify-center bg-background">
         <Image
           src="/images/header.jpg"
           alt="Header"
@@ -832,6 +842,81 @@ export default function MarandinaPortfolio() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Skills Section */}
+      <section id="skills" className="py-16 md:py-24 px-6 md:px-12 bg-surface/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2
+            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
+            Herramientas que <span className="text-primary">domino</span>
+          </h2>
+          <p className="text-muted mb-12 max-w-xl mx-auto">
+            Software y aplicaciones que utilizo en mi día a día para crear
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            {/* Figma */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#1abcfe] via-[#0acf83] to-[#a259ff]">
+                <svg className="w-7 h-7 md:w-8 md:h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5zM12 2h3.5a3.5 3.5 0 1 1 0 7H12V2zm0 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0zm-7 0A3.5 3.5 0 0 1 8.5 11H12v3.5a3.5 3.5 0 1 1-7 0zM5 12a3.5 3.5 0 0 0 3.5 3.5H12V9H8.5A3.5 3.5 0 0 0 5 12z"/>
+                </svg>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Figma</span>
+            </div>
+
+            {/* Illustrator */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#330000]">
+                <span className="text-[#ff9a00] font-bold text-lg md:text-xl">Ai</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Illustrator</span>
+            </div>
+
+            {/* Photoshop */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#001e36]">
+                <span className="text-[#31a8ff] font-bold text-lg md:text-xl">Ps</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Photoshop</span>
+            </div>
+
+            {/* After Effects */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#00005b]">
+                <span className="text-[#9999ff] font-bold text-lg md:text-xl">Ae</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">After Effects</span>
+            </div>
+
+            {/* Premiere */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#00005b]">
+                <span className="text-[#9999ff] font-bold text-lg md:text-xl">Pr</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Premiere</span>
+            </div>
+
+            {/* Canva */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#00c4cc] to-[#7d2ae8]">
+                <span className="text-white font-bold text-lg md:text-xl">C</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Canva</span>
+            </div>
+
+            {/* Procreate */}
+            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-black">
+                <span className="text-white font-bold text-lg md:text-xl">P</span>
+              </div>
+              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Procreate</span>
+            </div>
           </div>
         </div>
       </section>
