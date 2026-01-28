@@ -15,6 +15,11 @@ const categoryColors = {
 // Componente de estela del mouse
 function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
   const [trails, setTrails] = useState<{ x: number; y: number; id: number }[]>([])
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const newTrail = {
@@ -22,23 +27,27 @@ function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
       y: e.clientY,
       id: Date.now(),
     }
-    setTrails((prev) => [...prev.slice(-12), newTrail])
+    setTrails((prev) => [...prev.slice(-15), newTrail])
   }, [])
 
   useEffect(() => {
+    if (!isClient) return
     window.addEventListener("mousemove", handleMouseMove)
     return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [handleMouseMove])
+  }, [handleMouseMove, isClient])
 
   useEffect(() => {
+    if (!isClient) return
     const interval = setInterval(() => {
       setTrails((prev) => prev.slice(1))
-    }, 50)
+    }, 40)
     return () => clearInterval(interval)
-  }, [])
+  }, [isClient])
+
+  if (!isClient) return null
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[9999]">
+    <div className="fixed inset-0 pointer-events-none z-[9999]" style={{ isolation: "isolate" }}>
       {trails.map((trail, index) => (
         <div
           key={trail.id}
@@ -46,11 +55,10 @@ function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
           style={{
             left: trail.x,
             top: trail.y,
-            width: `${8 + index * 1.5}px`,
-            height: `${8 + index * 1.5}px`,
-            background: `radial-gradient(circle, rgba(${color.r}, ${color.g}, ${color.b}, ${0.1 + index * 0.06}) 0%, transparent 70%)`,
+            width: `${12 + index * 2}px`,
+            height: `${12 + index * 2}px`,
+            background: `radial-gradient(circle, rgba(${color.r}, ${color.g}, ${color.b}, ${0.3 + index * 0.04}) 0%, transparent 70%)`,
             transform: "translate(-50%, -50%)",
-            transition: "opacity 0.1s ease-out",
           }}
         />
       ))}
@@ -221,7 +229,7 @@ const allWorks: Work[] = [
     category: "digital",
     type: "Digital Art",
     image: "/images/moth-violeta.jpg",
-    description: "",
+    description: "Serie de polillas ilustradas en Procreate con diferentes paletas de colores.",
     size: "tall",
     cardType: "slider",
     images: ["/images/moth-violeta.jpg", "/images/moth-bordo.jpg", "/images/moth-negra.jpg"],
@@ -260,32 +268,102 @@ const allWorks: Work[] = [
       "/images/pinkbg/sketch1671645802405.png",
     ],
   },
+  // ============ SLIDER CARDS (Tattoos) ============
   {
     id: 13,
-    title: "Mandala Design",
+    title: "Acuarela",
     category: "tattoos",
-    type: "Tattoo",
-    image: "/mandala-tattoo-design-black-ink.jpg",
-    description: "Diseño de mandala intrincado con patrones geométricos detallados.",
-    size: "normal",
+    type: "Watercolor",
+    image: "/images/tattoos/acuarela/portada.jpg",
+    description: "Tatuajes estilo acuarela con colores fluidos y efectos de pintura que simulan el arte tradicional.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/acuarela/portada.jpg",
+      "/images/tattoos/acuarela/20240929_163147.jpg",
+    ],
   },
   {
     id: 14,
-    title: "Botanical Sleeve",
+    title: "Anime",
     category: "tattoos",
-    type: "Tattoo",
-    image: "/placeholder.svg?height=600&width=600",
-    description: "Manga completa con diseño botánico de flores y hojas.",
+    type: "Anime Style",
+    image: "/images/tattoos/anime/portada.jpg",
+    description: "Tatuajes inspirados en el estilo anime y manga japonés, con personajes y escenas de series favoritas.",
     size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/anime/portada.jpg",
+      "/images/tattoos/anime/20240127_192454.jpg",
+      "/images/tattoos/anime/20250111_144822.jpg",
+      "/images/tattoos/anime/Gemini_Generated_Image_iwfmfliwfmfliwfm.png",
+      "/images/tattoos/anime/IMG_20211215_215305572_HDR.jpg",
+      "/images/tattoos/anime/IMG_20211220_181339245.jpg",
+    ],
   },
   {
     id: 15,
-    title: "Geometric Wolf",
+    title: "Blackwork",
     category: "tattoos",
-    type: "Tattoo",
-    image: "/placeholder.svg?height=600&width=600",
-    description: "Diseño de lobo con estilo geométrico y líneas precisas.",
-    size: "normal",
+    type: "Black Ink",
+    image: "/images/tattoos/blackwork/portada.jpg",
+    description: "Tatuajes en tinta negra sólida con diseños bold, patrones geométricos y alto contraste.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/blackwork/portada.jpg",
+      "/images/tattoos/blackwork/20231230_022023.jpg",
+      "/images/tattoos/blackwork/20240106_131148.jpg",
+      "/images/tattoos/blackwork/20250308_141727.jpg",
+      "/images/tattoos/blackwork/20250827_211602.jpg",
+      "/images/tattoos/blackwork/IMG_0754.jpg",
+    ],
+  },
+  {
+    id: 16,
+    title: "Color",
+    category: "tattoos",
+    type: "Full Color",
+    image: "/images/tattoos/color/portada.jpg",
+    description: "Tatuajes a todo color con paletas vibrantes y saturadas que dan vida a cualquier diseño.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/color/portada.jpg",
+      "/images/tattoos/color/20250201_192221.jpg",
+      "/images/tattoos/color/20250815_181741.jpg",
+      "/images/tattoos/color/IMG_20220105_175759657.jpg",
+    ],
+  },
+  {
+    id: 17,
+    title: "Puntillismo",
+    category: "tattoos",
+    type: "Dotwork",
+    image: "/images/tattoos/puntillismo/portada.jpg",
+    description: "Técnica de puntillismo que crea imágenes y sombras utilizando miles de pequeños puntos.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/puntillismo/portada.jpg",
+      "/images/tattoos/puntillismo/20250205_224747.jpg",
+      "/images/tattoos/puntillismo/20250726_155455.jpg",
+    ],
+  },
+  {
+    id: 18,
+    title: "Varios",
+    category: "tattoos",
+    type: "Mixed Styles",
+    image: "/images/tattoos/varios/portada.JPG",
+    description: "Colección de trabajos diversos que combinan diferentes técnicas y estilos únicos.",
+    size: "tall",
+    cardType: "slider",
+    images: [
+      "/images/tattoos/varios/portada.JPG",
+      "/images/tattoos/varios/20231223_180947.jpg",
+      "/images/tattoos/varios/20250426_124030.jpg",
+    ],
   },
 ]
 
@@ -307,9 +385,10 @@ const skills = [
   { name: "Procreate", icon: "/images/skills/procreate.svg" },
 ]
 
-// Modal con slider de imágenes (mobile) / grid (desktop)
+// Modal con slider de imágenes y zoom
 function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const images = work.images || [work.image]
 
   useEffect(() => {
@@ -321,13 +400,21 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
-      if (e.key === 'ArrowLeft') setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+      if (e.key === 'Escape') {
+        if (zoomedImage) {
+          setZoomedImage(null)
+        } else {
+          onClose()
+        }
+      }
+      if (!zoomedImage) {
+        if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
+        if (e.key === 'ArrowLeft') setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+      }
     }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
-  }, [onClose, images.length])
+  }, [onClose, images.length, zoomedImage])
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length)
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
@@ -337,6 +424,27 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
       className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
       style={{ animationDuration: '0.3s' }}
     >
+      {/* Zoom overlay */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center cursor-zoom-out p-4"
+          onClick={() => setZoomedImage(null)}
+        >
+          <Image
+            src={zoomedImage}
+            alt="Zoom"
+            fill
+            className="object-contain"
+          />
+          <button
+            onClick={() => setZoomedImage(null)}
+            className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+      )}
+
       {/* Botón cerrar */}
       <button
         onClick={onClose}
@@ -353,26 +461,29 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
         >
           {work.title}
         </h2>
+        <p className="text-sm text-muted mt-1">Click en una imagen para hacer zoom</p>
       </div>
 
       {/* Mobile: Slider */}
       <div className="md:hidden w-full h-full flex items-center justify-center">
-        {/* Navegación izquierda */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+        {images.length > 1 && (
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
 
         <div className="w-full h-full flex items-center justify-center p-16">
           <div className="relative w-full h-full max-h-[70vh]">
             {images.map((img, index) => (
               <div
                 key={index}
-                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-                  index === currentIndex ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 cursor-zoom-in ${
+                  index === currentIndex ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
                 }`}
+                onClick={() => setZoomedImage(img)}
               >
                 <Image
                   src={img}
@@ -385,34 +496,38 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
           </div>
         </div>
 
-        {/* Navegación derecha */}
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        {images.length > 1 && (
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 z-10 w-10 h-10 rounded-full bg-surface/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
 
-        {/* Indicadores mobile */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex ? "bg-primary w-8" : "bg-muted hover:bg-foreground"
-              }`}
-            />
-          ))}
-        </div>
+        {images.length > 1 && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex ? "bg-primary w-8" : "bg-muted hover:bg-foreground"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Desktop: Grid de imágenes */}
-      <div className="hidden md:flex w-full h-full items-center justify-center p-24 gap-6">
+      {/* Desktop: Grid de imágenes con zoom */}
+      <div className="hidden md:flex w-full h-full items-center justify-center p-24 gap-6 flex-wrap overflow-y-auto">
         {images.map((img, index) => (
           <div
             key={index}
-            className="relative flex-1 h-[70vh] max-w-md"
+            className="relative h-[60vh] w-auto cursor-zoom-in hover:scale-[1.02] transition-transform"
+            style={{ minWidth: '250px', maxWidth: '400px', flex: '1 1 300px' }}
+            onClick={() => setZoomedImage(img)}
           >
             <Image
               src={img}
