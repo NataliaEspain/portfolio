@@ -72,6 +72,7 @@ const navLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#trabajo", label: "Trabajo" },
   { href: "#skills", label: "Skills" },
+  { href: "#tienda", label: "Tienda" },
   { href: "#contacto", label: "Contacto" },
 ]
 
@@ -492,7 +493,10 @@ const allWorks: Work[] = [
     cardType: "video",
     youtubeId: "rBCkVrD6Das",
   },
-  // ============ TIENDA - STORE CARDS ============
+]
+
+// ============ TIENDA - PRODUCTOS SEPARADOS ============
+const storeProducts: Work[] = [
   {
     id: 35,
     title: "Bolsas de Tela",
@@ -601,7 +605,6 @@ const categories = [
   { id: "digital", label: "Digital" },
   { id: "tattoos", label: "Tattoos" },
   { id: "videos", label: "Videos" },
-  { id: "tienda", label: "Tienda" },
 ]
 
 // Skills/herramientas
@@ -1096,6 +1099,7 @@ export default function MarandinaPortfolio() {
   const [activeFilter, setActiveFilter] = useState("diseno")
   const [isVisible, setIsVisible] = useState(false)
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
+  const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
   const [trailColor, setTrailColor] = useState(categoryColors.diseno)
   useEffect(() => {
     setIsVisible(true)
@@ -1174,6 +1178,9 @@ export default function MarandinaPortfolio() {
       )}
       {selectedWork && selectedWork.cardType === "store" && (
         <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+      {selectedStoreProduct && (
+        <StoreModal work={selectedStoreProduct} onClose={() => setSelectedStoreProduct(null)} />
       )}
 
       {/* Header */}
@@ -1529,6 +1536,84 @@ export default function MarandinaPortfolio() {
               </div>
               <span className="text-sm text-muted group-hover:text-foreground transition-colors">Procreate</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tienda Section */}
+      <section id="tienda" className="py-16 md:py-24 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Section header */}
+          <div className="mb-10 text-center">
+            <h2
+              className="text-4xl md:text-5xl font-bold text-foreground mb-3"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              <span className="text-primary">Tienda</span>
+            </h2>
+            <p className="text-muted max-w-xl mx-auto">
+              Cuadros y accesorios pintados a mano, piezas únicas para tu hogar
+            </p>
+          </div>
+
+          {/* Store Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {storeProducts.map((product, idx) => (
+              <div
+                key={product.id}
+                className="opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${idx * 0.08}s` }}
+              >
+                <div
+                  className="gallery-card group cursor-pointer"
+                  onClick={() => {
+                    setTrailColor(categoryColors.tienda)
+                    setSelectedStoreProduct(product)
+                  }}
+                >
+                  <div className="relative overflow-hidden aspect-square">
+                    <Image
+                      src={product.image}
+                      alt={product.title}
+                      fill
+                      className="gallery-card-image object-cover"
+                    />
+
+                    {/* Hover overlay */}
+                    <div className="gallery-card-overlay">
+                      <span className="inline-block px-3 py-1 mb-2 text-[10px] uppercase tracking-wider bg-primary/80 text-primary-foreground rounded-full w-fit">
+                        {product.type}
+                      </span>
+
+                      <h3
+                        className="text-xl font-bold text-white mb-2"
+                        style={{ fontFamily: "var(--font-playfair)" }}
+                      >
+                        {product.title}
+                      </h3>
+
+                      {/* Precio */}
+                      {product.price && (
+                        <p className="text-secondary font-bold text-xl mb-2">
+                          ${product.price.toLocaleString('es-AR')}
+                        </p>
+                      )}
+
+                      {/* Medidas */}
+                      {product.dimensions && (
+                        <p className="text-white/70 text-sm mb-2">
+                          {product.dimensions}
+                        </p>
+                      )}
+
+                      <span className="text-primary text-sm font-medium">
+                        Click para ver más
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
