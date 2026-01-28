@@ -1072,7 +1072,7 @@ export default function MarandinaPortfolio() {
               className="text-4xl md:text-5xl font-bold text-foreground mb-3"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Mis <span className="text-primary">Proyectos</span>
+              Mis <span className="text-primary">Trabajos</span>
             </h2>
             <p className="text-muted max-w-xl mx-auto">
               Una colección de mis proyectos de diseño, ilustración y arte digital
