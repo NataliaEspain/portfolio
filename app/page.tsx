@@ -503,6 +503,17 @@ const allWorks: Work[] = [
     cardType: "video",
     youtubeId: "rBCkVrD6Das",
   },
+  {
+    id: 43,
+    title: "Portada de Película Animada",
+    category: "videos",
+    type: "Motion Graphics",
+    image: "/videos/nosferatu.mp4",
+    description: "Póster cinematográfico creado en Photoshop y animado con la herramienta de línea de tiempo de la misma aplicación, dando vida a una composición estática.",
+    size: "tall",
+    cardType: "video",
+    video: "/videos/nosferatu.mp4",
+  },
 ]
 
 // ============ TIENDA - PRODUCTOS SEPARADOS ============
