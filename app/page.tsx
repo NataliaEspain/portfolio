@@ -159,6 +159,16 @@ const allWorks: Work[] = [
     size: "full",
     cardType: "expander",
   },
+  {
+    id: 42,
+    title: "Fotomontaje Realista",
+    category: "diseno",
+    type: "Photomontage",
+    image: "/mujer-tattoo.jpg",
+    description: "Proyecto para la materia Photoshop. Composición donde la modelo fue integrada digitalmente al fondo, trabajando luces, sombras y color para lograr una fusión realista con el entorno.",
+    size: "tall",
+    cardType: "expander",
+  },
   // ============ DEFAULT CARDS ============
   // ============ EXPANDER CARDS (Paintings) ============
   {
