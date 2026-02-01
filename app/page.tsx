@@ -1217,8 +1217,23 @@ export default function MarandinaPortfolio() {
   const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
   const [trailColor, setTrailColor] = useState(categoryColors.diseno)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showIntro, setShowIntro] = useState(true)
+  const [introFading, setIntroFading] = useState(false)
+
   useEffect(() => {
     setIsVisible(true)
+    // Iniciar fade out después de 2.5 segundos
+    const fadeTimer = setTimeout(() => {
+      setIntroFading(true)
+    }, 2500)
+    // Ocultar completamente después de 3.5 segundos
+    const hideTimer = setTimeout(() => {
+      setShowIntro(false)
+    }, 3500)
+    return () => {
+      clearTimeout(fadeTimer)
+      clearTimeout(hideTimer)
+    }
   }, [])
 
   // Cambiar color cuando cambia el filtro
@@ -1243,6 +1258,67 @@ export default function MarandinaPortfolio() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">
+      {/* Intro / Splash Screen */}
+      {showIntro && (
+        <div
+          className={`fixed inset-0 z-[200] bg-background flex flex-col items-center justify-center transition-opacity duration-1000 ${
+            introFading ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          {/* Destello / Burst effect */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div
+              className="w-[600px] h-[600px] rounded-full animate-pulse"
+              style={{
+                background: 'radial-gradient(circle, rgba(140, 92, 242, 0.4) 0%, rgba(242, 131, 34, 0.3) 30%, rgba(242, 179, 61, 0.2) 50%, transparent 70%)',
+                filter: 'blur(60px)',
+                animation: 'burst 2s ease-out forwards',
+              }}
+            />
+          </div>
+
+          {/* Gajo */}
+          <div
+            className="relative z-10 animate-fade-in-up"
+            style={{ animationDelay: '0.3s', animationDuration: '0.8s' }}
+          >
+            <Image
+              src="/images/gajo.png"
+              alt="Marandina"
+              width={120}
+              height={120}
+              className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-2xl"
+            />
+          </div>
+
+          {/* Texto Bienvenida */}
+          <h1
+            className="relative z-10 mt-6 text-3xl md:text-4xl font-bold text-foreground opacity-0 animate-fade-in-up"
+            style={{ animationDelay: '0.6s', animationDuration: '0.8s', animationFillMode: 'forwards', fontFamily: 'var(--font-playfair)' }}
+          >
+            Bienvenid@
+          </h1>
+
+          {/* Partículas decorativas */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-2 h-2 rounded-full"
+                style={{
+                  left: `${50 + (Math.random() - 0.5) * 60}%`,
+                  top: `${50 + (Math.random() - 0.5) * 60}%`,
+                  background: i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D',
+                  animation: `float ${2 + Math.random() * 2}s ease-in-out infinite`,
+                  animationDelay: `${Math.random() * 0.5}s`,
+                  opacity: 0.6,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Manchas de pintura / glow de fondo */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Mancha violeta arriba izquierda */}
