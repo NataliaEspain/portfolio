@@ -1231,14 +1231,20 @@ export default function MarandinaPortfolio() {
           </a>
 
           {/* Nav links - derecha (desktop) */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+          <nav className="hidden md:flex items-center gap-6">
+            {navLinks.map((link, index) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm text-muted hover:text-foreground transition-colors"
+                className="relative text-sm font-medium text-muted hover:text-foreground transition-all duration-300 py-2 px-3 rounded-full hover:bg-primary/10 group"
               >
-                {link.label}
+                <span className="relative z-10">{link.label}</span>
+                <span
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-3/4"
+                  style={{
+                    background: index % 3 === 0 ? '#8C5CF2' : index % 3 === 1 ? '#F28322' : '#F2B33D'
+                  }}
+                />
               </a>
             ))}
           </nav>
@@ -1257,13 +1263,16 @@ export default function MarandinaPortfolio() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <nav className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 py-4">
-            <div className="flex flex-col items-center gap-4">
-              {navLinks.map((link) => (
+          <nav className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 py-6">
+            <div className="flex flex-col items-center gap-2">
+              {navLinks.map((link, index) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-base text-muted hover:text-foreground transition-colors"
+                  className="text-base font-medium text-muted hover:text-foreground transition-all duration-300 py-3 px-6 rounded-full hover:bg-primary/10"
+                  style={{
+                    borderLeft: `3px solid ${index % 3 === 0 ? '#8C5CF2' : index % 3 === 1 ? '#F28322' : '#F2B33D'}`
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
