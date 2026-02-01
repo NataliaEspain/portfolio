@@ -90,6 +90,7 @@ interface Work {
   video?: string // ruta al archivo de video local
   youtubeId?: string // ID del video de YouTube
   coverImage?: string // imagen de portada para la card (si es diferente a image)
+  qrCode?: string // código QR para mostrar en el modal
   // Campos para tienda
   price?: number // precio en pesos
   dimensions?: string // medidas del producto
@@ -98,6 +99,30 @@ interface Work {
 
 const allWorks: Work[] = [
   // ============ EXPANDER CARDS (Diseño Multimedia) ============
+  {
+    id: 44,
+    title: "Identidad Visual DiVino",
+    category: "diseno",
+    type: "Branding",
+    image: "/images/divino-portada.jpg",
+    description: "Proyecto de diseño gráfico de identidad visual completo: creación de branding y aplicaciones de marca.",
+    link: "https://www.behance.net/gallery/242558367/DiVino",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 45,
+    title: "Diseño UX/UI",
+    category: "diseno",
+    type: "UX/UI Design",
+    image: "/images/divino-onepage.jpg",
+    coverImage: "/images/divino-uxui.png",
+    description: "Utilizamos la identidad visual de DiVino y creamos una página web utilizando la estética de la brand.",
+    link: "https://www.figma.com/proto/EeaClFcLyHtyStEFEq7yVs/TPF-OnePage-DG2?node-id=1-902&t=UXjeq49Q3Y6jiC1p-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
+    qrCode: "/images/divino-qr.png",
+    size: "normal",
+    cardType: "expander",
+  },
   {
     id: 2,
     title: "Trabajo realizado con malla",
@@ -834,13 +859,14 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
       <div className="h-full overflow-y-auto">
         <div className="min-h-full flex flex-col md:flex-row">
           {/* Imagen - lado izquierdo */}
-          <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8">
-            <div className="relative w-full h-full max-w-2xl">
+          <div className="md:w-1/2 lg:w-3/5 bg-surface flex items-start justify-center p-8 overflow-y-auto">
+            <div className="relative w-full max-w-2xl">
               <Image
                 src={work.image}
                 alt={work.title}
-                fill
-                className="object-contain"
+                width={800}
+                height={1200}
+                className="w-full h-auto object-contain"
               />
             </div>
           </div>
@@ -867,11 +893,25 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
                 href={work.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors w-fit"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors w-fit mb-6"
               >
                 Ver proyecto completo
                 <ExternalLink className="w-5 h-5" />
               </a>
+            )}
+
+            {/* QR Code */}
+            {work.qrCode && (
+              <div className="mt-4">
+                <p className="text-sm text-muted mb-3">Escaneá el QR:</p>
+                <Image
+                  src={work.qrCode}
+                  alt="QR Code"
+                  width={120}
+                  height={120}
+                  className="rounded-lg"
+                />
+              </div>
             )}
           </div>
         </div>
