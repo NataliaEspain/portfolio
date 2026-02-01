@@ -107,7 +107,7 @@ const allWorks: Work[] = [
     coverImage: "/images/remera-buka.png",
     description: "Diseño completo de identidad visual para un gimnasio ficticio, incluyendo logo, una one page y expansiones de la marca.",
     link: "https://www.behance.net/gallery/231852521/Identidad-de-marca-BUKA",
-    size: "tall",
+    size: "normal",
     cardType: "expander",
   },
   {
