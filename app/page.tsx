@@ -1236,6 +1236,25 @@ export default function MarandinaPortfolio() {
     }
   }, [])
 
+  // Scroll animations - IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view')
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
+
+    const animatedElements = document.querySelectorAll('.scroll-animate, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale')
+    animatedElements.forEach((el) => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [showIntro]) // Re-run after intro hides
+
   // Cambiar color cuando cambia el filtro
   const handleFilterChange = (filterId: string) => {
     setActiveFilter(filterId)
@@ -1636,7 +1655,7 @@ export default function MarandinaPortfolio() {
       <section id="trabajo" className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="mb-10 text-center">
+          <div className="mb-10 text-center scroll-animate">
             <h2
               className="text-4xl md:text-5xl font-bold text-foreground mb-3"
               style={{ fontFamily: "var(--font-playfair)" }}
@@ -1760,15 +1779,17 @@ export default function MarandinaPortfolio() {
       {/* Skills Section */}
       <section id="skills" className="py-16 md:py-24 px-6 md:px-12 bg-surface/50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2
-            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
-            style={{ fontFamily: "var(--font-playfair)" }}
-          >
-            Herramientas que <span className="text-primary">domino</span>
-          </h2>
-          <p className="text-muted mb-12 max-w-xl mx-auto">
-            Software y aplicaciones que utilizo en mi día a día para crear
-          </p>
+          <div className="scroll-animate">
+            <h2
+              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              Herramientas que <span className="text-primary">domino</span>
+            </h2>
+            <p className="text-muted mb-12 max-w-xl mx-auto">
+              Software y aplicaciones que utilizo en mi día a día para crear
+            </p>
+          </div>
 
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {/* Figma */}
@@ -1836,7 +1857,7 @@ export default function MarandinaPortfolio() {
       <section id="tienda" className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
-          <div className="mb-10 text-center">
+          <div className="mb-10 text-center scroll-animate">
             <h2
               className="text-4xl md:text-5xl font-bold text-foreground mb-3"
               style={{ fontFamily: "var(--font-playfair)" }}
