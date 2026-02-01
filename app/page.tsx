@@ -89,6 +89,7 @@ interface Work {
   images?: string[] // array de imágenes para el slider
   video?: string // ruta al archivo de video local
   youtubeId?: string // ID del video de YouTube
+  coverImage?: string // imagen de portada para la card (si es diferente a image)
   // Campos para tienda
   price?: number // precio en pesos
   dimensions?: string // medidas del producto
@@ -103,6 +104,7 @@ const allWorks: Work[] = [
     category: "diseno",
     type: "Branding",
     image: "/gym-branding-design.png",
+    coverImage: "/images/remera-buka.png",
     description: "Diseño completo de identidad visual para un gimnasio ficticio, incluyendo logo, una one page y expansiones de la marca.",
     link: "https://www.behance.net/gallery/231852521/Identidad-de-marca-BUKA",
     size: "tall",
@@ -1474,11 +1476,11 @@ export default function MarandinaPortfolio() {
                       />
                     ) : (
                       <Image
-                        src={work.image}
+                        src={work.coverImage || work.image}
                         alt={work.title}
                         fill
                         className="gallery-card-image object-cover"
-                        unoptimized={work.image.startsWith('https://')}
+                        unoptimized={(work.coverImage || work.image).startsWith('https://')}
                       />
                     )}
 
