@@ -857,36 +857,47 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
 
       {/* Contenido */}
       <div className="h-full overflow-y-auto">
-        <div className="flex flex-col">
-          {/* Info - arriba */}
-          <div className="p-8 md:p-12 lg:p-16 text-center">
-            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+        <div className="min-h-full flex flex-col md:flex-row">
+          {/* Imagen - lado izquierdo */}
+          <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8">
+            <div className="relative w-full h-full max-w-2xl">
+              <Image
+                src={work.image}
+                alt={work.title}
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Info - lado derecho */}
+          <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+            <span className="inline-block px-4 py-2 mb-6 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
               {work.type}
             </span>
 
             <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
               {work.title}
             </h2>
 
-            <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">
+            <p className="text-lg text-muted leading-relaxed mb-8">
               {work.description}
             </p>
-          </div>
 
-          {/* Imagen - abajo, scrolleable */}
-          <div className="flex-1 bg-surface flex justify-center p-8">
-            <div className="w-full max-w-4xl">
-              <Image
-                src={work.image}
-                alt={work.title}
-                width={1200}
-                height={1800}
-                className="w-full h-auto object-contain"
-              />
-            </div>
+            {work.link && (
+              <a
+                href={work.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors w-fit"
+              >
+                Ver proyecto completo
+                <ExternalLink className="w-5 h-5" />
+              </a>
+            )}
           </div>
         </div>
       </div>
