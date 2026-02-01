@@ -117,7 +117,7 @@ const allWorks: Work[] = [
     type: "UX/UI Design",
     image: "/images/divino-onepage.jpg",
     coverImage: "/images/divino-uxui.png",
-    description: "Utilizamos la identidad visual de DiVino y creamos una página web utilizando la estética de la brand.",
+    description: "Diseño de interfaz web aplicando la identidad visual de DiVino. One-page que integra tipografía, paleta de colores y elementos gráficos de la marca para una experiencia visual cohesiva.",
     link: "https://www.figma.com/proto/EeaClFcLyHtyStEFEq7yVs/TPF-OnePage-DG2?node-id=1-902&t=UXjeq49Q3Y6jiC1p-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
     qrCode: "/images/divino-qr.png",
     size: "normal",
