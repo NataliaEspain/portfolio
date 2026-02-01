@@ -1122,6 +1122,7 @@ export default function MarandinaPortfolio() {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
   const [trailColor, setTrailColor] = useState(categoryColors.diseno)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   useEffect(() => {
     setIsVisible(true)
   }, [])
@@ -1229,7 +1230,7 @@ export default function MarandinaPortfolio() {
             />
           </a>
 
-          {/* Nav links - derecha */}
+          {/* Nav links - derecha (desktop) */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
@@ -1242,7 +1243,35 @@ export default function MarandinaPortfolio() {
             ))}
           </nav>
 
+          {/* Hamburger button - mobile */}
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
+          >
+            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 py-4">
+            <div className="flex flex-col items-center gap-4">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-base text-muted hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Header Image */}
