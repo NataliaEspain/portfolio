@@ -1299,19 +1299,72 @@ export default function MarandinaPortfolio() {
             Bienvenid@
           </h1>
 
-          {/* Partículas decorativas */}
+          {/* Fuegos artificiales / Explosión de partículas */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(12)].map((_, i) => (
+            {/* Partículas que explotan hacia afuera */}
+            {[...Array(30)].map((_, i) => {
+              const angle = (i / 30) * 360
+              const distance = 150 + Math.random() * 200
+              const size = 4 + Math.random() * 8
+              const delay = Math.random() * 0.3
+              return (
+                <div
+                  key={`firework-${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    background: i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D',
+                    boxShadow: `0 0 ${size * 2}px ${i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D'}`,
+                    animation: `firework 2s ease-out forwards`,
+                    animationDelay: `${delay}s`,
+                    '--angle': `${angle}deg`,
+                    '--distance': `${distance}px`,
+                  } as React.CSSProperties}
+                />
+              )
+            })}
+            {/* Segunda capa de partículas más pequeñas */}
+            {[...Array(20)].map((_, i) => {
+              const angle = (i / 20) * 360 + 9
+              const distance = 100 + Math.random() * 150
+              const size = 2 + Math.random() * 4
+              const delay = 0.2 + Math.random() * 0.3
+              return (
+                <div
+                  key={`spark-${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    background: '#fff',
+                    boxShadow: `0 0 ${size * 3}px #fff`,
+                    animation: `firework 1.5s ease-out forwards`,
+                    animationDelay: `${delay}s`,
+                    '--angle': `${angle}deg`,
+                    '--distance': `${distance}px`,
+                  } as React.CSSProperties}
+                />
+              )
+            })}
+            {/* Estrellas que brillan */}
+            {[...Array(8)].map((_, i) => (
               <div
-                key={i}
-                className="absolute w-2 h-2 rounded-full"
+                key={`star-${i}`}
+                className="absolute"
                 style={{
-                  left: `${50 + (Math.random() - 0.5) * 60}%`,
-                  top: `${50 + (Math.random() - 0.5) * 60}%`,
-                  background: i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D',
-                  animation: `float ${2 + Math.random() * 2}s ease-in-out infinite`,
-                  animationDelay: `${Math.random() * 0.5}s`,
-                  opacity: 0.6,
+                  left: `${20 + Math.random() * 60}%`,
+                  top: `${20 + Math.random() * 60}%`,
+                  width: '4px',
+                  height: '4px',
+                  background: '#fff',
+                  boxShadow: '0 0 10px #fff, 0 0 20px #fff',
+                  animation: `twinkle 1s ease-in-out infinite`,
+                  animationDelay: `${0.5 + Math.random() * 1}s`,
                 }}
               />
             ))}
