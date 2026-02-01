@@ -85,7 +85,7 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "video" | "store" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda
+  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda, scrollable = texto arriba + imagen scrolleable
   images?: string[] // array de imágenes para el slider
   video?: string // ruta al archivo de video local
   youtubeId?: string // ID del video de YouTube
@@ -118,10 +118,8 @@ const allWorks: Work[] = [
     image: "/images/divino-onepage.jpg",
     coverImage: "/images/divino-uxui.png",
     description: "Diseño de interfaz web aplicando la identidad visual de DiVino. One-page que integra tipografía, paleta de colores y elementos gráficos de la marca para una experiencia visual cohesiva.",
-    link: "https://www.figma.com/proto/EeaClFcLyHtyStEFEq7yVs/TPF-OnePage-DG2?node-id=1-902&t=UXjeq49Q3Y6jiC1p-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
-    qrCode: "/images/divino-qr.png",
     size: "normal",
-    cardType: "expander",
+    cardType: "scrollable",
   },
   {
     id: 2,
@@ -905,6 +903,75 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
   )
 }
 
+// Modal scrollable (texto arriba, imagen scrolleable abajo)
+function ScrollableModal({ work, onClose }: { work: Work; onClose: () => void }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
+      style={{ animationDuration: '0.3s' }}
+    >
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Contenido */}
+      <div className="h-full overflow-y-auto">
+        <div className="flex flex-col">
+          {/* Info - arriba */}
+          <div className="p-8 md:p-12 lg:p-16 text-center">
+            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+              {work.type}
+            </span>
+
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              {work.title}
+            </h2>
+
+            <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">
+              {work.description}
+            </p>
+          </div>
+
+          {/* Imagen - abajo, scrolleable */}
+          <div className="flex-1 bg-surface flex justify-center p-8">
+            <div className="w-full max-w-4xl">
+              <Image
+                src={work.image}
+                alt={work.title}
+                width={1200}
+                height={1800}
+                className="w-full h-auto object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Modal para videos
 function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
   useEffect(() => {
@@ -1168,8 +1235,8 @@ export default function MarandinaPortfolio() {
     // Cambiar color de la estela según la categoría del trabajo
     setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
 
-    // Abrir modal para cards tipo "expander", "slider", "video" o "store"
-    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store") {
+    // Abrir modal para cards tipo "expander", "slider", "video", "store" o "scrollable"
+    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable") {
       setSelectedWork(work)
     }
   }
@@ -1227,6 +1294,9 @@ export default function MarandinaPortfolio() {
       )}
       {selectedWork && selectedWork.cardType === "store" && (
         <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />
+      )}
+      {selectedWork && selectedWork.cardType === "scrollable" && (
+        <ScrollableModal work={selectedWork} onClose={() => setSelectedWork(null)} />
       )}
       {selectedStoreProduct && (
         <StoreModal work={selectedStoreProduct} onClose={() => setSelectedStoreProduct(null)} />
@@ -1548,7 +1618,7 @@ export default function MarandinaPortfolio() {
                       )}
 
                       {/* Indicador de click para expander, slider, video y store cards */}
-                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store") && (
+                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable") && (
                         <span className="text-primary text-sm font-medium">
                           {work.cardType === "video" ? "Click para reproducir" : work.cardType === "store" ? "Click para comprar" : "Click para ver más"}
                         </span>
