@@ -1208,19 +1208,19 @@ export default function MarandinaPortfolio() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          {/* Logo text - izquierda */}
-          <a href="#inicio" className="flex items-center group">
+          {/* Logo text - izquierda (solo desktop) */}
+          <a href="#inicio" className="hidden md:flex items-center group">
             <Image
               src="/images/marandinatext.png"
               alt="Marandina"
               width={150}
               height={40}
-              className="h-8 md:h-10 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </a>
 
-          {/* Gajo - centro */}
-          <a href="#inicio" className="absolute left-1/2 -translate-x-1/2">
+          {/* Gajo - izquierda en mobile, centro en desktop */}
+          <a href="#inicio" className="md:absolute md:left-1/2 md:-translate-x-1/2">
             <Image
               src="/images/gajo.png"
               alt="Marandina Logo"
