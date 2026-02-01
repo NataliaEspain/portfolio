@@ -1381,7 +1381,7 @@ export default function MarandinaPortfolio() {
       </header>
 
       {/* Header Image */}
-      <div className="w-full relative mt-[64px] md:mt-[72px] flex justify-center bg-background">
+      <div className="w-full relative mt-[56px] md:mt-[60px] flex justify-center bg-background">
         <Image
           src="/images/header.jpg"
           alt="Header"
