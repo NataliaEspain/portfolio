@@ -529,6 +529,17 @@ const allWorks: Work[] = [
     youtubeId: "rBCkVrD6Das",
   },
   {
+    id: 46,
+    title: "Video OB2oT-Cd0oc",
+    category: "videos",
+    type: "Video",
+    image: "https://img.youtube.com/vi/OB2oT-Cd0oc/maxresdefault.jpg",
+    description: "",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "OB2oT-Cd0oc",
+  },
+  {
     id: 43,
     title: "Portada de Película Animada",
     category: "videos",
