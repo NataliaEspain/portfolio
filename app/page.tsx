@@ -540,6 +540,17 @@ const allWorks: Work[] = [
     youtubeId: "OB2oT-Cd0oc",
   },
   {
+    id: 47,
+    title: "Animación Motion Graphics",
+    category: "videos",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/rpNlvvr2sb0/maxresdefault.jpg",
+    description: "Proyecto de animación con motion graphics, combinando diseño visual y movimiento para crear una pieza audiovisual dinámica.",
+    size: "tall",
+    cardType: "video",
+    youtubeId: "rpNlvvr2sb0",
+  },
+  {
     id: 43,
     title: "Portada de Película Animada",
     category: "videos",
