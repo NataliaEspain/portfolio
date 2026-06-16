@@ -25,7 +25,10 @@ yarn-error.log*
 # local folders
 Nueva carpeta/
 .claude/
+/video/
 public/videos/*.mp4
+# Permitir videos específicos que sí van al sitio:
+!public/videos/video_booster_corporal.mp4
 
 # typescript
 *.tsbuildinfo

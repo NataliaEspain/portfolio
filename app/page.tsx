@@ -561,6 +561,17 @@ const allWorks: Work[] = [
     cardType: "video",
     video: "/videos/nosferatu.mp4",
   },
+  {
+    id: 48,
+    title: "Booster Corporal",
+    category: "videos",
+    type: "Motion Graphics",
+    image: "/videos/video_booster_corporal.mp4",
+    description: "Video publicitario para un producto corporal, animado con motion graphics.",
+    size: "wide",
+    cardType: "video",
+    video: "/videos/video_booster_corporal.mp4",
+  },
 ]
 
 // ============ TIENDA - PRODUCTOS SEPARADOS ============
