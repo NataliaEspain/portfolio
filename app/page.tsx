@@ -567,7 +567,7 @@ const allWorks: Work[] = [
     category: "videos",
     type: "Motion Graphics",
     image: "/videos/video_booster_corporal.mp4",
-    description: "Video publicitario para un producto corporal, animado con motion graphics.",
+    description: "Video publicitario para un producto corporal, realizado con motion graphics y generación de video con inteligencia artificial.",
     size: "wide",
     cardType: "video",
     video: "/videos/video_booster_corporal.mp4",
