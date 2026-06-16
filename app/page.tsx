@@ -605,6 +605,17 @@ const allWorks: Work[] = [
     size: "tall",
     cardType: "link",
   },
+  {
+    id: 52,
+    title: "Edit para Redes Sociales",
+    category: "videos",
+    type: "Video Editing",
+    image: "/videos/final.mp4",
+    description: "Edit para redes sociales, realizado en Premiere Pro utilizando material enviado por el cliente, con recortes hechos por mí.",
+    size: "wide",
+    cardType: "video",
+    video: "/videos/final.mp4",
+  },
 ]
 
 // ============ TIENDA - PRODUCTOS SEPARADOS ============

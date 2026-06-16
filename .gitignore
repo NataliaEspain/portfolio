@@ -30,6 +30,7 @@ Nueva carpeta/
 public/videos/*.mp4
 # Permitir videos específicos que sí van al sitio:
 !public/videos/video_booster_corporal.mp4
+!public/videos/final.mp4
 
 # typescript
 *.tsbuildinfo
