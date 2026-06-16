@@ -85,7 +85,7 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda, scrollable = texto arriba + imagen scrolleable
+  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "link" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda, scrollable = texto arriba + imagen scrolleable, link = abre URL externa (ej: Instagram)
   images?: string[] // array de imágenes para el slider
   video?: string // ruta al archivo de video local
   youtubeId?: string // ID del video de YouTube
@@ -593,6 +593,17 @@ const allWorks: Work[] = [
     size: "wide",
     cardType: "video",
     youtubeId: "lL8XpviLApY",
+  },
+  {
+    id: 51,
+    title: "Edit para Canal de Streaming",
+    category: "videos",
+    type: "Video Editing",
+    image: "/images/insta-streaming-edit.png",
+    description: "Edit de video para un canal de streaming, realizado en Premiere Pro.",
+    link: "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
+    size: "tall",
+    cardType: "link",
   },
 ]
 
@@ -1324,6 +1335,12 @@ export default function MarandinaPortfolio() {
     // Cambiar color de la estela según la categoría del trabajo
     setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
 
+    // Cards tipo "link" abren la URL externa en una pestaña nueva (ej: Instagram)
+    if (work.cardType === "link" && work.link) {
+      window.open(work.link, "_blank", "noopener,noreferrer")
+      return
+    }
+
     // Abrir modal para cards tipo "expander", "slider", "video", "store" o "scrollable"
     if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable") {
       setSelectedWork(work)
@@ -1802,8 +1819,8 @@ export default function MarandinaPortfolio() {
                         </p>
                       )}
 
-                      {/* Solo mostrar link en cards que NO son expander, slider, video ni store */}
-                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.cardType !== "store" && work.link && (
+                      {/* Solo mostrar link en cards que NO son expander, slider, video, store ni link */}
+                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.cardType !== "store" && work.cardType !== "link" && work.link && (
                         <a
                           href={work.link}
                           target="_blank"
@@ -1816,10 +1833,10 @@ export default function MarandinaPortfolio() {
                         </a>
                       )}
 
-                      {/* Indicador de click para expander, slider, video y store cards */}
-                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable") && (
+                      {/* Indicador de click para expander, slider, video, store, scrollable y link cards */}
+                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable" || work.cardType === "link") && (
                         <span className="text-primary text-sm font-medium">
-                          {work.cardType === "video" ? "Click para reproducir" : work.cardType === "store" ? "Click para comprar" : "Click para ver más"}
+                          {work.cardType === "video" ? "Click para reproducir" : work.cardType === "store" ? "Click para comprar" : work.cardType === "link" ? "Ver en Instagram" : "Click para ver más"}
                         </span>
                       )}
                     </div>

@@ -26,6 +26,7 @@ yarn-error.log*
 Nueva carpeta/
 .claude/
 /video/
+/captura/
 public/videos/*.mp4
 # Permitir videos específicos que sí van al sitio:
 !public/videos/video_booster_corporal.mp4
