@@ -572,6 +572,28 @@ const allWorks: Work[] = [
     cardType: "video",
     video: "/videos/video_booster_corporal.mp4",
   },
+  {
+    id: 49,
+    title: "Animación 3D en Cinema 4D",
+    category: "videos",
+    type: "3D Animation",
+    image: "https://img.youtube.com/vi/skSJUo4qRPY/maxresdefault.jpg",
+    description: "Animación 3D realizada en Cinema 4D.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "skSJUo4qRPY",
+  },
+  {
+    id: 50,
+    title: "Motion Graphics en After Effects",
+    category: "videos",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/lL8XpviLApY/maxresdefault.jpg",
+    description: "Pieza de motion graphics animada en After Effects.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "lL8XpviLApY",
+  },
 ]
 
 // ============ TIENDA - PRODUCTOS SEPARADOS ============
