@@ -1511,6 +1511,19 @@ export default function MarandinaPortfolio() {
       {/* CONTACTO */}
       <section id="contacto" className="wrap">
         <div className="contact reveal">
+          {/* deco geométrica cyberpunk de fondo */}
+          <div className="contact-deco" aria-hidden="true">
+            <span className="deco-grid" />
+            <span className="deco-ring r1" />
+            <span className="deco-ring r2" />
+            <span className="deco-ring r3" />
+            <span className="deco-chip c1" />
+            <span className="deco-chip c2" />
+            <span className="deco-line l1" />
+            <span className="deco-line l2" />
+            <span className="deco-plus" />
+            <span className="deco-dot" />
+          </div>
           <span className="hud-note" style={{ top: "20px", right: "26px" }}>
             © 2026 · MARANDINA <span className="star" style={{ ["--s" as string]: "12px", verticalAlign: "-2px" }} />
           </span>
@@ -1544,10 +1557,18 @@ export default function MarandinaPortfolio() {
               </a>
             </div>
             <div className="socials">
-              <a className="social" href="mailto:nataliaespain97@gmail.com"><span>EMAIL</span><span>nataliaespain97 ↗</span></a>
-              <a className="social" href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer"><span>INSTAGRAM</span><span>@marandina.tt ↗</span></a>
-              <a className="social" href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer"><span>BEHANCE</span><span>/nataliaespain ↗</span></a>
-              <a className="social" href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer"><span>LINKEDIN</span><span>/natalia-espain ↗</span></a>
+              <a className="social" href="mailto:nataliaespain97@gmail.com">
+                <span className="social-k">EMAIL</span><span className="social-v">nataliaespain97</span><b className="social-go">↗</b>
+              </a>
+              <a className="social" href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer">
+                <span className="social-k">INSTAGRAM</span><span className="social-v">@marandina.tt</span><b className="social-go">↗</b>
+              </a>
+              <a className="social" href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer">
+                <span className="social-k">BEHANCE</span><span className="social-v">/nataliaespain</span><b className="social-go">↗</b>
+              </a>
+              <a className="social" href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer">
+                <span className="social-k">LINKEDIN</span><span className="social-v">/natalia-espain</span><b className="social-go">↗</b>
+              </a>
             </div>
           </div>
         </div>

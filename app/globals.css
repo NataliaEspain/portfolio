@@ -471,19 +471,52 @@ section { position: relative; z-index: 2; }
 .contact { margin-top: 100px; border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
   position: relative;
   background: radial-gradient(90% 120% at 15% 0%, rgba(140, 92, 242, 0.28), transparent 55%), var(--void-2); }
-.contact-in { padding: 64px 48px; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 40px; align-items: center; }
+.contact-in { position: relative; z-index: 2; padding: 64px 48px; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 40px; align-items: center; }
+
+/* ===== deco cyberpunk del contacto ===== */
+.contact-deco { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.contact-deco > span { position: absolute; }
+.deco-grid { inset: 0;
+  background-image: linear-gradient(var(--line-soft) 1px, transparent 1px), linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 46px 46px; opacity: 0.55;
+  -webkit-mask: radial-gradient(130% 100% at 100% 100%, #000, transparent 68%);
+          mask: radial-gradient(130% 100% at 100% 100%, #000, transparent 68%); }
+.deco-ring { border-radius: 50%; border: 1px solid var(--line-soft); }
+.deco-ring.r1 { width: 330px; height: 330px; right: -80px; bottom: -110px; border-color: var(--line); }
+.deco-ring.r2 { width: 520px; height: 520px; right: -170px; bottom: -210px; opacity: 0.6; }
+.deco-ring.r3 { width: 170px; height: 170px; right: -10px; bottom: -30px; border-style: dashed; border-color: rgba(240, 48, 140, 0.28); }
+.deco-chip { border: 1px solid var(--line); }
+.deco-chip.c1 { width: 70px; height: 44px; top: 44px; right: 40%; opacity: 0.55; }
+.deco-chip.c2 { width: 26px; height: 26px; top: 128px; right: 31%; border-color: rgba(242, 131, 34, 0.35); transform: rotate(18deg); }
+.deco-line { height: 1px; opacity: 0.4; }
+.deco-line.l1 { width: 230px; top: 66px; left: -30px; transform: rotate(-24deg);
+  background: linear-gradient(90deg, transparent, var(--violet-hi), transparent); }
+.deco-line.l2 { width: 170px; bottom: 84px; left: 33%; transform: rotate(12deg); opacity: 0.3;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+.deco-plus { top: 30px; left: 45%; width: 16px; height: 16px; }
+.deco-plus::before, .deco-plus::after { content: ""; position: absolute; background: var(--orange);
+  box-shadow: 0 0 10px var(--orange); }
+.deco-plus::before { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+.deco-plus::after { top: 50%; left: 0; height: 2px; width: 100%; transform: translateY(-50%); }
+.deco-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--violet-hi);
+  box-shadow: 0 0 14px var(--violet-hi); bottom: 40%; left: 30px; }
 .contact h2 { font-family: var(--font-anton), sans-serif; font-weight: 400; font-size: clamp(40px, 7vw, 90px);
   line-height: 0.9; text-transform: uppercase; }
 .contact h2 .l2 { background: linear-gradient(100deg, var(--chrome-1), var(--chrome-2), var(--chrome-3));
   -webkit-background-clip: text; background-clip: text; color: transparent; }
 .contact p { color: var(--muted); margin: 20px 0 30px; max-width: 44ch; font-size: 15px; }
-.socials { display: flex; flex-direction: column; gap: 12px; }
-.social { display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  border: 1px solid var(--line-soft); border-radius: 12px; padding: 15px 18px; text-decoration: none;
-  color: var(--paper); font-family: var(--font-mono), monospace; font-size: 13px; letter-spacing: 0.06em;
-  transition: border-color 0.3s, background 0.3s, transform 0.2s; }
-.social:hover { border-color: var(--violet-hi); background: var(--panel-hi); transform: translateX(4px); }
-.social span:last-child { color: var(--muted); }
+.socials { display: flex; flex-direction: column; gap: 14px; }
+.social { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 14px;
+  padding: 19px 20px; text-decoration: none; color: var(--paper); font-family: var(--font-mono), monospace;
+  letter-spacing: 0.06em; background: var(--panel);
+  transition: border-color 0.3s, background 0.3s, transform 0.2s, box-shadow 0.3s; }
+.social:hover { border-color: var(--violet-hi); background: var(--panel-hi); transform: translateX(6px);
+  box-shadow: 0 10px 30px rgba(140, 92, 242, 0.22); }
+.social-k { font-size: 14px; font-weight: 700; letter-spacing: 0.14em; }
+.social-v { flex: 1; text-align: right; font-size: 13px; color: var(--muted); }
+.social-go { flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--violet-hi);
+  color: #fff; display: grid; place-items: center; font-size: 15px; font-style: normal; transition: transform 0.3s; }
+.social:hover .social-go { transform: rotate(-45deg); }
 
 /* QR de contacto — tarjeta clara (scan confiable) con glow de marca */
 .qr { display: flex; align-items: center; gap: 20px; margin-top: 30px; text-decoration: none;
