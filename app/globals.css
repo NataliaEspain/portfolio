@@ -220,7 +220,6 @@ body::after {
   cursor: ew-resize; border: 1px solid var(--border); background: #000; touch-action: none;
   user-select: none; -webkit-user-select: none; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42); }
 .ba-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-.ba-before { transition: clip-path 0.1s ease-out; }
 .ba-cat { position: absolute; top: 11px; left: 11px; z-index: 3; font-family: var(--font-mono), monospace;
   font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lilac);
   background: rgba(10, 8, 16, 0.5); border: 1px solid var(--line); padding: 4px 9px; border-radius: 999px;
@@ -233,7 +232,7 @@ body::after {
   background: linear-gradient(100deg, var(--lilac), var(--gold)); }
 .ba-divider { position: absolute; top: 0; bottom: 0; width: 2px; z-index: 4; transform: translateX(-1px);
   background: linear-gradient(180deg, var(--violet-hi), var(--gold)); box-shadow: 0 0 12px rgba(168, 123, 255, 0.85);
-  pointer-events: none; transition: left 0.1s ease-out; }
+  pointer-events: none; }
 .ba-grip { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 38px; height: 38px;
   border-radius: 50%; background: rgba(10, 8, 16, 0.82); border: 1.5px solid var(--violet-hi);
   backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; gap: 1px;

@@ -1238,20 +1238,19 @@ function BeforeAfterSlider({ before, after, tag }: { before: string; after: stri
     const r = el.getBoundingClientRect()
     setPos(Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100)))
   }
-  // El divisor sigue al cursor con solo pasar por encima (y al tocar/arrastrar en móvil)
+  // El divisor sigue al cursor con solo pasar por encima (y al tocar/arrastrar en móvil).
+  // Queda donde se deja el mouse (no vuelve al centro) para poder ver la imagen completa.
   const onMove = (e: React.PointerEvent) => setFromX(e.clientX)
   const onDown = (e: React.PointerEvent) => {
     ref.current?.setPointerCapture(e.pointerId)
     setFromX(e.clientX)
   }
-  const onLeave = () => setPos(50)
   return (
     <div
       className="ba reveal"
       ref={ref}
       onPointerMove={onMove}
       onPointerDown={onDown}
-      onPointerLeave={onLeave}
     >
       <img className="ba-img" src={after} alt="Después — retoque con IA" loading="lazy" draggable={false} />
       <img
@@ -1487,7 +1486,7 @@ export default function MarandinaPortfolio() {
               <h1>NATALIA<span className="l2">ESPAIN</span></h1>
               <div className="role">Artista Multimedia</div>
               <p className="bio">
-                Soy una artista multidisciplinaria apasionada que cree en el poder del <b>color, la forma y la emoción</b> para transformar espacios y almas. Actualmente soy estudiante de la <b>Escuela Da Vinci</b> en la carrera de Diseño Multimedia, donde perfecciono mis habilidades técnicas y creativas.
+                Soy una artista multidisciplinaria apasionada que cree en el poder del <b>color, la forma y la emoción</b> para transformar espacios y almas.
               </p>
               <p className="bio" style={{ marginTop: "16px" }}>
                 Mi trayectoria abarca <b>pinturas tradicionales, arte digital de vanguardia y diseños de tatuajes</b> significativos. Cada medio ofrece un lenguaje único para expresar las historias vibrantes que viven dentro de todos nosotros.
