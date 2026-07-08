@@ -166,6 +166,38 @@ body::after {
 .star::after { top: 50%; left: 0; height: 2px; width: 100%; transform: translateY(-50%);
   clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%); }
 
+/* ===== INTRO — circuito que enciende el gajo ===== */
+.intro { position: fixed; inset: 0; z-index: 300; background: #050409;
+  display: grid; place-items: center; overflow: hidden; }
+.intro.out { animation: introOut 0.8s cubic-bezier(0.6, 0, 0.2, 1) forwards; }
+@keyframes introOut { to { opacity: 0; visibility: hidden; transform: scale(1.05); } }
+.intro-circuit { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.92; }
+.intro-trace { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: introDraw 1.1s cubic-bezier(0.6, 0, 0.2, 1) forwards; }
+@keyframes introDraw { to { stroke-dashoffset: 0; } }
+.intro-node { fill: #fff; opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: introNode 0.5s ease forwards; }
+@keyframes introNode { 0% { opacity: 0; transform: scale(0); } 60% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0.9; transform: scale(1); } }
+.intro-core { position: relative; z-index: 2; display: grid; place-items: center; }
+.intro-glow { position: absolute; width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 92, 242, 0.6), transparent 65%); filter: blur(26px);
+  opacity: 0; animation: introGlow 1.6s ease 0.9s forwards; }
+@keyframes introGlow { 0% { opacity: 0; } 60% { opacity: 1; } 100% { opacity: 0.85; } }
+.intro-gajo { width: 118px; height: auto; opacity: 0; transform: scale(0.5);
+  filter: drop-shadow(0 0 18px rgba(242, 131, 34, 0.65));
+  animation: introGajo 1.2s cubic-bezier(0.2, 0.9, 0.2, 1) 0.9s forwards; }
+@keyframes introGajo { 0% { opacity: 0; transform: scale(0.5); } 55% { opacity: 1; transform: scale(1.14); } 100% { opacity: 1; transform: scale(1); } }
+.intro-hud { position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%); z-index: 2;
+  font-family: var(--font-mono), monospace; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--lilac); opacity: 0; animation: introFade 0.6s ease 0.4s forwards; }
+.intro-hud b { color: var(--violet-hi); animation: introBlink 1s steps(1) infinite; }
+@keyframes introFade { to { opacity: 1; } }
+@keyframes introBlink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .intro-trace { stroke-dashoffset: 0; animation: none; }
+  .intro-node, .intro-gajo, .intro-glow, .intro-hud { opacity: 1; transform: none; animation: none; }
+}
+
 /* ===== NAV / HUD superior ===== */
 .site-header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;

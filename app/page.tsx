@@ -1164,11 +1164,70 @@ function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: 
   )
 }
 
+// Trazas del circuito (PCB) que convergen hacia el centro y "encienden" el gajo
+const INTRO_TRACES = [
+  { d: "M0,120 H180 V300 H360", delay: 0.0, color: "#8C5CF2" },
+  { d: "M0,560 H240 V400 H380", delay: 0.14, color: "#7FD2FF" },
+  { d: "M320,0 V140 H460", delay: 0.08, color: "#F2B33D" },
+  { d: "M680,0 V160 H560", delay: 0.24, color: "#A87BFF" },
+  { d: "M1000,180 H820 V320 H640", delay: 0.05, color: "#7FD2FF" },
+  { d: "M1000,540 H760 V420 H620", delay: 0.2, color: "#F28322" },
+  { d: "M420,700 V540 H500", delay: 0.18, color: "#8C5CF2" },
+  { d: "M600,700 V560 H540", delay: 0.3, color: "#A87BFF" },
+  { d: "M120,360 H320", delay: 0.34, color: "#7FD2FF" },
+  { d: "M880,360 H660", delay: 0.3, color: "#F2B33D" },
+]
+const INTRO_NODES = [
+  [360, 300], [380, 400], [460, 140], [560, 160], [640, 320],
+  [620, 420], [500, 540], [540, 560], [320, 360], [660, 360],
+]
+
+function CircuitIntro({ out }: { out: boolean }) {
+  return (
+    <div className={`intro ${out ? "out" : ""}`}>
+      <svg className="intro-circuit" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g>
+          {INTRO_TRACES.map((t, i) => (
+            <path
+              key={i}
+              d={t.d}
+              pathLength={1}
+              className="intro-trace"
+              style={{ stroke: t.color, animationDelay: `${t.delay}s`, filter: `drop-shadow(0 0 5px ${t.color})` }}
+            />
+          ))}
+        </g>
+        <g>
+          {INTRO_NODES.map((n, i) => (
+            <rect
+              key={i}
+              x={n[0] - 5}
+              y={n[1] - 5}
+              width={10}
+              height={10}
+              className="intro-node"
+              transform={`rotate(45 ${n[0]} ${n[1]})`}
+              style={{ animationDelay: `${0.6 + i * 0.05}s` }}
+            />
+          ))}
+        </g>
+      </svg>
+      <div className="intro-core">
+        <span className="intro-glow" />
+        <img src="/images/gajo.png" className="intro-gajo" alt="Marandina" />
+      </div>
+      <div className="intro-hud">INICIANDO SISTEMA <b>▮</b></div>
+    </div>
+  )
+}
+
 export default function MarandinaPortfolio() {
   const [activeFilter, setActiveFilter] = useState("diseno")
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showIntro, setShowIntro] = useState(true)
+  const [introOut, setIntroOut] = useState(false)
   const sbarRef = useRef<HTMLDivElement>(null)
   const shudRef = useRef<HTMLSpanElement>(null)
 
@@ -1183,6 +1242,21 @@ export default function MarandinaPortfolio() {
       setSelectedWork(work)
     }
   }
+
+  // Intro de circuito: enciende el gajo y se desvanece
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    const t1 = setTimeout(() => setIntroOut(true), 2900)
+    const t2 = setTimeout(() => {
+      setShowIntro(false)
+      document.body.style.overflow = ""
+    }, 3700)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      document.body.style.overflow = ""
+    }
+  }, [])
 
   // Reveal al entrar en pantalla (re-observa al cambiar de filtro)
   useEffect(() => {
@@ -1256,6 +1330,9 @@ export default function MarandinaPortfolio() {
 
   return (
     <>
+      {/* Intro de circuito */}
+      {showIntro && <CircuitIntro out={introOut} />}
+
       {/* Fondo ambiental */}
       <div className="bg-fx" id="bgfx">
         <span className="aura a" />
