@@ -202,10 +202,19 @@ body::after {
 .intro-hud b { color: var(--violet-hi); animation: introBlink 1s steps(1) infinite; }
 @keyframes introFade { to { opacity: 1; } }
 @keyframes introBlink { 50% { opacity: 0; } }
+/* La intro es una animación de marca deliberada: se reproduce aun con reduce-motion
+   (sobreescribe la regla global de accesibilidad con mayor especificidad + !important) */
 @media (prefers-reduced-motion: reduce) {
-  .intro-trace { stroke-dashoffset: 0; animation: none; }
-  .intro-node, .intro-gajo, .intro-glow, .intro-hud { opacity: 1; transform: none; animation: none; }
-  .intro-spark, .intro-flash { display: none; }
+  .intro-trace { animation: introDraw 0.95s cubic-bezier(0.55, 0, 0.25, 1) forwards !important; }
+  .intro-node { animation: introNode 0.5s ease 0.85s forwards !important; }
+  .intro-spark { animation: introSpark 0.55s ease 1.0s forwards !important; }
+  .intro-flash { animation: introRing 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) 1.0s forwards !important; }
+  .intro-flash.r2 { animation: introRing 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) 1.12s forwards !important; }
+  .intro-glow { animation: introGlow 1.5s ease 1.05s forwards !important; }
+  .intro-gajo { animation: introGajo 1.0s cubic-bezier(0.2, 1.1, 0.25, 1) 1.02s forwards !important; }
+  .intro-hud { animation: introFade 0.6s ease 0.3s forwards !important; }
+  .intro-hud b { animation: introBlink 1s steps(1) infinite !important; }
+  .intro.out { animation: introOut 0.8s cubic-bezier(0.6, 0, 0.2, 1) forwards !important; }
 }
 
 /* ===== NAV / HUD superior ===== */
