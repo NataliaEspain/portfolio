@@ -1,27 +1,27 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Roboto, Playfair_Display, Space_Mono } from "next/font/google"
+import { Anton, Space_Grotesk, Space_Mono } from "next/font/google"
 import "./globals.css"
 
-const roboto = Roboto({
+const anton = Anton({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400"],
   display: "swap",
-  variable: "--font-roboto",
+  variable: "--font-anton",
 })
 
-const playfair = Playfair_Display({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-playfair",
+  variable: "--font-grotesk",
 })
 
 const spaceMono = Space_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
-  variable: "--font-space-mono",
+  variable: "--font-mono",
 })
 
 export const metadata: Metadata = {
@@ -74,9 +74,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${roboto.variable} ${playfair.variable} ${spaceMono.variable} scroll-smooth`}>
+    <html lang="es" className={`${anton.variable} ${spaceGrotesk.variable} ${spaceMono.variable} scroll-smooth`}>
       <head></head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   )
 }

@@ -1,79 +1,16 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
+import { QRCodeSVG } from "qrcode.react"
 import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react"
 
-// Colores de la marca por categoría
-const categoryColors = {
-  diseno: { r: 242, g: 131, b: 34 },   // naranja #F28322
-  paintings: { r: 242, g: 179, b: 61 }, // dorado #F2B33D
-  digital: { r: 140, g: 92, b: 242 },  // violeta #8C5CF2
-  tattoos: { r: 242, g: 131, b: 34 },  // naranja #F28322
-  videos: { r: 242, g: 179, b: 61 },   // dorado #F2B33D
-  tienda: { r: 140, g: 92, b: 242 },   // violeta #8C5CF2
-}
-
-// Componente de estela del mouse
-function MouseTrail({ color }: { color: { r: number; g: number; b: number } }) {
-  const [trails, setTrails] = useState<{ x: number; y: number; id: number }[]>([])
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const newTrail = {
-      x: e.clientX,
-      y: e.clientY,
-      id: Date.now(),
-    }
-    setTrails((prev) => [...prev.slice(-15), newTrail])
-  }, [])
-
-  useEffect(() => {
-    if (!isClient) return
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [handleMouseMove, isClient])
-
-  useEffect(() => {
-    if (!isClient) return
-    const interval = setInterval(() => {
-      setTrails((prev) => prev.slice(1))
-    }, 40)
-    return () => clearInterval(interval)
-  }, [isClient])
-
-  if (!isClient) return null
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999]" style={{ isolation: "isolate" }}>
-      {trails.map((trail, index) => (
-        <div
-          key={trail.id}
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            left: trail.x,
-            top: trail.y,
-            width: `${12 + index * 2}px`,
-            height: `${12 + index * 2}px`,
-            background: `radial-gradient(circle, rgba(${color.r}, ${color.g}, ${color.b}, ${0.3 + index * 0.04}) 0%, transparent 70%)`,
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 const navLinks = [
-  { href: "#inicio", label: "Inicio" },
-  { href: "#trabajo", label: "Trabajo" },
-  { href: "#skills", label: "Skills" },
-  { href: "#tienda", label: "Tienda" },
-  { href: "#contacto", label: "Contacto" },
+  { href: "#destacado", label: "DESTACADO" },
+  { href: "#trabajo", label: "TRABAJO" },
+  { href: "#stack", label: "STACK" },
+  { href: "#tienda", label: "TIENDA" },
+  { href: "#contacto", label: "CONTACTO" },
 ]
 
 interface Work {
@@ -85,16 +22,15 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "link" | "default" // expander = modal con info, slider = modal con carrusel, video = reproductor de video, store = tienda, scrollable = texto arriba + imagen scrolleable, link = abre URL externa (ej: Instagram)
-  images?: string[] // array de imágenes para el slider
-  video?: string // ruta al archivo de video local
-  youtubeId?: string // ID del video de YouTube
-  coverImage?: string // imagen de portada para la card (si es diferente a image)
-  qrCode?: string // código QR para mostrar en el modal
-  // Campos para tienda
-  price?: number // precio en pesos
-  dimensions?: string // medidas del producto
-  available?: boolean // disponibilidad
+  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "link" | "default"
+  images?: string[]
+  video?: string
+  youtubeId?: string
+  coverImage?: string
+  qrCode?: string
+  price?: number
+  dimensions?: string
+  available?: boolean
 }
 
 const allWorks: Work[] = [
@@ -105,7 +41,7 @@ const allWorks: Work[] = [
     category: "diseno",
     type: "Branding",
     image: "/images/divino-portada.jpg",
-    description: "Proyecto de diseño gráfico de identidad visual completo: creación de branding y aplicaciones de marca.",
+    description: "Sistema de marca completo: logotipo, paleta, tipografía y aplicaciones con un lenguaje visual coherente de principio a fin.",
     link: "https://www.behance.net/gallery/242558367/DiVino",
     size: "tall",
     cardType: "expander",
@@ -194,7 +130,6 @@ const allWorks: Work[] = [
     size: "normal",
     cardType: "expander",
   },
-  // ============ DEFAULT CARDS ============
   // ============ EXPANDER CARDS (Paintings) ============
   {
     id: 7,
@@ -730,16 +665,30 @@ const categories = [
   { id: "videos", label: "Videos" },
 ]
 
-// Skills/herramientas
+// Skills/herramientas con badge + nivel para los medidores
 const skills = [
-  { name: "Figma", icon: "/images/skills/figma.svg" },
-  { name: "Illustrator", icon: "/images/skills/illustrator.svg" },
-  { name: "Photoshop", icon: "/images/skills/photoshop.svg" },
-  { name: "After Effects", icon: "/images/skills/aftereffects.svg" },
-  { name: "Premiere Pro", icon: "/images/skills/premiere.svg" },
-  { name: "Canva", icon: "/images/skills/canva.svg" },
-  { name: "Procreate", icon: "/images/skills/procreate.svg" },
+  { name: "Illustrator", badge: "Ai", level: 95 },
+  { name: "Photoshop", badge: "Ps", level: 92 },
+  { name: "Figma", badge: "Fi", level: 88 },
+  { name: "Procreate", badge: "Pc", level: 90 },
+  { name: "After Effects", badge: "Ae", level: 78 },
+  { name: "Premiere Pro", badge: "Pr", level: 80 },
+  { name: "Canva", badge: "Cv", level: 85 },
 ]
+
+const tickerItems = [
+  "DISEÑO GRÁFICO", "ARTE DIGITAL", "TATUAJES", "BRANDING", "UX/UI",
+  "ILUSTRACIÓN", "FOTOMONTAJE", "PINTURA", "MOTION",
+]
+
+// Etiqueta del CTA según el tipo de card
+function ctaLabel(work: Work) {
+  if (work.cardType === "video") return "Reproducir"
+  if (work.cardType === "store") return "Comprar"
+  if (work.cardType === "link") return "Ver en Instagram"
+  if (work.cardType === "slider") return "Ver galería"
+  return "Ver proyecto"
+}
 
 // Modal con slider de imágenes y zoom
 function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
@@ -749,19 +698,14 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [])
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (zoomedImage) {
-          setZoomedImage(null)
-        } else {
-          onClose()
-        }
+        if (zoomedImage) setZoomedImage(null)
+        else onClose()
       }
       if (!zoomedImage) {
         if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
@@ -776,22 +720,13 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
 
   return (
-    <div
-      className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
-      style={{ animationDuration: '0.3s' }}
-    >
-      {/* Zoom overlay */}
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
       {zoomedImage && (
         <div
           className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center cursor-zoom-out p-4"
           onClick={() => setZoomedImage(null)}
         >
-          <Image
-            src={zoomedImage}
-            alt="Zoom"
-            fill
-            className="object-contain"
-          />
+          <Image src={zoomedImage} alt="Zoom" fill className="object-contain" />
           <button
             onClick={() => setZoomedImage(null)}
             className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -801,7 +736,6 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
         </div>
       )}
 
-      {/* Botón cerrar */}
       <button
         onClick={onClose}
         className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -809,12 +743,8 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
         <X className="w-6 h-6" />
       </button>
 
-      {/* Título */}
       <div className="absolute top-6 left-6 z-10">
-        <h2
-          className="text-2xl md:text-3xl font-bold text-foreground"
-          style={{ fontFamily: "var(--font-playfair)" }}
-        >
+        <h2 className="text-2xl md:text-3xl uppercase text-foreground" style={{ fontFamily: "var(--font-anton)" }}>
           {work.title}
         </h2>
         <p className="text-sm text-muted mt-1">Click en una imagen para hacer zoom</p>
@@ -841,12 +771,7 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
                 }`}
                 onClick={() => setZoomedImage(img)}
               >
-                <Image
-                  src={img}
-                  alt={`${work.title} - ${index + 1}`}
-                  fill
-                  className="object-contain"
-                />
+                <Image src={img} alt={`${work.title} - ${index + 1}`} fill className="object-contain" />
               </div>
             ))}
           </div>
@@ -885,12 +810,7 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
             style={{ minWidth: '250px', maxWidth: '400px', flex: '1 1 300px' }}
             onClick={() => setZoomedImage(img)}
           >
-            <Image
-              src={img}
-              alt={`${work.title} - ${index + 1}`}
-              fill
-              className="object-contain"
-            />
+            <Image src={img} alt={`${work.title} - ${index + 1}`} fill className="object-contain" />
           </div>
         ))}
       </div>
@@ -901,28 +821,18 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
 // Modal de pantalla completa para trabajos de diseño
 function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void }) {
   useEffect(() => {
-    // Bloquear scroll del body cuando el modal está abierto
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [])
 
-  // Cerrar con Escape
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
   }, [onClose])
 
   return (
-    <div
-      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
-      style={{ animationDuration: '0.3s' }}
-    >
-      {/* Botón cerrar */}
+    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
       <button
         onClick={onClose}
         className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -930,47 +840,30 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
         <X className="w-6 h-6" />
       </button>
 
-      {/* Contenido */}
       <div className="h-full overflow-y-auto">
         <div className="min-h-full flex flex-col md:flex-row">
-          {/* Imagen - lado izquierdo */}
           <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8">
             <div className="relative w-full h-full max-w-2xl">
-              <Image
-                src={work.image}
-                alt={work.title}
-                fill
-                className="object-contain"
-              />
+              <Image src={work.image} alt={work.title} fill className="object-contain" />
             </div>
           </div>
 
-          {/* Info - lado derecho */}
           <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-            <span className="inline-block px-4 py-2 mb-6 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+            <span className="inline-block px-4 py-2 mb-6 text-xs uppercase tracking-[0.2em] bg-primary/20 text-lilac rounded-full w-fit mono">
               {work.type}
             </span>
-
-            <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
+            <h2 className="text-4xl md:text-5xl lg:text-6xl uppercase text-foreground mb-6" style={{ fontFamily: "var(--font-anton)" }}>
               {work.title}
             </h2>
-
-            <p className="text-lg text-muted leading-relaxed mb-8">
-              {work.description}
-            </p>
-
+            <p className="text-lg text-muted leading-relaxed mb-8">{work.description}</p>
             {work.link && (
               <a
                 href={work.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors w-fit"
+                className="btn primary w-fit"
               >
-                Ver proyecto completo
-                <ExternalLink className="w-5 h-5" />
+                Ver proyecto completo <ExternalLink className="w-5 h-5" />
               </a>
             )}
           </div>
@@ -984,25 +877,17 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
 function ScrollableModal({ work, onClose }: { work: Work; onClose: () => void }) {
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [])
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
   }, [onClose])
 
   return (
-    <div
-      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
-      style={{ animationDuration: '0.3s' }}
-    >
-      {/* Botón cerrar */}
+    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
       <button
         onClick={onClose}
         className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -1010,37 +895,21 @@ function ScrollableModal({ work, onClose }: { work: Work; onClose: () => void })
         <X className="w-6 h-6" />
       </button>
 
-      {/* Contenido */}
       <div className="h-full overflow-y-auto">
         <div className="flex flex-col">
-          {/* Info - arriba */}
           <div className="p-8 md:p-12 lg:p-16 text-center">
-            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-[0.2em] bg-primary/20 text-lilac rounded-full w-fit mono">
               {work.type}
             </span>
-
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
+            <h2 className="text-3xl md:text-4xl lg:text-5xl uppercase text-foreground mb-4" style={{ fontFamily: "var(--font-anton)" }}>
               {work.title}
             </h2>
-
-            <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">
-              {work.description}
-            </p>
+            <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">{work.description}</p>
           </div>
 
-          {/* Imagen - abajo, scrolleable */}
           <div className="flex-1 bg-surface flex justify-center p-8">
             <div className="w-full max-w-4xl">
-              <Image
-                src={work.image}
-                alt={work.title}
-                width={1200}
-                height={1800}
-                className="w-full h-auto object-contain"
-              />
+              <Image src={work.image} alt={work.title} width={1200} height={1800} className="w-full h-auto object-contain" />
             </div>
           </div>
         </div>
@@ -1053,25 +922,17 @@ function ScrollableModal({ work, onClose }: { work: Work; onClose: () => void })
 function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [])
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
   }, [onClose])
 
   return (
-    <div
-      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up flex flex-col"
-      style={{ animationDuration: '0.3s' }}
-    >
-      {/* Botón cerrar */}
+    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up flex flex-col" style={{ animationDuration: '0.3s' }}>
       <button
         onClick={onClose}
         className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -1079,9 +940,7 @@ function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
         <X className="w-6 h-6" />
       </button>
 
-      {/* Contenido */}
       <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
-        {/* Video - lado izquierdo */}
         <div className="md:w-2/3 h-[50vh] md:h-full bg-black flex items-center justify-center p-4 md:p-8">
           {work.youtubeId ? (
             <iframe
@@ -1093,34 +952,20 @@ function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
               style={{ aspectRatio: '16/9', maxHeight: '80vh' }}
             />
           ) : (
-            <video
-              src={work.video}
-              controls
-              autoPlay
-              className="max-w-full max-h-full rounded-lg"
-              style={{ maxHeight: '80vh' }}
-            >
+            <video src={work.video} controls autoPlay className="max-w-full max-h-full rounded-lg" style={{ maxHeight: '80vh' }}>
               Tu navegador no soporta el tag de video.
             </video>
           )}
         </div>
 
-        {/* Info - lado derecho */}
         <div className="md:w-1/3 p-6 md:p-10 flex flex-col justify-center bg-surface/50 overflow-y-auto">
-          <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-accent/20 text-accent rounded-full w-fit">
+          <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-[0.2em] bg-accent/20 text-accent rounded-full w-fit mono">
             {work.type}
           </span>
-
-          <h2
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4"
-            style={{ fontFamily: "var(--font-playfair)" }}
-          >
+          <h2 className="text-2xl md:text-3xl lg:text-4xl uppercase text-foreground mb-4" style={{ fontFamily: "var(--font-anton)" }}>
             {work.title}
           </h2>
-
-          <p className="text-base text-muted leading-relaxed">
-            {work.description}
-          </p>
+          <p className="text-base text-muted leading-relaxed">{work.description}</p>
         </div>
       </div>
     </div>
@@ -1134,9 +979,7 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [])
 
   useEffect(() => {
@@ -1154,18 +997,13 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length)
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price)
-  }
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price)
 
   const whatsappLink = `https://wa.me/5491134249079?text=Hola! Me interesa ${work.title}`
 
   return (
-    <div
-      className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up"
-      style={{ animationDuration: '0.3s' }}
-    >
-      {/* Botón cerrar */}
+    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
       <button
         onClick={onClose}
         className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
@@ -1173,10 +1011,8 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
         <X className="w-6 h-6" />
       </button>
 
-      {/* Contenido */}
       <div className="h-full overflow-y-auto">
         <div className="min-h-full flex flex-col md:flex-row">
-          {/* Imagen/Slider - lado izquierdo */}
           <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8 relative">
             {images.length > 1 && (
               <>
@@ -1203,12 +1039,7 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
                     index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  <Image
-                    src={img}
-                    alt={`${work.title} - ${index + 1}`}
-                    fill
-                    className="object-contain"
-                  />
+                  <Image src={img} alt={`${work.title} - ${index + 1}`} fill className="object-contain" />
                 </div>
               ))}
             </div>
@@ -1228,34 +1059,19 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
             )}
           </div>
 
-          {/* Info - lado derecho */}
           <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-wider bg-primary/20 text-primary rounded-full w-fit">
+            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-[0.2em] bg-primary/20 text-lilac rounded-full w-fit mono">
               {work.type}
             </span>
-
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
+            <h2 className="text-3xl md:text-4xl lg:text-5xl uppercase text-foreground mb-4" style={{ fontFamily: "var(--font-anton)" }}>
               {work.title}
             </h2>
-
-            {/* Precio */}
-            {work.price && (
-              <p className="text-3xl md:text-4xl font-bold text-secondary mb-4">
-                {formatPrice(work.price)}
-              </p>
-            )}
-
-            {/* Medidas */}
+            {work.price && <p className="text-3xl md:text-4xl font-bold text-secondary mb-4">{formatPrice(work.price)}</p>}
             {work.dimensions && (
               <p className="text-muted mb-2">
                 <span className="font-medium text-foreground">Medidas:</span> {work.dimensions}
               </p>
             )}
-
-            {/* Disponibilidad */}
             <p className="mb-6">
               {work.available ? (
                 <span className="text-green-500 font-medium">✓ Disponible</span>
@@ -1263,12 +1079,7 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
                 <span className="text-red-500 font-medium">✗ No disponible</span>
               )}
             </p>
-
-            <p className="text-muted leading-relaxed mb-8">
-              {work.description}
-            </p>
-
-            {/* Botón WhatsApp */}
+            <p className="text-muted leading-relaxed mb-8">{work.description}</p>
             <a
               href={whatsappLink}
               target="_blank"
@@ -1287,770 +1098,466 @@ function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
   )
 }
 
-export default function MarandinaPortfolio() {
-  const [activeFilter, setActiveFilter] = useState("diseno")
-  const [isVisible, setIsVisible] = useState(false)
-  const [selectedWork, setSelectedWork] = useState<Work | null>(null)
-  const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
-  const [trailColor, setTrailColor] = useState(categoryColors.diseno)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [showIntro, setShowIntro] = useState(true)
-  const [introFading, setIntroFading] = useState(false)
-
-  useEffect(() => {
-    setIsVisible(true)
-    // Iniciar fade out después de 2.5 segundos
-    const fadeTimer = setTimeout(() => {
-      setIntroFading(true)
-    }, 2500)
-    // Ocultar completamente después de 3.5 segundos
-    const hideTimer = setTimeout(() => {
-      setShowIntro(false)
-    }, 3500)
-    return () => {
-      clearTimeout(fadeTimer)
-      clearTimeout(hideTimer)
-    }
-  }, [])
-
-  // Scroll animations - IntersectionObserver
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view')
-          }
-        })
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    )
-
-    const animatedElements = document.querySelectorAll('.scroll-animate, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale')
-    animatedElements.forEach((el) => observer.observe(el))
-
-    return () => observer.disconnect()
-  }, [showIntro]) // Re-run after intro hides
-
-  // Cambiar color cuando cambia el filtro
-  const handleFilterChange = (filterId: string) => {
-    setActiveFilter(filterId)
-    setTrailColor(categoryColors[filterId as keyof typeof categoryColors] || categoryColors.diseno)
-  }
-
-  const filteredWorks = activeFilter === "todos"
-    ? allWorks
-    : allWorks.filter(work => work.category === activeFilter)
-
-  const handleCardClick = (work: Work) => {
-    // Cambiar color de la estela según la categoría del trabajo
-    setTrailColor(categoryColors[work.category as keyof typeof categoryColors] || categoryColors.diseno)
-
-    // Cards tipo "link" abren la URL externa en una pestaña nueva (ej: Instagram)
-    if (work.cardType === "link" && work.link) {
-      window.open(work.link, "_blank", "noopener,noreferrer")
-      return
-    }
-
-    // Abrir modal para cards tipo "expander", "slider", "video", "store" o "scrollable"
-    if (work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable") {
-      setSelectedWork(work)
-    }
-  }
+// Tarjeta flip para el grid de trabajo
+function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: Work) => void }) {
+  const sizeClass =
+    work.size === "wide" ? "wide" : work.size === "full" ? "full" : work.size === "tall" ? "tall" : ""
+  const dir = idx % 2 === 0 ? "from-l" : "from-r"
+  const cover = work.coverImage || work.image
+  const isLocalVideo = work.cardType === "video" && work.video && !work.youtubeId
+  const catLabel = categories.find((c) => c.id === work.category)?.label || work.category
 
   return (
-    <div className="min-h-screen bg-background relative overflow-x-hidden">
-      {/* Intro / Splash Screen */}
-      {showIntro && (
-        <div
-          className={`fixed inset-0 z-[200] bg-background flex flex-col items-center justify-center transition-opacity duration-1000 ${
-            introFading ? 'opacity-0' : 'opacity-100'
-          }`}
-        >
-          {/* Destello / Burst effect */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div
-              className="w-[600px] h-[600px] rounded-full animate-pulse"
-              style={{
-                background: 'radial-gradient(circle, rgba(140, 92, 242, 0.4) 0%, rgba(242, 131, 34, 0.3) 30%, rgba(242, 179, 61, 0.2) 50%, transparent 70%)',
-                filter: 'blur(60px)',
-                animation: 'burst 2s ease-out forwards',
-              }}
-            />
-          </div>
-
-          {/* Gajo */}
-          <div
-            className="relative z-10 animate-fade-in-up"
-            style={{ animationDelay: '0.3s', animationDuration: '0.8s' }}
-          >
-            <Image
-              src="/images/gajo.png"
-              alt="Marandina"
-              width={120}
-              height={120}
-              className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-2xl"
-            />
-          </div>
-
-          {/* Texto Bienvenida */}
-          <h1
-            className="relative z-10 mt-6 text-3xl md:text-4xl font-bold text-foreground opacity-0 animate-fade-in-up"
-            style={{ animationDelay: '0.6s', animationDuration: '0.8s', animationFillMode: 'forwards', fontFamily: 'var(--font-playfair)' }}
-          >
-            Bienvenid@
-          </h1>
-
-          {/* Fuegos artificiales / Explosión de partículas */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Partículas que explotan hacia afuera */}
-            {[...Array(30)].map((_, i) => {
-              const angle = (i / 30) * 360
-              const distance = 150 + Math.random() * 200
-              const size = 4 + Math.random() * 8
-              const delay = Math.random() * 0.3
-              return (
-                <div
-                  key={`firework-${i}`}
-                  className="absolute rounded-full"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    width: `${size}px`,
-                    height: `${size}px`,
-                    background: i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D',
-                    boxShadow: `0 0 ${size * 2}px ${i % 3 === 0 ? '#8C5CF2' : i % 3 === 1 ? '#F28322' : '#F2B33D'}`,
-                    animation: `firework 2s ease-out forwards`,
-                    animationDelay: `${delay}s`,
-                    '--angle': `${angle}deg`,
-                    '--distance': `${distance}px`,
-                  } as React.CSSProperties}
-                />
-              )
-            })}
-            {/* Segunda capa de partículas más pequeñas */}
-            {[...Array(20)].map((_, i) => {
-              const angle = (i / 20) * 360 + 9
-              const distance = 100 + Math.random() * 150
-              const size = 2 + Math.random() * 4
-              const delay = 0.2 + Math.random() * 0.3
-              return (
-                <div
-                  key={`spark-${i}`}
-                  className="absolute rounded-full"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    width: `${size}px`,
-                    height: `${size}px`,
-                    background: '#fff',
-                    boxShadow: `0 0 ${size * 3}px #fff`,
-                    animation: `firework 1.5s ease-out forwards`,
-                    animationDelay: `${delay}s`,
-                    '--angle': `${angle}deg`,
-                    '--distance': `${distance}px`,
-                  } as React.CSSProperties}
-                />
-              )
-            })}
-            {/* Estrellas que brillan */}
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={`star-${i}`}
-                className="absolute"
-                style={{
-                  left: `${20 + Math.random() * 60}%`,
-                  top: `${20 + Math.random() * 60}%`,
-                  width: '4px',
-                  height: '4px',
-                  background: '#fff',
-                  boxShadow: '0 0 10px #fff, 0 0 20px #fff',
-                  animation: `twinkle 1s ease-in-out infinite`,
-                  animationDelay: `${0.5 + Math.random() * 1}s`,
-                }}
+    <div
+      className={`card ${sizeClass} reveal ${dir}`}
+      tabIndex={0}
+      role="button"
+      style={{ transitionDelay: `${(idx % 6) * 0.06}s` }}
+      onClick={() => onOpen(work)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          onOpen(work)
+        }
+      }}
+    >
+      <div className="card-inner">
+        {/* FRENTE */}
+        <div className="face front">
+          <span className="no">{String(idx + 1).padStart(2, "0")}</span>
+          <span className="hint">⇋</span>
+          {isLocalVideo ? (
+            <div className="thumb">
+              <video
+                src={work.video}
+                muted
+                loop
+                playsInline
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
               />
-            ))}
+            </div>
+          ) : (
+            <div className="thumb" style={{ backgroundImage: `url("${cover}")` }} />
+          )}
+          <div className="fb">
+            <span className="cat">{work.type}</span>
+            <h3>{work.title}</h3>
           </div>
         </div>
-      )}
 
-      {/* Manchas de pintura / glow de fondo */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Mancha violeta arriba izquierda */}
-        <div
-          className="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(140, 92, 242, 0.35) 0%, transparent 60%)",
-            filter: "blur(40px)",
-          }}
-        />
-        {/* Mancha naranja arriba derecha */}
-        <div
-          className="absolute top-40 -right-10 w-[400px] h-[400px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(242, 131, 34, 0.3) 0%, transparent 60%)",
-            filter: "blur(50px)",
-          }}
-        />
-        {/* Mancha dorada centro izquierda */}
-        <div
-          className="absolute top-[60%] -left-10 w-[450px] h-[450px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(242, 179, 61, 0.25) 0%, transparent 60%)",
-            filter: "blur(45px)",
-          }}
-        />
-        {/* Mancha violeta abajo derecha */}
-        <div
-          className="absolute bottom-20 right-10 w-[500px] h-[500px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(140, 92, 242, 0.3) 0%, transparent 60%)",
-            filter: "blur(50px)",
-          }}
-        />
+        {/* DORSO */}
+        <div className="face back">
+          <div>
+            <span className="cat">{String(idx + 1).padStart(2, "0")} · {catLabel}</span>
+            <h3>{work.title}</h3>
+            {work.description ? <p>{work.description}</p> : <p>Pieza de la serie {work.title}.</p>}
+            <div className="tools">
+              <i>{work.type}</i>
+              <i>{catLabel}</i>
+            </div>
+          </div>
+          <span className="go">{ctaLabel(work)} <b>↗</b></span>
+        </div>
       </div>
-
-      {/* Estela del mouse */}
-      <MouseTrail color={trailColor} />
-
-      {/* Modal de pantalla completa */}
-      {selectedWork && selectedWork.cardType === "slider" && (
-        <SliderModal work={selectedWork} onClose={() => setSelectedWork(null)} />
-      )}
-      {selectedWork && selectedWork.cardType === "expander" && (
-        <FullscreenModal work={selectedWork} onClose={() => setSelectedWork(null)} />
-      )}
-      {selectedWork && selectedWork.cardType === "video" && (
-        <VideoModal work={selectedWork} onClose={() => setSelectedWork(null)} />
-      )}
-      {selectedWork && selectedWork.cardType === "store" && (
-        <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />
-      )}
-      {selectedWork && selectedWork.cardType === "scrollable" && (
-        <ScrollableModal work={selectedWork} onClose={() => setSelectedWork(null)} />
-      )}
-      {selectedStoreProduct && (
-        <StoreModal work={selectedStoreProduct} onClose={() => setSelectedStoreProduct(null)} />
-      )}
-
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          {/* Logo - gajo + text juntos a la izquierda */}
-          <a href="#inicio" className="flex items-center gap-2 group">
-            <Image
-              src="/images/gajo.png"
-              alt="Marandina Logo"
-              width={50}
-              height={50}
-              className="h-10 md:h-12 w-auto object-contain"
-            />
-            <Image
-              src="/images/marandinatext.png"
-              alt="Marandina"
-              width={150}
-              height={40}
-              className="hidden md:block h-8 md:h-10 w-auto object-contain"
-            />
-          </a>
-
-          {/* Nav links - derecha (desktop) */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link, index) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="relative text-sm font-medium text-muted hover:text-foreground transition-all duration-300 py-2 px-3 rounded-full hover:bg-primary/10 group"
-              >
-                <span className="relative z-10">{link.label}</span>
-                <span
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-3/4"
-                  style={{
-                    background: index % 3 === 0 ? '#8C5CF2' : index % 3 === 1 ? '#F28322' : '#F2B33D'
-                  }}
-                />
-              </a>
-            ))}
-          </nav>
-
-          {/* Hamburger button - mobile */}
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`} />
-            <span className={`block w-6 h-0.5 bg-foreground transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-          </button>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 py-6">
-            <div className="flex flex-col items-center gap-2">
-              {navLinks.map((link, index) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-base font-medium text-muted hover:text-foreground transition-all duration-300 py-3 px-6 rounded-full hover:bg-primary/10"
-                  style={{
-                    borderLeft: `3px solid ${index % 3 === 0 ? '#8C5CF2' : index % 3 === 1 ? '#F28322' : '#F2B33D'}`
-                  }}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </nav>
-        )}
-      </header>
-
-      {/* Header Image */}
-      <div className="w-full relative mt-[56px] md:mt-[60px] flex justify-center bg-background">
-        <Image
-          src="/images/header.jpg"
-          alt="Header"
-          width={1200}
-          height={400}
-          className="w-full max-w-5xl h-auto object-contain"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-      </div>
-
-      {/* Hero Section con logo flotante y info completa */}
-      <section id="inicio" className="hero-gradient animate-gradient min-h-[80vh] flex items-center relative px-6 md:px-12 py-16">
-        {/* Background gradient orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]" />
-        </div>
-
-        <div className="max-w-6xl mx-auto w-full relative z-10">
-          <div className={`grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}>
-            {/* Left: Logo + Name + Description */}
-            <div className="order-2 md:order-1">
-              {/* Logo flotante */}
-              <div
-                className="mb-8 animate-float opacity-0 animate-fade-in-up"
-                style={{ animationDelay: "0.1s" }}
-              >
-                <div className="inline-flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full bg-primary/20 animate-pulse-glow">
-                  <Image
-                    src="/images/marandina-logo-float.png"
-                    alt="Marandina Logo"
-                    width={100}
-                    height={100}
-                    className="w-20 h-20 md:w-24 md:h-24 object-contain"
-                  />
-                </div>
-              </div>
-
-              {/* Nombre */}
-              <h1
-                className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] mb-4 opacity-0 animate-fade-in-up"
-                style={{ animationDelay: "0.2s", fontFamily: "var(--font-playfair)" }}
-              >
-                <span className="text-secondary">Natalia</span>{" "}
-                <span className="text-foreground">Espain</span>
-              </h1>
-
-              {/* Subtítulo */}
-              <p
-                className="text-xs uppercase tracking-[0.3em] text-primary mb-8 opacity-0 animate-fade-in-up font-medium"
-                style={{ animationDelay: "0.3s" }}
-              >
-                Artista Multimedia
-              </p>
-
-              {/* Descripción completa */}
-              <p
-                className="text-foreground leading-relaxed mb-4 opacity-0 animate-fade-in-up"
-                style={{ animationDelay: "0.4s" }}
-              >
-                Soy una artista multidisciplinaria apasionada que cree en el poder del <span className="text-secondary">color</span>,
-                la <span className="text-secondary">forma</span> y la <span className="text-secondary">emoción</span> para transformar espacios y almas. Actualmente soy estudiante
-                de la <span className="text-secondary">Escuela Da Vinci</span> en la carrera de Diseño Multimedia, donde perfecciono mis
-                habilidades técnicas y creativas.
-              </p>
-
-              <p
-                className="text-foreground leading-relaxed mb-8 opacity-0 animate-fade-in-up"
-                style={{ animationDelay: "0.5s" }}
-              >
-                Mi trayectoria abarca <span className="text-secondary">pinturas tradicionales</span>, <span className="text-secondary">arte digital</span> de vanguardia y <span className="text-secondary">diseños
-                de tatuajes</span> significativos. Cada medio ofrece un lenguaje único para expresar las
-                historias vibrantes que viven dentro de todos nosotros.
-              </p>
-
-              {/* Social links */}
-              <div className="relative z-10">
-                <p
-                  className="text-xs uppercase tracking-[0.2em] text-muted mb-4 opacity-0 animate-fade-in-up"
-                  style={{ animationDelay: "0.6s" }}
-                >
-                  Conectemos
-                </p>
-                <div
-                  className="flex gap-3 opacity-0 animate-fade-in-up relative z-10"
-                  style={{ animationDelay: "0.7s" }}
-                >
-                  <a href="mailto:nataliaespain97@gmail.com" className="social-btn relative z-20" aria-label="Email" onClick={(e) => e.stopPropagation()}>
-                    <Mail className="w-5 h-5" />
-                  </a>
-                  <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="Instagram" onClick={(e) => e.stopPropagation()}>
-                    <Instagram className="w-5 h-5" />
-                  </a>
-                  <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="Behance" onClick={(e) => e.stopPropagation()}>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
-                    </svg>
-                  </a>
-                  <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn relative z-20" aria-label="LinkedIn" onClick={(e) => e.stopPropagation()}>
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Photo with glow effect */}
-            <div className="order-1 md:order-2 flex justify-center md:justify-end">
-              <div
-                className="photo-glow rounded-2xl overflow-hidden opacity-0 animate-fade-in-up"
-                style={{ animationDelay: "0.3s" }}
-              >
-                <Image
-                  src="/images/natalia-photo.jpg"
-                  alt="Natalia Espain"
-                  width={400}
-                  height={500}
-                  className="w-64 md:w-72 lg:w-80 h-auto object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery Section */}
-      <section id="trabajo" className="py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          {/* Section header */}
-          <div className="mb-10 text-center scroll-animate">
-            <h2
-              className="text-4xl md:text-5xl font-bold text-foreground mb-3"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              Mis <span className="text-primary">Proyectos</span>
-            </h2>
-            <p className="text-muted max-w-xl mx-auto">
-              Una colección de mis proyectos de diseño, ilustración y arte digital
-            </p>
-          </div>
-
-          {/* Filter pills */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleFilterChange(cat.id)}
-                className={`filter-pill ${activeFilter === cat.id ? "active" : ""}`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Masonry Grid */}
-          <div className="masonry-grid">
-            {filteredWorks.map((work, idx) => (
-              <div
-                key={work.id}
-                className="masonry-item opacity-0 animate-fade-in-up"
-                style={{ animationDelay: `${idx * 0.08}s` }}
-              >
-                <div
-                  className="gallery-card group cursor-pointer"
-                  onClick={() => handleCardClick(work)}
-                >
-                  <div
-                    className={`relative overflow-hidden ${
-                      work.size === "tall" ? "aspect-[3/4]" :
-                      work.size === "wide" ? "aspect-[4/3]" :
-                      work.size === "full" ? "aspect-[2/3]" :
-                      "aspect-square"
-                    }`}
-                  >
-                    {work.cardType === "video" && work.video && !work.youtubeId ? (
-                      <video
-                        src={work.video}
-                        muted
-                        loop
-                        playsInline
-                        className="gallery-card-image object-cover w-full h-full absolute inset-0"
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.pause()
-                          e.currentTarget.currentTime = 0
-                        }}
-                      />
-                    ) : (
-                      <Image
-                        src={work.coverImage || work.image}
-                        alt={work.title}
-                        fill
-                        className="gallery-card-image object-cover"
-                        unoptimized={(work.coverImage || work.image).startsWith('https://')}
-                      />
-                    )}
-
-                    {/* Hover overlay */}
-                    <div className="gallery-card-overlay">
-                      <span className="inline-block px-3 py-1 mb-2 text-[10px] uppercase tracking-wider bg-primary/80 text-primary-foreground rounded-full w-fit">
-                        {work.type}
-                      </span>
-
-                      <h3
-                        className="text-xl font-bold text-white mb-2"
-                        style={{ fontFamily: "var(--font-playfair)" }}
-                      >
-                        {work.title}
-                      </h3>
-
-                      <p className="text-white/70 text-sm line-clamp-2 mb-2">
-                        {work.description}
-                      </p>
-
-                      {/* Mostrar precio en cards de tienda */}
-                      {work.cardType === "store" && work.price && (
-                        <p className="text-secondary font-bold text-lg mb-2">
-                          ${work.price.toLocaleString('es-AR')}
-                        </p>
-                      )}
-
-                      {/* Solo mostrar link en cards que NO son expander, slider, video, store ni link */}
-                      {work.cardType !== "expander" && work.cardType !== "slider" && work.cardType !== "video" && work.cardType !== "store" && work.cardType !== "link" && work.link && (
-                        <a
-                          href={work.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-primary text-sm font-medium hover:text-accent transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Ver en Behance
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
-
-                      {/* Indicador de click para expander, slider, video, store, scrollable y link cards */}
-                      {(work.cardType === "expander" || work.cardType === "slider" || work.cardType === "video" || work.cardType === "store" || work.cardType === "scrollable" || work.cardType === "link") && (
-                        <span className="text-primary text-sm font-medium">
-                          {work.cardType === "video" ? "Click para reproducir" : work.cardType === "store" ? "Click para comprar" : work.cardType === "link" ? "Ver en Instagram" : "Click para ver más"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" className="py-16 md:py-24 px-6 md:px-12 bg-surface/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="scroll-animate">
-            <h2
-              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              Herramientas que <span className="text-primary">domino</span>
-            </h2>
-            <p className="text-muted mb-12 max-w-xl mx-auto">
-              Software y aplicaciones que utilizo en mi día a día para crear
-            </p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-            {/* Figma */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#1abcfe] via-[#0acf83] to-[#a259ff]">
-                <svg className="w-7 h-7 md:w-8 md:h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5zM12 2h3.5a3.5 3.5 0 1 1 0 7H12V2zm0 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0zm-7 0A3.5 3.5 0 0 1 8.5 11H12v3.5a3.5 3.5 0 1 1-7 0zM5 12a3.5 3.5 0 0 0 3.5 3.5H12V9H8.5A3.5 3.5 0 0 0 5 12z"/>
-                </svg>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Figma</span>
-            </div>
-
-            {/* Illustrator */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#330000]">
-                <span className="text-[#ff9a00] font-bold text-lg md:text-xl">Ai</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Illustrator</span>
-            </div>
-
-            {/* Photoshop */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#001e36]">
-                <span className="text-[#31a8ff] font-bold text-lg md:text-xl">Ps</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Photoshop</span>
-            </div>
-
-            {/* After Effects */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#00005b]">
-                <span className="text-[#9999ff] font-bold text-lg md:text-xl">Ae</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">After Effects</span>
-            </div>
-
-            {/* Premiere */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-[#00005b]">
-                <span className="text-[#9999ff] font-bold text-lg md:text-xl">Pr</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Premiere Pro</span>
-            </div>
-
-            {/* Canva */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#00c4cc] to-[#7d2ae8]">
-                <span className="text-white font-bold text-lg md:text-xl">C</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Canva</span>
-            </div>
-
-            {/* Procreate */}
-            <div className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all hover:scale-105">
-              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-lg bg-black">
-                <span className="text-white font-bold text-lg md:text-xl">P</span>
-              </div>
-              <span className="text-sm text-muted group-hover:text-foreground transition-colors">Procreate</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Tienda Section */}
-      <section id="tienda" className="py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          {/* Section header */}
-          <div className="mb-10 text-center scroll-animate">
-            <h2
-              className="text-4xl md:text-5xl font-bold text-foreground mb-3"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              <span className="text-primary">Tienda</span>
-            </h2>
-            <p className="text-muted max-w-xl mx-auto">
-              Cuadros y accesorios pintados a mano, piezas únicas para tu hogar
-            </p>
-          </div>
-
-          {/* Store Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {storeProducts.map((product, idx) => (
-              <div
-                key={product.id}
-                className="opacity-0 animate-fade-in-up"
-                style={{ animationDelay: `${idx * 0.08}s` }}
-              >
-                <div
-                  className="gallery-card group cursor-pointer"
-                  onClick={() => {
-                    setTrailColor(categoryColors.tienda)
-                    setSelectedStoreProduct(product)
-                  }}
-                >
-                  <div className="relative overflow-hidden aspect-square">
-                    <Image
-                      src={product.image}
-                      alt={product.title}
-                      fill
-                      className="gallery-card-image object-cover"
-                    />
-
-                    {/* Hover overlay */}
-                    <div className="gallery-card-overlay">
-                      <span className="inline-block px-3 py-1 mb-2 text-[10px] uppercase tracking-wider bg-primary/80 text-primary-foreground rounded-full w-fit">
-                        {product.type}
-                      </span>
-
-                      <h3
-                        className="text-xl font-bold text-white mb-2"
-                        style={{ fontFamily: "var(--font-playfair)" }}
-                      >
-                        {product.title}
-                      </h3>
-
-                      {/* Precio */}
-                      {product.price && (
-                        <p className="text-secondary font-bold text-xl mb-2">
-                          ${product.price.toLocaleString('es-AR')}
-                        </p>
-                      )}
-
-                      {/* Medidas */}
-                      {product.dimensions && (
-                        <p className="text-white/70 text-sm mb-2">
-                          {product.dimensions}
-                        </p>
-                      )}
-
-                      <span className="text-primary text-sm font-medium">
-                        Click para ver más
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer id="contacto" className="py-6 px-6 border-t border-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Copyright - izquierda */}
-          <p className="text-xs text-muted order-3 md:order-1">
-            &copy; 2026 Todos los derechos reservados
-          </p>
-
-          {/* Logo - centro */}
-          <Image
-            src="/images/marandina-logo.png"
-            alt="Marandina"
-            width={220}
-            height={60}
-            className="h-16 w-auto object-contain order-1 md:order-2"
-          />
-
-          {/* Redes sociales - derecha */}
-          <div className="flex gap-3 order-2 md:order-3 relative z-10">
-            <a href="mailto:nataliaespain97@gmail.com" className="social-btn !w-9 !h-9 relative z-20" aria-label="Email" onClick={(e) => e.stopPropagation()}>
-              <Mail className="w-4 h-4" />
-            </a>
-            <a href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="Instagram" onClick={(e) => e.stopPropagation()}>
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="Behance" onClick={(e) => e.stopPropagation()}>
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
-              </svg>
-            </a>
-            <a href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer" className="social-btn !w-9 !h-9 relative z-20" aria-label="LinkedIn" onClick={(e) => e.stopPropagation()}>
-              <Linkedin className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
 
+export default function MarandinaPortfolio() {
+  const [activeFilter, setActiveFilter] = useState("diseno")
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null)
+  const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const sbarRef = useRef<HTMLDivElement>(null)
+  const shudRef = useRef<HTMLSpanElement>(null)
+
+  const filteredWorks = allWorks.filter((work) => work.category === activeFilter)
+
+  const handleCardClick = (work: Work) => {
+    if (work.cardType === "link" && work.link) {
+      window.open(work.link, "_blank", "noopener,noreferrer")
+      return
+    }
+    if (["expander", "slider", "video", "store", "scrollable"].includes(work.cardType || "")) {
+      setSelectedWork(work)
+    }
+  }
+
+  // Reveal al entrar en pantalla (re-observa al cambiar de filtro)
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in")
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    )
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [activeFilter])
+
+  // Parallax + scroll bar + HUD + auras (una vez)
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const parY = Array.from(document.querySelectorAll<HTMLElement>("[data-par]"))
+    const parX = Array.from(document.querySelectorAll<HTMLElement>("[data-parx]"))
+    const stage = document.getElementById("stage")
+    const bgfx = document.getElementById("bgfx")
+    const auras = bgfx ? (Array.from(bgfx.children) as HTMLElement[]) : []
+    let mx = 0, my = 0, ticking = false
+
+    const frame = () => {
+      ticking = false
+      const vh = window.innerHeight, mid = vh / 2
+      const h = document.documentElement
+      const max = h.scrollHeight - vh
+      const p = max > 0 ? Math.min(1, h.scrollTop / max) : 0
+      if (!reduce) {
+        if (auras[0]) auras[0].style.transform = `translate3d(${p * 8}vw, ${p * -30}vh, 0)`
+        if (auras[1]) auras[1].style.transform = `translate3d(${p * -10}vw, ${p * 22}vh, 0)`
+        if (auras[2]) auras[2].style.transform = `translate3d(${p * 14}vw, ${p * -18}vh, 0)`
+        if (bgfx) bgfx.style.filter = `hue-rotate(${(p * 46).toFixed(1)}deg)`
+        parY.forEach((el) => {
+          const r = el.getBoundingClientRect(), off = r.top + r.height / 2 - mid
+          const sp = parseFloat(el.dataset.par || "0"), base = el.dataset.base || ""
+          el.style.transform = `translateY(${(off * sp).toFixed(1)}px) ${base}`
+        })
+        parX.forEach((el) => {
+          const r = el.getBoundingClientRect(), off = r.top + r.height / 2 - mid
+          const sp = parseFloat(el.dataset.parx || "0")
+          el.style.transform = `translateX(${(off * sp).toFixed(1)}px)`
+        })
+        if (stage) stage.style.transform = `translate(${mx * 22}px,${my * 22}px) rotate(${mx * 4}deg)`
+      }
+      if (sbarRef.current) sbarRef.current.style.width = p * 100 + "%"
+      if (shudRef.current) shudRef.current.textContent = String(Math.round(p * 100)).padStart(3, "0") + "%"
+    }
+    const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame) } }
+    window.addEventListener("scroll", req, { passive: true })
+    window.addEventListener("resize", req)
+    const onMove = (e: MouseEvent) => {
+      mx = e.clientX / window.innerWidth - 0.5
+      my = e.clientY / window.innerHeight - 0.5
+      req()
+    }
+    if (!reduce) window.addEventListener("mousemove", onMove)
+    frame()
+    return () => {
+      window.removeEventListener("scroll", req)
+      window.removeEventListener("resize", req)
+      window.removeEventListener("mousemove", onMove)
+    }
+  }, [])
+
+  return (
+    <>
+      {/* Fondo ambiental */}
+      <div className="bg-fx" id="bgfx">
+        <span className="aura a" />
+        <span className="aura b" />
+        <span className="aura c" />
+      </div>
+      <div className="scroll-bar" ref={sbarRef} />
+      <div className="scroll-hud">SYS · SCROLL <span ref={shudRef}>000%</span></div>
+
+      {/* Modales */}
+      {selectedWork && selectedWork.cardType === "slider" && <SliderModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
+      {selectedWork && selectedWork.cardType === "expander" && <FullscreenModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
+      {selectedWork && selectedWork.cardType === "video" && <VideoModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
+      {selectedWork && selectedWork.cardType === "store" && <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
+      {selectedWork && selectedWork.cardType === "scrollable" && <ScrollableModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
+      {selectedStoreProduct && <StoreModal work={selectedStoreProduct} onClose={() => setSelectedStoreProduct(null)} />}
+
+      {/* NAV / HUD */}
+      <header className="site-header">
+        <div className="nav">
+          <a href="#inicio" className="brand">
+            <span className="glyph">
+              <Image src="/images/gajo.png" alt="Marandina" width={62} height={34} />
+            </span>
+            <span>MARANDINA</span>
+          </a>
+          <nav className="links">
+            {navLinks.map((l) => (
+              <a key={l.href} href={l.href}>{l.label}</a>
+            ))}
+          </nav>
+          <button className="menu-btn" onClick={() => setMobileMenuOpen((v) => !v)}>MENÚ</button>
+        </div>
+        <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
+          {navLinks.map((l) => (
+            <a key={l.href} href={l.href} onClick={() => setMobileMenuOpen(false)}>{l.label}</a>
+          ))}
+        </div>
+      </header>
+
+      {/* HERO */}
+      <section className="hero" id="inicio">
+        <div className="ghost-word" data-par="0.10" data-base="rotate(90deg)">MARANDINA</div>
+        <div className="wrap">
+          <div className="hero-grid">
+            <div className="hero-left reveal">
+              <div className="hero-meta">
+                <span className="tag"><span className="dot" />ARTE</span>
+                <span className="tag mono">AMOR</span>
+                <span className="tag mono">CONEXIÓN</span>
+              </div>
+              <h1>NATALIA<span className="l2">ESPAIN</span></h1>
+              <div className="role">Artista Multimedia</div>
+              <p className="bio">
+                Soy una artista multidisciplinaria apasionada que cree en el poder del <b>color, la forma y la emoción</b> para transformar espacios y almas. Actualmente soy estudiante de la <b>Escuela Da Vinci</b> en la carrera de Diseño Multimedia, donde perfecciono mis habilidades técnicas y creativas.
+              </p>
+              <p className="bio" style={{ marginTop: "16px" }}>
+                Mi trayectoria abarca <b>pinturas tradicionales, arte digital de vanguardia y diseños de tatuajes</b> significativos. Cada medio ofrece un lenguaje único para expresar las historias vibrantes que viven dentro de todos nosotros.
+              </p>
+              <div className="hero-cta">
+                <a href="#trabajo" className="btn primary">Ver trabajo <span aria-hidden="true">↘</span></a>
+                <a href="#contacto" className="btn ghost">Trabajemos juntxs</a>
+              </div>
+            </div>
+
+            <div className="hero-right reveal">
+              <div className="hud-note tr">COLOR · FORMA<br />EMOCIÓN</div>
+              <div className="hud-note bl">ÓLEO · PÍXEL · TINTA<br />HECHO CON EL ALMA</div>
+              <div className="stage" id="stage">
+                <div className="orbit" />
+                <div className="orbit two" />
+                <span className="chip a" />
+                <span className="chip b" />
+                <span className="chip c" />
+                <div className="glow" />
+                <div className="palette-wrap">
+                  <div className="palette" />
+                  <span className="blob v" />
+                  <span className="blob o" />
+                  <span className="blob p" />
+                  <span className="blob c" />
+                  <span className="blob m" />
+                  <span className="blob w" />
+                  <div className="brush"><span className="tip" /><span className="ferrule" /><span className="handle" /></div>
+                </div>
+                <span className="star" style={{ ["--s" as string]: "26px", position: "absolute", top: "-14px", left: "8%" }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TICKER */}
+      <div className="ticker">
+        <div className="ticker-track">
+          <span>{tickerItems.map((t) => <span key={"a" + t}>{t} •&nbsp;</span>)}</span>
+          <span>{tickerItems.map((t) => <span key={"b" + t}>{t} •&nbsp;</span>)}</span>
+        </div>
+      </div>
+
+      {/* DESTACADO — proyecto colaborativo con web + 3D en vivo */}
+      <section id="destacado" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// COLABORACIÓN · PROYECTO DESTACADO</span>
+            <h2 data-parx="0.05">DESTA<em>CADO</em></h2>
+          </div>
+          <span className="idx reveal">[ WEB + 3D / EN VIVO ]</span>
+        </div>
+
+        <a
+          href="https://magenta-churros-b179d9.netlify.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotlight reveal"
+        >
+          <div className="spotlight-info">
+            <span className="tag"><span className="dot" />EN VIVO</span>
+            <h3>Miss Lupe</h3>
+            <p>
+              Sitio web para <b>Miss Lupe</b> (DJ · productora · cantante), con <b>objetos 3D integrados</b> que se pueden rotar en tiempo real. Diseño, desarrollo y modelado 3D — hecho en colaboración.
+            </p>
+            <div className="spot-tools">
+              <i>Three.js</i><i>WebGL</i><i>Diseño Web</i><i>Modelado 3D</i>
+            </div>
+            <span className="spot-cta">Entrar al sitio <b>↗</b></span>
+          </div>
+
+          <div className="browser">
+            <div className="browser-view">
+              <Image
+                src="/images/misslupe-banner.png"
+                alt="Banner de la web de Miss Lupe"
+                fill
+                className="browser-img"
+                sizes="(max-width: 900px) 100vw, 55vw"
+              />
+            </div>
+          </div>
+        </a>
+      </section>
+
+      {/* TRABAJO */}
+      <section id="trabajo" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// ARCHIVO SELECCIONADO</span>
+            <h2 data-parx="0.05">TRABA<em>JO</em></h2>
+          </div>
+          <span className="idx reveal">[ {filteredWorks.length} PIEZAS / 2024–2025 ]</span>
+        </div>
+
+        <div className="filters">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveFilter(cat.id)}
+              className={`filter-pill ${activeFilter === cat.id ? "active" : ""}`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="work">
+          {filteredWorks.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
+        </div>
+      </section>
+
+      {/* STACK */}
+      <section id="stack" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// HERRAMIENTAS QUE DOMINO</span>
+            <h2 data-parx="-0.05">STA<em>CK</em></h2>
+          </div>
+          <span className="idx reveal">[ SW / SUITE CREATIVA ]</span>
+        </div>
+
+        <div className="stack">
+          <div className="spec reveal">
+            <h4>Software</h4>
+            {skills.map((s) => (
+              <div className="tool-row" key={s.name}>
+                <span className="name"><span className="badge">{s.badge}</span>{s.name}</span>
+                <span className="meter"><i style={{ width: `${s.level}%` }} /></span>
+              </div>
+            ))}
+          </div>
+          <div className="aside-cards">
+            <div className="mini reveal from-r"><span className="big">6+</span><span className="lab">Disciplinas creativas</span></div>
+            <div className="mini reveal from-r"><span className="big">∞</span><span className="lab">Ideas por proyecto</span></div>
+            <div className="mini reveal from-r" style={{ background: "radial-gradient(120% 120% at 100% 0%, rgba(242,131,34,.16), transparent 60%), var(--panel)" }}>
+              <span className="lab" style={{ margin: "0 0 10px", color: "var(--lilac)" }}>Estudiante en</span>
+              <div className="display" style={{ fontSize: "30px", lineHeight: 1 }}>Escuela Da Vinci</div>
+              <span className="lab">Diseño Multimedia</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TIENDA */}
+      <section id="tienda" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// OBRA DISPONIBLE</span>
+            <h2 data-parx="0.05">TIEN<em>DA</em></h2>
+          </div>
+          <span className="idx reveal">[ PIEZAS ÚNICAS / 2025 ]</span>
+        </div>
+
+        <div className="shop-note reveal">
+          <span><b>Envíos</b> a todo el país</span><span className="sep" />
+          <span><b>Pagos</b> por WhatsApp</span><span className="sep" />
+          <span><b>Piezas</b> pintadas a mano</span>
+        </div>
+
+        <div className="shop">
+          {storeProducts.map((product, idx) => {
+            const soldOut = product.available === false
+            return (
+              <article
+                key={product.id}
+                className={`prod reveal ${idx % 2 === 0 ? "from-l" : "from-r"} ${soldOut ? "sold" : ""}`}
+                style={{ transitionDelay: `${(idx % 4) * 0.06}s` }}
+                onClick={() => !soldOut && setSelectedStoreProduct(product)}
+              >
+                <div className="art">
+                  <span className="status"><span className="live" />{soldOut ? "Agotada" : "Disponible"}</span>
+                  <div className="pic" style={{ backgroundImage: `url("${product.image}")` }} />
+                  {!soldOut && (
+                    <span className="buy">Comprar <span aria-hidden="true">↗</span></span>
+                  )}
+                </div>
+                <div className="info">
+                  <span className="medium">{product.type}</span>
+                  <h3>{product.title}</h3>
+                  <div className="row">
+                    {product.price && (
+                      <span className="price">${product.price.toLocaleString("es-AR")} <small>ARS</small></span>
+                    )}
+                    {product.dimensions && <span className="dim">{product.dimensions}</span>}
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* CONTACTO */}
+      <section id="contacto" className="wrap">
+        <div className="contact reveal">
+          <span className="hud-note" style={{ top: "20px", right: "26px" }}>
+            © 2026 · MARANDINA <span className="star" style={{ ["--s" as string]: "12px", verticalAlign: "-2px" }} />
+          </span>
+          <div className="contact-in">
+            <div>
+              <h2>HAGAMOS<br /><span className="l2">ALGO ÚNICO</span></h2>
+              <p>Si buscás identidad visual, arte digital o una pieza que la gente recuerde — escribime. Cada proyecto es un lenguaje nuevo.</p>
+              <a href="mailto:nataliaespain97@gmail.com" className="btn primary">nataliaespain97@gmail.com <span aria-hidden="true">↗</span></a>
+              <a
+                href="https://www.instagram.com/marandina.tt/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="qr"
+                aria-label="Escaneá el QR para seguirme en Instagram"
+              >
+                <div className="qr-card">
+                  <QRCodeSVG
+                    value="https://www.instagram.com/marandina.tt/"
+                    size={124}
+                    level="H"
+                    bgColor="#ffffff"
+                    fgColor="#3B1E6E"
+                    marginSize={1}
+                    imageSettings={{ src: "/images/gajo.png", height: 21, width: 38, excavate: true }}
+                  />
+                </div>
+                <span className="qr-cap">
+                  <span className="eyebrow">// ESCANEÁ</span>
+                  <span className="qr-cap-main">Seguime en Instagram<br />@marandina.tt <span aria-hidden="true">↗</span></span>
+                </span>
+              </a>
+            </div>
+            <div className="socials">
+              <a className="social" href="mailto:nataliaespain97@gmail.com"><span>EMAIL</span><span>nataliaespain97 ↗</span></a>
+              <a className="social" href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer"><span>INSTAGRAM</span><span>@marandina.tt ↗</span></a>
+              <a className="social" href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer"><span>BEHANCE</span><span>/nataliaespain ↗</span></a>
+              <a className="social" href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer"><span>LINKEDIN</span><span>/natalia-espain ↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <footer className="site-footer">
+          <span>NATALIA ESPAIN © 2026 — TODOS LOS DERECHOS RESERVADOS</span>
+          <span className="star" />
+          <span>DISEÑO · DA VINCI · BUENOS AIRES_AR</span>
+        </footer>
+      </section>
+    </>
+  )
+}
