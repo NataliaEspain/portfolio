@@ -25,7 +25,7 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nataliaespain.vercel.app"),
+  metadataBase: new URL("https://www.nataliaespain.com"),
   title: "Natalia Espain | Artista Multimedia",
   description:
     "Portfolio de Natalia Espain: diseño multimedia, pinturas, arte digital y tatuajes. Estudiante de Diseño Multimedia en Escuela Da Vinci.",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_AR",
-    url: "https://nataliaespain.vercel.app",
+    url: "https://www.nataliaespain.com",
     siteName: "Natalia Espain Portfolio",
     title: "Natalia Espain | Artista Multimedia",
     description: "Diseño multimedia, pinturas, arte digital y tatuajes. Explorá mi trabajo creativo.",
