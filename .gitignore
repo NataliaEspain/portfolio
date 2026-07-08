@@ -36,3 +36,6 @@ public/videos/*.mp4
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# fuentes pesadas (no van a la web, ya optimizadas en public/images/vic-mielke)
+imagenes con ia/

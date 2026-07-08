@@ -7,6 +7,7 @@ import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight }
 
 const navLinks = [
   { href: "#destacado", label: "DESTACADO" },
+  { href: "#ia", label: "IA" },
   { href: "#trabajo", label: "TRABAJO" },
   { href: "#stack", label: "STACK" },
   { href: "#tienda", label: "TIENDA" },
@@ -1227,6 +1228,99 @@ function CircuitIntro({ out }: { out: boolean }) {
   )
 }
 
+// Slider comparador antes/después (arrastrable)
+function BeforeAfterSlider({ before, after, tag }: { before: string; after: string; tag: string }) {
+  const [pos, setPos] = useState(50)
+  const ref = useRef<HTMLDivElement>(null)
+  const setFromX = (clientX: number) => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    setPos(Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100)))
+  }
+  // El divisor sigue al cursor con solo pasar por encima (y al tocar/arrastrar en móvil)
+  const onMove = (e: React.PointerEvent) => setFromX(e.clientX)
+  const onDown = (e: React.PointerEvent) => {
+    ref.current?.setPointerCapture(e.pointerId)
+    setFromX(e.clientX)
+  }
+  const onLeave = () => setPos(50)
+  return (
+    <div
+      className="ba reveal"
+      ref={ref}
+      onPointerMove={onMove}
+      onPointerDown={onDown}
+      onPointerLeave={onLeave}
+    >
+      <img className="ba-img" src={after} alt="Después — retoque con IA" loading="lazy" draggable={false} />
+      <img
+        className="ba-img ba-before"
+        src={before}
+        alt="Antes — foto original"
+        loading="lazy"
+        draggable={false}
+        style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
+      />
+      <span className="ba-cat">{tag}</span>
+      <span className="ba-tag ba-tag-b">Antes</span>
+      <span className="ba-tag ba-tag-a">Después</span>
+      <div className="ba-divider" style={{ left: `${pos}%` }}>
+        <span className="ba-grip">
+          <b>‹</b>
+          <b>›</b>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const IA_PAIRS = [
+  { before: "/images/vic-mielke/antes2.webp", after: "/images/vic-mielke/despues2.webp", tag: "Circuitos" },
+  { before: "/images/vic-mielke/antes3.webp", after: "/images/vic-mielke/despues3.webp", tag: "Energía" },
+  { before: "/images/vic-mielke/antes1.webp", after: "/images/vic-mielke/despues1.webp", tag: "Pedestal" },
+  { before: "/images/vic-mielke/antes4.webp", after: "/images/vic-mielke/despues4.webp", tag: "Deconstrucción" },
+]
+
+function BeforeAfterCarousel() {
+  const [i, setI] = useState(0)
+  const pages: (typeof IA_PAIRS)[] = []
+  for (let k = 0; k < IA_PAIRS.length; k += 2) pages.push(IA_PAIRS.slice(k, k + 2))
+  const n = pages.length
+  const go = (d: number) => setI((prev) => (prev + d + n) % n)
+  return (
+    <div className="ba-carousel reveal">
+      <div className="ba-stage">
+        <button className="ba-nav" onClick={() => go(-1)} aria-label="Anteriores">‹</button>
+        <div className="ba-viewport">
+          <div className="ba-track" style={{ transform: `translateX(-${i * 100}%)` }}>
+            {pages.map((pg, idx) => (
+              <div className="ba-slide" key={idx}>
+                <div className="ba-pair">
+                  {pg.map((p, j) => (
+                    <BeforeAfterSlider key={j} before={p.before} after={p.after} tag={p.tag} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button className="ba-nav" onClick={() => go(1)} aria-label="Siguientes">›</button>
+      </div>
+      <div className="ba-dots">
+        {pages.map((_, idx) => (
+          <button
+            key={idx}
+            className={`ba-dot ${idx === i ? "on" : ""}`}
+            onClick={() => setI(idx)}
+            aria-label={`Ir a la página ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function MarandinaPortfolio() {
   const [activeFilter, setActiveFilter] = useState("diseno")
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
@@ -1479,6 +1573,57 @@ export default function MarandinaPortfolio() {
             </div>
           </div>
         </a>
+      </section>
+
+      {/* IA — VIC MIELKE */}
+      <section id="ia" className="wrap">
+        <div className="ia-deco" aria-hidden="true">
+          <span className="ia-ring ia-ring1" />
+          <span className="ia-ring ia-ring2" />
+          <span className="ia-ring ia-ring3" />
+          <span className="ia-grid2" />
+          <span className="ia-plus" />
+          <span className="ia-dot d1" />
+          <span className="ia-dot d2" />
+          <span className="ia-dot d3" />
+          <span className="ia-line li1" />
+          <span className="ia-line li2" />
+        </div>
+
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// PARA VIC MIELKE · DJ EMERGENTE</span>
+            <h2 data-parx="0.05">IA <em>GENERATIVA</em></h2>
+          </div>
+          <span className="idx reveal">[ ANTES / DESPUÉS · 2025 ]</span>
+        </div>
+
+        <p className="ia-intro reveal">
+          <b>Vic Mielke</b>, DJ emergente, buscaba una identidad visual futurista y original para su Instagram. A partir de una producción de fotos, generé con IA un universo propio para ella — mismo cuerpo, otra dimensión. <span>Pasá el cursor sobre cada imagen para revelar el antes y el después.</span>
+        </p>
+
+        <BeforeAfterCarousel />
+
+        <div className="ia-featured reveal">
+          <div className="ia-feat-head">
+            <span className="eyebrow">// UNA TOMA, DOS UNIVERSOS</span>
+            <p>De una misma foto de estudio, dos resultados posibles.</p>
+          </div>
+          <div className="ia-trip">
+            <figure className="ia-shot">
+              <img src="/images/vic-mielke/antes.webp" alt="Vic Mielke — toma de estudio original" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-b">Antes</span></figcaption>
+            </figure>
+            <figure className="ia-shot ia-shot-after">
+              <img src="/images/vic-mielke/despues.webp" alt="Vic Mielke — resultado con IA, opción A" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-a">Después · A</span></figcaption>
+            </figure>
+            <figure className="ia-shot ia-shot-after">
+              <img src="/images/vic-mielke/despues-opcion.webp" alt="Vic Mielke — resultado con IA, opción B" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-a">Después · B</span></figcaption>
+            </figure>
+          </div>
+        </div>
       </section>
 
       {/* TRABAJO */}
