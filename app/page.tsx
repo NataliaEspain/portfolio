@@ -1164,22 +1164,25 @@ function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: 
   )
 }
 
-// Trazas del circuito (PCB) que convergen hacia el centro y "encienden" el gajo
+// Trazas del circuito (PCB) que entran de los costados y convergen al centro
 const INTRO_TRACES = [
-  { d: "M0,120 H180 V300 H360", delay: 0.0, color: "#8C5CF2" },
-  { d: "M0,560 H240 V400 H380", delay: 0.14, color: "#7FD2FF" },
-  { d: "M320,0 V140 H460", delay: 0.08, color: "#F2B33D" },
-  { d: "M680,0 V160 H560", delay: 0.24, color: "#A87BFF" },
-  { d: "M1000,180 H820 V320 H640", delay: 0.05, color: "#7FD2FF" },
-  { d: "M1000,540 H760 V420 H620", delay: 0.2, color: "#F28322" },
-  { d: "M420,700 V540 H500", delay: 0.18, color: "#8C5CF2" },
-  { d: "M600,700 V560 H540", delay: 0.3, color: "#A87BFF" },
-  { d: "M120,360 H320", delay: 0.34, color: "#7FD2FF" },
-  { d: "M880,360 H660", delay: 0.3, color: "#F2B33D" },
+  // izquierda — protagonistas horizontales que llegan al borde del gajo
+  { d: "M0,350 H400", delay: 0.1, color: "#8C5CF2" },
+  { d: "M0,150 H320 V300 H430", delay: 0.0, color: "#7FD2FF" },
+  { d: "M0,560 H340 V400 H435", delay: 0.05, color: "#F2B33D" },
+  // derecha — protagonistas
+  { d: "M1000,350 H600", delay: 0.1, color: "#A87BFF" },
+  { d: "M1000,170 H690 V300 H570", delay: 0.03, color: "#7FD2FF" },
+  { d: "M1000,540 H660 V400 H565", delay: 0.06, color: "#F28322" },
+  // arriba / abajo — apoyo
+  { d: "M470,0 V250", delay: 0.14, color: "#8C5CF2" },
+  { d: "M700,0 V180 H560 V270", delay: 0.12, color: "#F2B33D" },
+  { d: "M540,700 V450", delay: 0.14, color: "#A87BFF" },
+  { d: "M300,700 V520 H445 V430", delay: 0.1, color: "#7FD2FF" },
 ]
 const INTRO_NODES = [
-  [360, 300], [380, 400], [460, 140], [560, 160], [640, 320],
-  [620, 420], [500, 540], [540, 560], [320, 360], [660, 360],
+  [400, 350], [430, 300], [435, 400], [600, 350], [570, 300],
+  [565, 400], [470, 250], [560, 270], [540, 450], [445, 430],
 ]
 
 function CircuitIntro({ out }: { out: boolean }) {
@@ -1214,9 +1217,12 @@ function CircuitIntro({ out }: { out: boolean }) {
       </svg>
       <div className="intro-core">
         <span className="intro-glow" />
+        <span className="intro-spark" />
+        <span className="intro-flash" />
+        <span className="intro-flash r2" />
         <img src="/images/gajo.png" className="intro-gajo" alt="Marandina" />
       </div>
-      <div className="intro-hud">INICIANDO SISTEMA <b>▮</b></div>
+      <div className="intro-hud">CONECTANDO <b>▮</b></div>
     </div>
   )
 }
