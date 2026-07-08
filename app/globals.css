@@ -8,11 +8,11 @@
    sobre fondo oscuro). Solo se re-arma la ESTRUCTURA visual.
    ============================================================ */
 :root {
-  /* fondos */
-  --background: #262624;
-  --surface: #1a1a18;
-  --void: #201f1d;
-  --void-2: #161513;
+  /* fondos (casi negro con un toque sutil de violeta) */
+  --background: #0A090E;
+  --surface: #14121B;
+  --void: #100E17;
+  --void-2: #08070B;
 
   /* texto */
   --foreground: #F2F2F2;
@@ -46,10 +46,10 @@
   --chrome-4: #8C5CF2;
 
   /* tokens shadcn/Tailwind (modales) */
-  --card: #1a1a18;
+  --card: #14121B;
   --card-foreground: #F2F2F2;
-  --border: #3a3a38;
-  --input: #1a1a18;
+  --border: #26232F;
+  --input: #14121B;
   --ring: #8C5CF2;
   --radius: 0.5rem;
 }
@@ -170,7 +170,7 @@ body::after {
 .site-header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   backdrop-filter: blur(14px);
-  background: linear-gradient(180deg, rgba(38, 38, 36, 0.88), rgba(38, 38, 36, 0.25));
+  background: linear-gradient(180deg, rgba(10, 9, 14, 0.9), rgba(10, 9, 14, 0.3));
   border-bottom: 1px solid var(--line-soft);
 }
 .nav { max-width: 1280px; margin: 0 auto; padding: 12px 28px;
@@ -527,7 +527,7 @@ section { position: relative; z-index: 2; }
   nav.links, .nav-status { display: none; }
   .menu-btn { display: inline-block; }
   .mobile-menu.open { display: block; position: absolute; top: 100%; left: 0; right: 0;
-    background: rgba(38, 38, 36, 0.97); backdrop-filter: blur(14px);
+    background: rgba(10, 9, 14, 0.97); backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line-soft); padding: 18px 28px; }
   .mobile-menu.open a { display: block; padding: 12px 0; text-decoration: none; color: var(--paper);
     font-family: var(--font-mono), monospace; font-size: 14px; letter-spacing: 0.1em;

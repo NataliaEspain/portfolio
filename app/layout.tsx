@@ -25,6 +25,7 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nataliaespain.vercel.app"),
   title: "Natalia Espain | Artista Multimedia",
   description:
     "Portfolio de Natalia Espain: diseño multimedia, pinturas, arte digital y tatuajes. Estudiante de Diseño Multimedia en Escuela Da Vinci.",
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     description: "Diseño multimedia, pinturas, arte digital y tatuajes. Explorá mi trabajo creativo.",
     images: [
       {
-        url: "/images/divino-portada.jpg",
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
         alt: "Natalia Espain - Artista Multimedia",
@@ -60,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Natalia Espain | Artista Multimedia",
     description: "Diseño multimedia, pinturas, arte digital y tatuajes. Explorá mi trabajo creativo.",
-    images: ["/images/divino-portada.jpg"],
+    images: ["/images/og-image.png"],
   },
   robots: {
     index: true,
