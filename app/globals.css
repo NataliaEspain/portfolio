@@ -8,11 +8,11 @@
    sobre fondo oscuro). Solo se re-arma la ESTRUCTURA visual.
    ============================================================ */
 :root {
-  /* fondos (casi negro con un toque sutil de violeta) */
-  --background: #0A090E;
-  --surface: #14121B;
-  --void: #100E17;
-  --void-2: #08070B;
+  /* fondos (negro con un toque muy sutil de violeta) */
+  --background: #050409;
+  --surface: #0E0C14;
+  --void: #0A0810;
+  --void-2: #040308;
 
   /* texto */
   --foreground: #F2F2F2;
@@ -104,8 +104,8 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(140, 92, 242, 0.20), transparent 55%),
-    radial-gradient(90% 60% at 90% 20%, rgba(242, 131, 34, 0.10), transparent 60%),
+    radial-gradient(110% 70% at 50% -12%, rgba(140, 92, 242, 0.11), transparent 55%),
+    radial-gradient(80% 55% at 92% 16%, rgba(242, 131, 34, 0.05), transparent 60%),
     var(--background);
 }
 body::after {
@@ -132,13 +132,13 @@ body::after {
   position: absolute; border-radius: 50%; filter: blur(85px); mix-blend-mode: screen;
   will-change: transform; animation: breathe 14s ease-in-out infinite;
 }
-.aura.a { width: 54vw; height: 54vw; top: -14vh; left: -8vw; opacity: 0.38;
+.aura.a { width: 50vw; height: 50vw; top: -14vh; left: -8vw; opacity: 0.2;
   background: radial-gradient(circle, #8C5CF2, transparent 68%); }
-.aura.b { width: 46vw; height: 46vw; top: 38vh; right: -14vw; opacity: 0.18; animation-delay: -4s;
+.aura.b { width: 44vw; height: 44vw; top: 38vh; right: -14vw; opacity: 0.1; animation-delay: -4s;
   background: radial-gradient(circle, #F28322, transparent 68%); }
-.aura.c { width: 50vw; height: 50vw; bottom: -18vh; left: 26vw; opacity: 0.22; animation-delay: -8s;
+.aura.c { width: 48vw; height: 48vw; bottom: -18vh; left: 26vw; opacity: 0.12; animation-delay: -8s;
   background: radial-gradient(circle, #F2B33D, transparent 68%); }
-@keyframes breathe { 0%, 100% { opacity: 0.14; } 50% { opacity: 0.4; } }
+@keyframes breathe { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.16; } }
 
 /* ===== utilidades tipográficas ===== */
 .mono { font-family: var(--font-mono), monospace; }
@@ -170,7 +170,7 @@ body::after {
 .site-header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   backdrop-filter: blur(14px);
-  background: linear-gradient(180deg, rgba(10, 9, 14, 0.9), rgba(10, 9, 14, 0.3));
+  background: linear-gradient(180deg, rgba(5, 4, 9, 0.92), rgba(5, 4, 9, 0.35));
   border-bottom: 1px solid var(--line-soft);
 }
 .nav { max-width: 1280px; margin: 0 auto; padding: 12px 28px;
@@ -527,7 +527,7 @@ section { position: relative; z-index: 2; }
   nav.links, .nav-status { display: none; }
   .menu-btn { display: inline-block; }
   .mobile-menu.open { display: block; position: absolute; top: 100%; left: 0; right: 0;
-    background: rgba(10, 9, 14, 0.97); backdrop-filter: blur(14px);
+    background: rgba(5, 4, 9, 0.97); backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line-soft); padding: 18px 28px; }
   .mobile-menu.open a { display: block; padding: 12px 0; text-decoration: none; color: var(--paper);
     font-family: var(--font-mono), monospace; font-size: 14px; letter-spacing: 0.1em;
