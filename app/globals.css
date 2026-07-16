@@ -207,6 +207,43 @@ body::after {
 .ia-line.li1 { width: 180px; left: -30px; top: 22%; }
 .ia-line.li2 { width: 140px; right: -20px; bottom: 34%; }
 
+/* deco geométrica genérica — primitivas reutilizables por sección.
+   Posición de cada pieza vía style inline en el JSX. */
+.sec-deco { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.sec-deco > span { position: absolute; }
+.g-ring { border-radius: 50%; border: 1px solid var(--line); }
+.g-ring.dash { border-style: dashed; }
+.g-ring.orange { border-color: rgba(242, 131, 34, 0.18); }
+.g-ring.gold { border-color: rgba(242, 179, 61, 0.18); }
+.g-ring.spin { animation: g-spin 60s linear infinite; }
+@keyframes g-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .g-ring.spin { animation: none; } }
+.g-sq { border: 1px solid var(--line); opacity: 0.55; }
+.g-sq.diamond { transform: rotate(45deg); }
+.g-sq.orange { border-color: rgba(242, 131, 34, 0.3); }
+.g-sq.gold { border-color: rgba(242, 179, 61, 0.3); }
+.g-tri { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
+  border-bottom: 17px solid rgba(140, 92, 242, 0.22); }
+.g-tri.gold { border-bottom-color: rgba(242, 179, 61, 0.26); }
+.g-tri.orange { border-bottom-color: rgba(242, 131, 34, 0.24); }
+.g-plus { width: 14px; height: 14px; }
+.g-plus::before, .g-plus::after { content: ""; position: absolute; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.g-plus::before { left: 50%; top: 0; width: 1.5px; height: 100%; transform: translateX(-50%); }
+.g-plus::after { top: 50%; left: 0; height: 1.5px; width: 100%; transform: translateY(-50%); }
+.g-plus.violet::before, .g-plus.violet::after { background: var(--violet-hi); box-shadow: 0 0 8px var(--violet-hi); }
+.g-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet-hi); box-shadow: 0 0 10px var(--violet-hi); }
+.g-dot.gold { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.g-dot.orange { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+.g-line { height: 1px; background: linear-gradient(90deg, transparent, rgba(140, 92, 242, 0.35), transparent); }
+.g-line.v { width: 1px; background: linear-gradient(180deg, transparent, rgba(140, 92, 242, 0.35), transparent); }
+.g-grid { inset: 0;
+  background-image: linear-gradient(rgba(140, 92, 242, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(140, 92, 242, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px; }
+.g-grid.tl { -webkit-mask: radial-gradient(110% 85% at 0 0, #000, transparent 55%);
+  mask: radial-gradient(110% 85% at 0 0, #000, transparent 55%); }
+.g-grid.br { -webkit-mask: radial-gradient(110% 85% at 100% 100%, #000, transparent 55%);
+  mask: radial-gradient(110% 85% at 100% 100%, #000, transparent 55%); }
+
 /* carrusel de sliders */
 .ba-carousel { position: relative; z-index: 1; }
 .ba-stage { display: flex; align-items: center; justify-content: center; gap: 16px; }
@@ -337,10 +374,27 @@ body::after {
   background: linear-gradient(180deg, rgba(5, 4, 9, 0.92), rgba(5, 4, 9, 0.35));
   border-bottom: 1px solid var(--line-soft);
 }
-.nav { max-width: 1280px; margin: 0 auto; padding: 12px 28px;
+/* luz que barre el borde inferior del header */
+.site-header::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 160px;
+  background: linear-gradient(90deg, transparent, var(--violet-hi), var(--gold), transparent);
+  opacity: 0.75; animation: hdr-sweep 8s linear infinite; }
+@keyframes hdr-sweep { from { transform: translateX(-170px); } to { transform: translateX(100vw); } }
+@media (prefers-reduced-motion: reduce) { .site-header::after { animation: none; opacity: 0; } }
+.nav { position: relative; max-width: 1280px; margin: 0 auto; padding: 12px 28px;
   display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+/* corner brackets en las puntas del nav */
+.nav::before, .nav::after { content: ""; position: absolute; top: 9px; bottom: 9px; width: 9px;
+  pointer-events: none; opacity: 0.7; }
+.nav::before { left: 12px; border-left: 1px solid rgba(168, 123, 255, 0.45);
+  border-top: 1px solid rgba(168, 123, 255, 0.45); border-bottom: 1px solid rgba(168, 123, 255, 0.45); }
+.nav::after { right: 12px; border-right: 1px solid rgba(168, 123, 255, 0.45);
+  border-top: 1px solid rgba(168, 123, 255, 0.45); border-bottom: 1px solid rgba(168, 123, 255, 0.45); }
 .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: 0.02em;
   text-decoration: none; color: var(--paper); }
+/* diamante junto al wordmark */
+.brand::before { content: ""; width: 7px; height: 7px; flex: none;
+  border: 1px solid var(--gold); transform: rotate(45deg);
+  box-shadow: 0 0 8px rgba(242, 179, 61, 0.5); }
 .brand .glyph { display: inline-flex; align-items: center; }
 .brand .glyph img { height: 34px; width: auto; object-fit: contain; }
 .brand small { display: block; font-family: var(--font-mono), monospace; font-size: 9px;
@@ -354,6 +408,10 @@ nav.links a:hover { color: var(--paper); }
 nav.links a:hover::after { width: 100%; }
 .nav-status { display: flex; align-items: center; gap: 9px; font-family: var(--font-mono), monospace;
   font-size: 11px; color: var(--lilac); letter-spacing: 0.14em; }
+.st-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+  box-shadow: 0 0 10px var(--gold); animation: st-pulse 2.4s ease-in-out infinite; }
+@keyframes st-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .st-dot { animation: none; } }
 .menu-btn { display: none; background: none; border: 1px solid var(--line); border-radius: 8px;
   color: var(--paper); padding: 8px 12px; font-family: var(--font-mono), monospace; font-size: 12px; cursor: pointer; }
 .mobile-menu { display: none; }

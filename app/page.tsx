@@ -186,6 +186,18 @@ const motionClient: Work[] = [
    ============================================================ */
 const motionStudy: Work[] = [
   {
+    id: 53,
+    title: "Módulo Sanitario",
+    category: "motion",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/IfjRu10YouA/maxresdefault.jpg",
+    description:
+      "Motion graphics video created to present a sanitary module, combining visual design and animation.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "IfjRu10YouA",
+  },
+  {
     id: 52,
     title: "Social Media Edit",
     category: "motion",
@@ -1389,6 +1401,7 @@ export default function Portfolio() {
               <a key={l.href} href={l.href}>{l.label}</a>
             ))}
           </nav>
+          <span className="nav-status" aria-hidden="true"><i className="st-dot" />BUE · ONLINE</span>
           <button className="menu-btn" onClick={() => setMobileMenuOpen((v) => !v)}>MENU</button>
         </div>
         <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
@@ -1466,6 +1479,16 @@ export default function Portfolio() {
 
       {/* MOTION */}
       <section id="motion" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-grid br" />
+          <span className="g-ring spin dash orange" style={{ width: 260, height: 260, right: -90, top: 10 }} />
+          <span className="g-ring" style={{ width: 420, height: 420, right: -190, top: -60 }} />
+          <span className="g-tri" style={{ left: "6%", top: 120, transform: "rotate(-14deg)" }} />
+          <span className="g-plus" style={{ left: "38%", top: 40 }} />
+          <span className="g-dot gold" style={{ left: "12%", top: "42%" }} />
+          <span className="g-dot" style={{ right: "20%", bottom: "10%" }} />
+          <span className="g-line" style={{ width: 190, left: -40, top: "30%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// ANIMATION · VIDEO EDITING</span>
@@ -1494,6 +1517,17 @@ export default function Portfolio() {
 
       {/* SELECTED WORK — clientes */}
       <section id="work" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-grid tl" />
+          <span className="g-ring gold" style={{ width: 340, height: 340, left: -150, top: -80 }} />
+          <span className="g-ring dash" style={{ width: 180, height: 180, left: -40, top: 40 }} />
+          <span className="g-sq diamond" style={{ width: 22, height: 22, right: "14%", top: 90 }} />
+          <span className="g-sq orange" style={{ width: 54, height: 34, right: "26%", top: 30 }} />
+          <span className="g-plus violet" style={{ right: "8%", top: "38%" }} />
+          <span className="g-dot orange" style={{ left: "30%", top: 70 }} />
+          <span className="g-dot" style={{ right: "35%", bottom: "16%" }} />
+          <span className="g-line v" style={{ height: 160, right: 30, top: "20%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// COMMISSIONED PROJECTS</span>
@@ -1668,6 +1702,17 @@ export default function Portfolio() {
 
       {/* BRANDS — producción a escala en MRM/McCann */}
       <section id="brands" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-ring" style={{ width: 380, height: 380, right: -160, bottom: -140 }} />
+          <span className="g-ring spin dash gold" style={{ width: 210, height: 210, right: -30, bottom: -50 }} />
+          <span className="g-sq" style={{ width: 64, height: 40, left: "8%", top: 50, opacity: 0.4 }} />
+          <span className="g-sq diamond gold" style={{ width: 18, height: 18, left: "16%", top: 130 }} />
+          <span className="g-tri orange" style={{ right: "22%", top: 60, transform: "rotate(20deg)" }} />
+          <span className="g-plus" style={{ left: "44%", bottom: 60 }} />
+          <span className="g-dot" style={{ left: "5%", bottom: "24%" }} />
+          <span className="g-dot gold" style={{ right: "12%", top: "26%" }} />
+          <span className="g-line" style={{ width: 220, right: -50, top: "16%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// MRM · McCANN WORLDGROUP</span>
@@ -1736,6 +1781,17 @@ export default function Portfolio() {
 
       {/* ABOUT — herramientas + experiencia */}
       <section id="about" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-grid br" />
+          <span className="g-ring dash" style={{ width: 300, height: 300, left: -130, top: "34%" }} />
+          <span className="g-ring orange" style={{ width: 150, height: 150, left: -20, top: "48%", opacity: 0.7 }} />
+          <span className="g-tri gold" style={{ right: "10%", top: 40, transform: "rotate(38deg)" }} />
+          <span className="g-sq diamond" style={{ width: 20, height: 20, left: "40%", top: 90 }} />
+          <span className="g-plus violet" style={{ right: "30%", bottom: 80 }} />
+          <span className="g-dot orange" style={{ right: "6%", top: "50%" }} />
+          <span className="g-dot" style={{ left: "22%", bottom: "12%" }} />
+          <span className="g-line v" style={{ height: 140, left: 24, top: "8%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// TOOLS &amp; EXPERIENCE</span>
@@ -1779,6 +1835,16 @@ export default function Portfolio() {
 
       {/* STUDIES & SPEC */}
       <section id="studies" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-ring gold" style={{ width: 360, height: 360, right: -170, top: -100 }} />
+          <span className="g-ring dash" style={{ width: 200, height: 200, right: -60, top: 20, opacity: 0.7 }} />
+          <span className="g-sq orange" style={{ width: 30, height: 30, left: "10%", top: 60, transform: "rotate(12deg)" }} />
+          <span className="g-tri" style={{ left: "28%", top: 34, transform: "rotate(-24deg)" }} />
+          <span className="g-plus" style={{ left: "7%", bottom: "18%" }} />
+          <span className="g-dot gold" style={{ right: "24%", top: "34%" }} />
+          <span className="g-dot" style={{ left: "45%", bottom: "8%" }} />
+          <span className="g-line" style={{ width: 170, left: -30, top: "44%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// COURSEWORK &amp; SELF-INITIATED</span>
@@ -1800,6 +1866,17 @@ export default function Portfolio() {
 
       {/* PERSONAL — Marandina */}
       <section id="personal" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-grid tl" />
+          <span className="g-ring spin dash orange" style={{ width: 240, height: 240, left: -90, bottom: -70 }} />
+          <span className="g-ring" style={{ width: 400, height: 400, left: -180, bottom: -170 }} />
+          <span className="g-tri gold" style={{ right: "16%", bottom: 90, transform: "rotate(-30deg)" }} />
+          <span className="g-sq diamond gold" style={{ width: 16, height: 16, right: "8%", top: 70 }} />
+          <span className="g-plus violet" style={{ left: "32%", top: 44 }} />
+          <span className="g-dot orange" style={{ right: "40%", top: "22%" }} />
+          <span className="g-dot" style={{ right: "10%", bottom: "30%" }} />
+          <span className="g-line" style={{ width: 200, right: -40, bottom: "20%" }} />
+        </div>
         <div className="sec-head">
           <div className="l">
             <span className="eyebrow">// MARANDINA · PERSONAL ILLUSTRATION PRACTICE</span>
