@@ -236,6 +236,9 @@ body::after {
 .g-dot.orange { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
 .g-line { height: 1px; background: linear-gradient(90deg, transparent, rgba(140, 92, 242, 0.35), transparent); }
 .g-line.v { width: 1px; background: linear-gradient(180deg, transparent, rgba(140, 92, 242, 0.35), transparent); }
+.g-corner { width: 16px; height: 16px;
+  border-left: 1.5px solid rgba(168, 123, 255, 0.5); border-top: 1.5px solid rgba(168, 123, 255, 0.5); }
+.g-corner.gold { border-color: rgba(242, 179, 61, 0.55); }
 .g-grid { inset: 0;
   background-image: linear-gradient(rgba(140, 92, 242, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(140, 92, 242, 0.05) 1px, transparent 1px);
   background-size: 46px 46px; }
@@ -796,6 +799,7 @@ section { position: relative; z-index: 2; }
   .hero-grid { grid-template-columns: 1fr; gap: 10px; }
   .hero-right { height: min(56vh, 440px); order: -1; }
   .ghost-word { display: none; }
+  .hero .hud-note, .g-corner { display: none; }
   .work { column-count: 2; column-gap: 12px; }
   .spotlight { grid-template-columns: 1fr; gap: 22px; padding: 24px; }
   .stack { grid-template-columns: 1fr; }

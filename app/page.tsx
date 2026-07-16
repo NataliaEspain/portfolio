@@ -1413,6 +1413,26 @@ export default function Portfolio() {
 
       {/* HERO */}
       <section className="hero" id="top">
+        <div className="sec-deco" aria-hidden="true">
+          {/* marco HUD: esquinas tipo visor */}
+          <span className="g-corner" style={{ left: 18, top: 100 }} />
+          <span className="g-corner gold" style={{ right: 18, top: 100, transform: "rotate(90deg)" }} />
+          <span className="g-corner" style={{ right: 18, bottom: 26, transform: "rotate(180deg)" }} />
+          <span className="g-corner gold" style={{ left: 18, bottom: 26, transform: "rotate(270deg)" }} />
+          <span className="g-grid tl" />
+          <span className="g-ring" style={{ width: 440, height: 440, right: "4%", top: "12%", opacity: 0.6 }} />
+          <span className="g-ring spin dash gold" style={{ width: 200, height: 200, left: "40%", bottom: "8%" }} />
+          <span className="g-tri orange" style={{ left: "47%", top: 150, transform: "rotate(18deg)" }} />
+          <span className="g-sq diamond" style={{ width: 18, height: 18, right: "10%", bottom: "14%" }} />
+          <span className="g-plus violet" style={{ left: "3%", top: "40%" }} />
+          <span className="g-dot gold" style={{ right: "6%", top: "26%" }} />
+          <span className="g-dot orange" style={{ left: "36%", top: "20%" }} />
+          <span className="g-dot" style={{ left: "10%", bottom: "12%" }} />
+          <span className="g-line" style={{ width: 230, left: -50, bottom: "22%" }} />
+          <span className="g-line v" style={{ height: 150, right: 64, top: "14%" }} />
+        </div>
+        <span className="hud-note" style={{ left: 44, top: 104 }}>34.60°S · 58.38°W</span>
+        <span className="hud-note" style={{ right: 44, bottom: 30, textAlign: "right" }}>PORTFOLIO · V.2026</span>
         <div className="wrap">
           <div className="hero-grid">
             <div className="hero-left reveal">
