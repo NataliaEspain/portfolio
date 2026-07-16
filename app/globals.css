@@ -454,8 +454,13 @@ nav.links a:hover::after { width: 100%; }
 .btn.ghost { border-color: var(--line); color: var(--paper); background: var(--panel); }
 .btn.ghost:hover { border-color: var(--violet-hi); background: var(--panel-hi); }
 
-/* orbe cromado — la firma (paleta de pintor con TUS colores) */
+/* columna derecha del hero — hoy es solo texto (bio + tools + CTA),
+   alineada verticalmente con el bloque del nombre */
 .hero-right { position: relative; height: min(72vh, 620px); display: grid; place-items: center; }
+.hero-right.copy { height: auto; display: flex; flex-direction: column; align-items: flex-start;
+  justify-content: center; padding: 30px; border: 1px solid var(--line-soft); border-radius: 18px;
+  background: rgba(8, 6, 14, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.hero-right.copy p.bio { max-width: 52ch; }
 .stage { position: relative; width: min(46vw, 460px); aspect-ratio: 1; }
 .glow { position: absolute; inset: 6%; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle, rgba(140, 92, 242, 0.5), transparent 62%); filter: blur(30px); }
@@ -623,6 +628,35 @@ section { position: relative; z-index: 2; }
 .browser-view { position: relative; aspect-ratio: 1.87; overflow: hidden; }
 .browser-img { object-fit: cover; object-position: center; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .spotlight:hover .browser-img { transform: scale(1.04); }
+
+/* ── Spotlight ESTÉTICA JAZ: espejado (media | info) y acento dorado ── */
+.spotlight.jaz { grid-template-columns: 0.9fr 1.1fr; margin-top: 18px; cursor: default;
+  background: radial-gradient(90% 130% at 8% 8%, rgba(242, 179, 61, 0.14), transparent 55%), var(--void-2); }
+.spotlight.jaz:hover { border-color: var(--gold); box-shadow: 0 26px 70px rgba(242, 179, 61, 0.16); }
+.spotlight.jaz .spotlight-info h3 {
+  background: linear-gradient(100deg, #FFE3A6, var(--gold) 55%, var(--orange));
+  -webkit-background-clip: text; background-clip: text; }
+.spotlight.jaz .browser { background: #1c1206;
+  box-shadow: 0 24px 70px rgba(242, 179, 61, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.03); }
+.spotlight.jaz:hover .browser { border-color: rgba(242, 179, 61, 0.6); }
+.jaz-media { display: grid; place-items: center; align-self: stretch; }
+.jaz-media video { width: 100%; height: 100%; max-height: 520px; object-fit: contain; display: block; background: #000; }
+
+/* ── MOTION featured: player grande + info al costado ── */
+.motion-feature { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 30px; align-items: center;
+  border: 1px solid var(--line); border-radius: 20px; padding: 28px; overflow: hidden;
+  background: radial-gradient(90% 130% at 92% 100%, rgba(242, 131, 34, 0.12), transparent 55%), var(--void-2);
+  margin-bottom: 40px; }
+.mf-view { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--line); background: #000;
+  box-shadow: 0 20px 60px rgba(242, 131, 34, 0.16); }
+.mf-view iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.mf-info { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.mf-info h3 { font-family: var(--font-anton), sans-serif; font-weight: 400;
+  font-size: clamp(32px, 3.6vw, 48px); line-height: 0.92; text-transform: uppercase;
+  background: linear-gradient(100deg, #FFD9B3, var(--orange) 55%, var(--violet-hi));
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.mf-info p { color: var(--muted); font-size: 14.5px; line-height: 1.6; max-width: 40ch; }
 
 /* ===== STACK / skills ===== */
 .stack { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: stretch; }
@@ -867,6 +901,13 @@ body { top: 0 !important; }
 .reel-meta { margin-left: auto; }
 .reel-view { position: relative; aspect-ratio: 16 / 9; background: #000; }
 .reel-view iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* terreno de partículas del hero — fondo full-bleed detrás del texto,
+   fundido arriba y abajo para que no corte seco contra el ticker */
+.hero-waves { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 34%, #000 86%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 4%, #000 34%, #000 86%, transparent 100%); }
+.hero-waves canvas { display: block; width: 100%; height: 100%; }
 .reel-cap { display: block; padding: 12px 14px; border-top: 1px solid var(--line-soft);
   font-family: var(--font-mono), monospace; font-size: 11px; letter-spacing: .06em; color: var(--muted); }
 
@@ -1020,6 +1061,10 @@ body { top: 0 !important; }
   .bstats { grid-template-columns: 1fr; }
   .about-grid { grid-template-columns: 1fr; }
   .hero-right { height: auto; order: 0; margin-top: 26px; }
+  /* spotlight Jaz y featured de motion pasan a una columna */
+  .spotlight.jaz { grid-template-columns: 1fr; }
+  .spotlight.jaz .jaz-media { order: 2; }
+  .motion-feature { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
 }
 @media (max-width: 520px) {
   .tool-list { grid-template-columns: 1fr; }

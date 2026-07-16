@@ -24,9 +24,9 @@ const spaceMono = Space_Mono({
   variable: "--font-mono",
 })
 
-const TITLE = "Natalia Espain | Multimedia Designer — Motion & Brand Assets"
+const TITLE = "Natalia Espain | Multimedia Designer"
 const DESCRIPTION =
-  "Multimedia designer in Buenos Aires. Motion graphics, video editing and static + animated assets for brands. After Effects, Premiere Pro, Cinema 4D, Adobe suite."
+  "Multimedia designer in Buenos Aires. Branding, motion graphics, video editing, web and 3D — static and animated assets for brands. Adobe suite, Cinema 4D, Figma."
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.nataliaespain.com"),

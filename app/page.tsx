@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ExternalLink, X, ChevronLeft, ChevronRight, Layers } from "lucide-react"
+import HeroWaves from "@/components/hero-waves"
 
 /* ============================================================
    SLOTS DE ASSETS PENDIENTES
@@ -11,12 +12,16 @@ import { ExternalLink, X, ChevronLeft, ChevronRight, Layers } from "lucide-react
    correspondiente no se renderiza (nada de placeholders).
    ============================================================ */
 
-// Showreel del hero. Hoy: reel de edición hecho en la cursada.
-// Al llegar el showreel nuevo → reemplazar youtubeId y el label.
-const SHOWREEL = {
-  youtubeId: "rBCkVrD6Das",
-  label: "Editing reel — university final project, 2025",
-  isPlaceholder: true, // poner en false cuando sea el showreel profesional
+// El hero ya no lleva reel ni objeto 3D: el perfil es multimedial, sin
+// protagonismo de motion. De fondo va un terreno de partículas interactivo
+// (components/hero-waves.tsx) y el texto ocupa las dos columnas.
+// La pieza de motion destacada es el Módulo Sanitario, dentro de su sección.
+const MOTION_FEATURE = {
+  youtubeId: "IfjRu10YouA",
+  title: "Módulo Sanitario",
+  type: "Motion Graphics · NGO",
+  description:
+    "Motion graphics video for an NGO that builds sanitary modules — bathrooms for families who don't have access to one. Visual design and animation in service of the cause.",
 }
 
 // CV en inglés, formato ATS (una columna, texto real, sin certificaciones inventadas).
@@ -127,8 +132,8 @@ const JAZ_PIECES: JazPiece[] = [
 ]
 
 const navLinks = [
-  { href: "#motion", label: "MOTION" },
   { href: "#work", label: "WORK" },
+  { href: "#motion", label: "MOTION" },
   { href: "#brands", label: "BRANDS" },
   { href: "#about", label: "ABOUT" },
   { href: "#personal", label: "PERSONAL" },
@@ -154,19 +159,9 @@ interface Work {
 /* ============================================================
    MOTION — trabajo comercial
    ============================================================ */
+// El video Booster de Estética Jaz vive en el spotlight de la campaña
+// (sección Selected Work) — acá quedaría duplicado.
 const motionClient: Work[] = [
-  {
-    id: 48,
-    title: "Booster — Product Ad",
-    category: "motion",
-    type: "Motion Graphics · Estética Jaz",
-    image: "/videos/video_booster_corporal.mp4",
-    description:
-      "Advertising video for a body care product, made for Estética Jaz. Motion graphics combined with AI-generated video.",
-    size: "wide",
-    cardType: "video",
-    video: "/videos/video_booster_corporal.mp4",
-  },
   {
     id: 51,
     title: "Streaming Channel Edit",
@@ -184,19 +179,9 @@ const motionClient: Work[] = [
 /* ============================================================
    MOTION — piezas de cursada / spec (etiquetadas como tales)
    ============================================================ */
+// El Módulo Sanitario no está acá: es la pieza destacada (MOTION_FEATURE)
+// y se muestra grande al inicio de la sección Motion.
 const motionStudy: Work[] = [
-  {
-    id: 53,
-    title: "Módulo Sanitario",
-    category: "motion",
-    type: "Motion Graphics",
-    image: "https://img.youtube.com/vi/IfjRu10YouA/maxresdefault.jpg",
-    description:
-      "Motion graphics video created to present a sanitary module, combining visual design and animation.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "IfjRu10YouA",
-  },
   {
     id: 52,
     title: "Social Media Edit",
@@ -758,8 +743,8 @@ const experience = [
 ]
 
 const tickerItems = [
-  "MOTION DESIGN", "AFTER EFFECTS", "PREMIERE PRO", "BRAND ASSETS",
-  "CINEMA 4D", "ILLUSTRATOR", "PHOTOSHOP", "VIDEO EDITING", "FIGMA",
+  "BRANDING", "MOTION DESIGN", "UX/UI", "VIDEO EDITING", "3D",
+  "ILLUSTRATION", "WEB DESIGN", "GENERATIVE AI", "BRAND ASSETS",
 ]
 
 // Etiqueta del CTA según el tipo de card
@@ -1433,21 +1418,28 @@ export default function Portfolio() {
         </div>
         <span className="hud-note" style={{ left: 44, top: 104 }}>34.60°S · 58.38°W</span>
         <span className="hud-note" style={{ right: 44, bottom: 30, textAlign: "right" }}>PORTFOLIO · V.2026</span>
+        {/* terreno de partículas — fondo interactivo del banner */}
+        <HeroWaves />
         <div className="wrap">
           <div className="hero-grid">
             <div className="hero-left reveal">
               <div className="hero-meta">
-                <span className="tag"><span className="dot" />MOTION</span>
-                <span className="tag mono">BRAND ASSETS</span>
-                <span className="tag mono">VIDEO</span>
+                <span className="tag"><span className="dot" />DESIGN</span>
+                <span className="tag mono">MOTION</span>
+                <span className="tag mono">WEB</span>
+                <span className="tag mono">3D</span>
               </div>
               <h1>NATALIA<span className="l2">ESPAIN</span></h1>
-              <div className="role">Multimedia Designer · Motion &amp; Brand Assets</div>
+              <div className="role">Multimedia Designer</div>
+            </div>
+
+            {/* texto al lado del nombre — el hero es 100% tipográfico */}
+            <div className="hero-right copy reveal">
               <p className="bio">
-                I produce <b>static and animated assets for brands</b>. Currently Content Analyst at <b>MRM (McCann Worldgroup)</b>, where I build and publish pages for global brands — L&apos;Oréal, Maybelline, Garnier, Buick, Cadillac, Chevrolet, GMC — working inside strict brand guidelines.
+                I design across media: <b>branding, motion graphics, video, web and 3D</b>. Currently Content Analyst at <b>MRM (McCann Worldgroup)</b>, where I build and publish pages for global brands — L&apos;Oréal, Maybelline, Garnier, Buick, Cadillac, Chevrolet, GMC — working inside strict brand guidelines.
               </p>
               <p className="bio" style={{ marginTop: "14px" }}>
-                Alongside that, I work freelance on <b>motion graphics, video editing and ad campaigns</b> in After Effects, Premiere Pro, Cinema 4D and the Adobe suite.
+                Alongside that, I take on freelance projects end to end — <b>visual identities, ad campaigns, short-form video and interactive 3D websites</b> — with the Adobe suite, Cinema 4D and Figma.
               </p>
               <div className="tool-strip">
                 {tools.slice(0, 6).map((t) => (
@@ -1455,7 +1447,7 @@ export default function Portfolio() {
                 ))}
               </div>
               <div className="hero-cta">
-                <a href="#motion" className="btn primary">Watch the reel <span aria-hidden="true">↘</span></a>
+                <a href="#work" className="btn primary">See my work <span aria-hidden="true">↘</span></a>
                 {/* `download` tiene que llevar el nombre explícito: sin valor, algunos
                     navegadores guardan el archivo con un UUID y sin extensión .pdf. */}
                 {CV_URL && (
@@ -1464,25 +1456,6 @@ export default function Portfolio() {
                   </a>
                 )}
                 <a href="#contact" className="btn ghost">Get in touch</a>
-              </div>
-            </div>
-
-            <div className="hero-right reveal">
-              <div className="reel-frame">
-                <div className="reel-bar">
-                  <span className="reel-dot" />
-                  <span className="reel-name">REEL</span>
-                  <span className="reel-meta">AE · PR · C4D</span>
-                </div>
-                <div className="reel-view">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${SHOWREEL.youtubeId}?rel=0&modestbranding=1`}
-                    title="Showreel"
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-                <span className="reel-cap">{SHOWREEL.label}</span>
               </div>
             </div>
           </div>
@@ -1496,44 +1469,6 @@ export default function Portfolio() {
           <span>{tickerItems.map((t) => <span key={"b" + t}>{t} •&nbsp;</span>)}</span>
         </div>
       </div>
-
-      {/* MOTION */}
-      <section id="motion" className="wrap">
-        <div className="sec-deco" aria-hidden="true">
-          <span className="g-grid br" />
-          <span className="g-ring spin dash orange" style={{ width: 260, height: 260, right: -90, top: 10 }} />
-          <span className="g-ring" style={{ width: 420, height: 420, right: -190, top: -60 }} />
-          <span className="g-tri" style={{ left: "6%", top: 120, transform: "rotate(-14deg)" }} />
-          <span className="g-plus" style={{ left: "38%", top: 40 }} />
-          <span className="g-dot gold" style={{ left: "12%", top: "42%" }} />
-          <span className="g-dot" style={{ right: "20%", bottom: "10%" }} />
-          <span className="g-line" style={{ width: 190, left: -40, top: "30%" }} />
-        </div>
-        <div className="sec-head">
-          <div className="l">
-            <span className="eyebrow">// ANIMATION · VIDEO EDITING</span>
-            <h2 data-parx="0.05">MO<em>TION</em></h2>
-          </div>
-          <span className="idx reveal">[ {motionClient.length + motionStudy.length} PIECES / AE · PR · C4D ]</span>
-        </div>
-
-        <h3 className="sub-head reveal">Client work</h3>
-        <div className="work">
-          {motionClient.map((work, idx) => (
-            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
-          ))}
-        </div>
-
-        <h3 className="sub-head reveal">
-          Studies &amp; personal practice
-          <span className="sub-note">Coursework and self-initiated pieces — not client commissions.</span>
-        </h3>
-        <div className="work">
-          {motionStudy.map((work, idx) => (
-            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
-          ))}
-        </div>
-      </section>
 
       {/* SELECTED WORK — clientes */}
       <section id="work" className="wrap">
@@ -1587,13 +1522,24 @@ export default function Portfolio() {
           </div>
         </a>
 
-        <div className="client-grid">
-          {/* Estética Jaz */}
-          <article className="client reveal from-l">
+        {/* Estética Jaz — segundo spotlight, espejado, acento dorado */}
+        <div className="spotlight jaz reveal">
+          <div className="browser jaz-media">
+            <video
+              src="/videos/video_booster_corporal.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+            />
+          </div>
+
+          <div className="spotlight-info">
             <span className="eyebrow">// ESTÉTICA JAZ · 2025</span>
-            <h3>Meta Ads campaign &amp; visual pieces</h3>
+            <h3>Estética Jaz</h3>
             <p>
-              Ad campaign and visual assets for a beauty clinic, including the <b>Booster</b> product video (motion graphics + AI-generated footage).
+              Meta Ads campaign and visual assets for a beauty clinic — including the <b>Booster</b> product video (motion graphics + AI-generated footage) and a system of carousels and posts for Instagram.
             </p>
             <div className="metric"><b>+40%</b><span>in sales</span></div>
             {JAZ_PIECES.length > 0 && (
@@ -1620,8 +1566,10 @@ export default function Portfolio() {
               </>
             )}
             <div className="spot-tools"><i>Meta Ads</i><i>After Effects</i><i>Illustrator</i></div>
-          </article>
+          </div>
+        </div>
 
+        <div className="client-grid">
           {/* Hot House */}
           <article className="client reveal from-r">
             <span className="eyebrow">// HOT HOUSE STREAMING · 2026</span>
@@ -1717,6 +1665,62 @@ export default function Portfolio() {
               <figcaption><span className="ia-cap ia-cap-a">After · B</span></figcaption>
             </figure>
           </div>
+        </div>
+      </section>
+
+      {/* MOTION — con el Módulo Sanitario como pieza destacada */}
+      <section id="motion" className="wrap">
+        <div className="sec-deco" aria-hidden="true">
+          <span className="g-grid br" />
+          <span className="g-ring spin dash orange" style={{ width: 260, height: 260, right: -90, top: 10 }} />
+          <span className="g-ring" style={{ width: 420, height: 420, right: -190, top: -60 }} />
+          <span className="g-tri" style={{ left: "6%", top: 120, transform: "rotate(-14deg)" }} />
+          <span className="g-plus" style={{ left: "38%", top: 40 }} />
+          <span className="g-dot gold" style={{ left: "12%", top: "42%" }} />
+          <span className="g-dot" style={{ right: "20%", bottom: "10%" }} />
+          <span className="g-line" style={{ width: 190, left: -40, top: "30%" }} />
+        </div>
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// ANIMATION · VIDEO EDITING</span>
+            <h2 data-parx="0.05">MO<em>TION</em></h2>
+          </div>
+          <span className="idx reveal">[ {motionClient.length + motionStudy.length + 1} PIECES / AE · PR · C4D ]</span>
+        </div>
+
+        {/* Pieza destacada — player embebido, no card */}
+        <div className="motion-feature reveal">
+          <div className="mf-view">
+            <iframe
+              src={`https://www.youtube.com/embed/${MOTION_FEATURE.youtubeId}?rel=0&modestbranding=1`}
+              title={MOTION_FEATURE.title}
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          <div className="mf-info">
+            <span className="eyebrow">// FEATURED · NGO PROJECT</span>
+            <h3>{MOTION_FEATURE.title}</h3>
+            <p>{MOTION_FEATURE.description}</p>
+            <div className="spot-tools"><i>After Effects</i><i>Illustrator</i></div>
+          </div>
+        </div>
+
+        <h3 className="sub-head reveal">Client work</h3>
+        <div className="work">
+          {motionClient.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
+        </div>
+
+        <h3 className="sub-head reveal">
+          Studies &amp; personal practice
+          <span className="sub-note">Coursework and self-initiated pieces — not client commissions.</span>
+        </h3>
+        <div className="work">
+          {motionStudy.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
         </div>
       </section>
 
@@ -1959,7 +1963,7 @@ export default function Portfolio() {
             <div>
               <h2>LET&apos;S<br /><span className="l2">WORK TOGETHER</span></h2>
               <p>
-                Open to multimedia and motion design roles. If you need static and animated assets produced at pace and on brand — get in touch.
+                Open to multimedia design roles — branding, motion, video, web or 3D. If you need visual assets produced at pace and on brand — get in touch.
               </p>
               <a href="mailto:nataliaespain97@gmail.com" className="btn primary">nataliaespain97@gmail.com <span aria-hidden="true">↗</span></a>
               {CV_URL && (
