@@ -2,16 +2,137 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { QRCodeSVG } from "qrcode.react"
-import { Mail, Instagram, Linkedin, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { ExternalLink, X, ChevronLeft, ChevronRight, Layers } from "lucide-react"
+
+/* ============================================================
+   SLOTS DE ASSETS PENDIENTES
+   Cuando Natalia suba cada archivo, se activa cambiando SOLO
+   estas constantes. Mientras valgan null / [], la sección
+   correspondiente no se renderiza (nada de placeholders).
+   ============================================================ */
+
+// Showreel del hero. Hoy: reel de edición hecho en la cursada.
+// Al llegar el showreel nuevo → reemplazar youtubeId y el label.
+const SHOWREEL = {
+  youtubeId: "rBCkVrD6Das",
+  label: "Editing reel — university final project, 2025",
+  isPlaceholder: true, // poner en false cuando sea el showreel profesional
+}
+
+// CV en inglés, formato ATS (una columna, texto real, sin certificaciones inventadas).
+// Se genera desde un HTML con estilos de impresión — ver cv-source/README.md.
+const CV_URL: string | null = "/cv/natalia-espain-cv.pdf"
+// Nombre con el que se guarda el archivo. Es el que ve el reclutador en su carpeta
+// de descargas, así que va con nombre y apellido, no "cv.pdf".
+const CV_FILENAME = "Natalia-Espain-CV.pdf"
+
+// Capturas de MRM/McCann → public/images/mrm/*.png
+// Cada captura linkea a la página publicada, que es la prueba real del trabajo.
+const MRM_SHOTS: { src: string; caption: string; href: string }[] = [
+  {
+    src: "/images/mrm/loreal-01.png",
+    caption: "L'Oréal Paris DE — Rendez-Vous Couleur Eye & Cheek Quad · product page · Sitecore",
+    href: "https://www.loreal-paris.de/rendez-vous-couleur/eye-y-cheek-quad/01-spring-dans-le-marais",
+  },
+  {
+    src: "/images/mrm/loreal-02.png",
+    caption: "L'Oréal Paris DE — Lash Paradise Latte Brown · product page · Sitecore",
+    href: "https://www.loreal-paris.de/paradise/mascara/latte-brown",
+  },
+  {
+    src: "/images/mrm/maybelline-01.png",
+    caption: "Maybelline DE — Berry lipstick trend editorial · Sitecore",
+    href: "https://www.maybelline.de/make-up-tipps/lip/lippenstift-in-beerentoenen",
+  },
+  {
+    src: "/images/mrm/maybelline-02.png",
+    caption: "Maybelline CH (FR) — Fit Me Loose Setting Powder · product page · Sitecore",
+    href: "https://www.maybelline.ch/fr-ch/tous-les-produits/maquillage-visage/poudre/fit-me-loose-setting-powder",
+  },
+  {
+    src: "/images/mrm/cadillac-01.png",
+    caption: "Cadillac US — Camera App · vehicle support · AEM",
+    href: "https://www.cadillac.com/support/vehicle/driving-safety/towing/camera-app",
+  },
+  {
+    src: "/images/mrm/chevrolet-01.png",
+    caption: "Chevrolet US — Coupons & offers · support · AEM",
+    href: "https://www.chevrolet.com/support/shopping/orders-and-purchases/checkout/coupon-codes",
+  },
+  {
+    src: "/images/mrm/buick-01.png",
+    caption: "Buick US — Core charge · support · AEM",
+    href: "https://www.buick.com/support/shopping/parts-accessories/core-charge",
+  },
+  {
+    src: "/images/mrm/gmc-01.png",
+    caption: "GMC US — Shopping & checkout · support hub · AEM",
+    href: "https://www.gmc.com/support/shopping-support/orders-and-purchases/checkout",
+  },
+]
+
+// Certificaciones — solo las verificadas contra el archivo real y vigentes.
+// NO hay certificación de Sitecore ni de AEM: ese trabajo va como experiencia, no como certificación.
+const CERTS: { name: string; issuer: string; year: string; verify?: string }[] = [
+  {
+    name: "Google AI Essentials",
+    issuer: "Google · Coursera",
+    year: "2025",
+    verify: "https://coursera.org/verify/5L31GKUPJAMB",
+  },
+  { name: "UX/UI Design (Advanced)", issuer: "Coderhouse", year: "2022" },
+  { name: "Nexus CMS — UAT & Publisher", issuer: "MRM internal system", year: "2025" },
+]
+
+// Hot House → reels editados por ella. La captura de métricas se descartó:
+// el reel de las 40k vistas ya está linkeado acá, la cifra se sostiene sola.
+const HOTHOUSE_REELS: string[] = [
+  "https://www.instagram.com/reel/DavfmIDRZrF/",
+  "https://www.instagram.com/reel/Dan0YjTR3YJ/",
+  "https://www.instagram.com/reel/Dado2D6pnjH/",
+  "https://www.instagram.com/reel/DaTOYJ8RrIM/",
+  "https://www.instagram.com/reel/DaDtOr9Rx63/",
+  "https://www.instagram.com/reel/DZ-15KUprUg/",
+  "https://www.instagram.com/reel/DZ5mvpppD2b/",
+  "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
+]
+
+// Estética Jaz → piezas gráficas de la campaña (public/images/jaz/*).
+// Una pieza con varios slides es un carrusel de Instagram; con uno solo, un post común.
+type JazPiece = { title: string; slides: string[] }
+const JAZ_PIECES: JazPiece[] = [
+  {
+    title: "Piel más firme y tonificada — Hidroxilift",
+    slides: [
+      "/images/jaz/pielfirme-01.jpg",
+      "/images/jaz/pielfirme-02.jpg",
+      "/images/jaz/pielfirme-03.jpg",
+      "/images/jaz/pielfirme-04.jpg",
+    ],
+  },
+  {
+    title: "La piel cambia con el tiempo",
+    slides: [
+      "/images/jaz/edades-01.jpg",
+      "/images/jaz/edades-02.jpg",
+      "/images/jaz/edades-03.jpg",
+      "/images/jaz/edades-04.jpg",
+      "/images/jaz/edades-05.jpg",
+      "/images/jaz/edades-06.jpg",
+    ],
+  },
+  { title: "¿Qué hace el botox?", slides: ["/images/jaz/botox.jpg"] },
+  { title: "Armonización facial", slides: ["/images/jaz/armonizacion-facial.jpg"] },
+  { title: "Cursos de medicina estética", slides: ["/images/jaz/cursos-medicina-estetica.jpg"] },
+]
 
 const navLinks = [
-  { href: "#destacado", label: "DESTACADO" },
-  { href: "#ia", label: "IA" },
-  { href: "#trabajo", label: "TRABAJO" },
-  { href: "#stack", label: "STACK" },
-  { href: "#tienda", label: "TIENDA" },
-  { href: "#contacto", label: "CONTACTO" },
+  { href: "#motion", label: "MOTION" },
+  { href: "#work", label: "WORK" },
+  { href: "#brands", label: "BRANDS" },
+  { href: "#about", label: "ABOUT" },
+  { href: "#personal", label: "PERSONAL" },
+  { href: "#contact", label: "CONTACT" },
 ]
 
 interface Work {
@@ -23,215 +144,304 @@ interface Work {
   description: string
   link?: string
   size: string
-  cardType?: "expander" | "slider" | "video" | "store" | "scrollable" | "link" | "default"
+  cardType?: "expander" | "slider" | "video" | "scrollable" | "link" | "default"
   images?: string[]
   video?: string
   youtubeId?: string
   coverImage?: string
-  qrCode?: string
-  price?: number
-  dimensions?: string
-  available?: boolean
 }
 
-const allWorks: Work[] = [
-  // ============ EXPANDER CARDS (Diseño Multimedia) ============
+/* ============================================================
+   MOTION — trabajo comercial
+   ============================================================ */
+const motionClient: Work[] = [
+  {
+    id: 48,
+    title: "Booster — Product Ad",
+    category: "motion",
+    type: "Motion Graphics · Estética Jaz",
+    image: "/videos/video_booster_corporal.mp4",
+    description:
+      "Advertising video for a body care product, made for Estética Jaz. Motion graphics combined with AI-generated video.",
+    size: "wide",
+    cardType: "video",
+    video: "/videos/video_booster_corporal.mp4",
+  },
+  {
+    id: 51,
+    title: "Streaming Channel Edit",
+    category: "motion",
+    type: "Video Editing · Hot House",
+    image: "/images/insta-streaming-edit.png",
+    description:
+      "Short-form edit for the Hot House streaming channel, cut in Premiere Pro. The account doubled its followers and clips reached up to 40k organic views.",
+    link: "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
+    size: "tall",
+    cardType: "link",
+  },
+]
+
+/* ============================================================
+   MOTION — piezas de cursada / spec (etiquetadas como tales)
+   ============================================================ */
+const motionStudy: Work[] = [
+  {
+    id: 52,
+    title: "Social Media Edit",
+    category: "motion",
+    type: "Video Editing · Editing test",
+    image: "/videos/final.mp4",
+    description:
+      "Short-form social edit cut in Premiere Pro, made as an editing test for a job application. Pacing, cuts and rhythm are mine.",
+    size: "wide",
+    cardType: "video",
+    video: "/videos/final.mp4",
+  },
+  {
+    id: 46,
+    title: "Icon Animation",
+    category: "motion",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/OB2oT-Cd0oc/maxresdefault.jpg",
+    description:
+      "Motion graphics piece built in After Effects, applying animation principles, visual composition and audiovisual narrative.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "OB2oT-Cd0oc",
+  },
+  {
+    id: 49,
+    title: "3D Animation — Cinema 4D",
+    category: "motion",
+    type: "3D Animation",
+    image: "https://img.youtube.com/vi/skSJUo4qRPY/maxresdefault.jpg",
+    description: "3D animation modelled and animated in Cinema 4D.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "skSJUo4qRPY",
+  },
+  {
+    id: 47,
+    title: "Motion Graphics Animation",
+    category: "motion",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/rpNlvvr2sb0/maxresdefault.jpg",
+    description:
+      "Motion graphics project combining visual design and movement into a dynamic audiovisual piece.",
+    size: "tall",
+    cardType: "video",
+    youtubeId: "rpNlvvr2sb0",
+  },
+  {
+    id: 50,
+    title: "Motion Graphics — After Effects",
+    category: "motion",
+    type: "Motion Graphics",
+    image: "https://img.youtube.com/vi/lL8XpviLApY/maxresdefault.jpg",
+    description: "Motion graphics piece animated in After Effects.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "lL8XpviLApY",
+  },
+  {
+    id: 32,
+    title: "Out-of-Home Spot",
+    category: "motion",
+    type: "Advertising",
+    image: "https://img.youtube.com/vi/ohnjv39kp-Q/maxresdefault.jpg",
+    description: "Video designed for an out-of-home mockup, animated in After Effects.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "ohnjv39kp-Q",
+  },
+  {
+    id: 43,
+    title: "Animated Movie Poster",
+    category: "motion",
+    type: "Animation",
+    image: "/videos/nosferatu.mp4",
+    description:
+      "Film poster designed in Photoshop and animated with its timeline tool, bringing a static composition to life.",
+    size: "tall",
+    cardType: "video",
+    video: "/videos/nosferatu.mp4",
+  },
+  {
+    id: 31,
+    title: "Instagram Stories",
+    category: "motion",
+    type: "Social Media",
+    image: "https://img.youtube.com/vi/_Po89Cb6_N0/maxresdefault.jpg",
+    description: "Vertical video designed for Instagram Stories, animated in After Effects.",
+    size: "tall",
+    cardType: "video",
+    youtubeId: "_Po89Cb6_N0",
+  },
+  {
+    id: 30,
+    title: "TikTok Video",
+    category: "motion",
+    type: "Social Media",
+    image: "https://img.youtube.com/vi/lO-05i7ye2s/maxresdefault.jpg",
+    description: "Vertical video edited in Premiere Pro.",
+    size: "tall",
+    cardType: "video",
+    youtubeId: "lO-05i7ye2s",
+  },
+  {
+    id: 33,
+    title: "Breaking Point",
+    category: "motion",
+    type: "Experimental",
+    image: "/videos/portada-clip.png",
+    description:
+      "Experimental clip on workplace stress awareness, written and edited in Premiere Pro.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "hQLif2a9h18",
+  },
+  {
+    id: 34,
+    title: "Editing Reel",
+    category: "motion",
+    type: "Showreel",
+    image: "https://img.youtube.com/vi/rBCkVrD6Das/maxresdefault.jpg",
+    description:
+      "End-of-term reel bringing together a full semester of projects, assembled mainly in After Effects.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "rBCkVrD6Das",
+  },
+]
+
+/* ============================================================
+   STUDIES & SPEC — diseño gráfico (cursada / proyectos ficticios)
+   ============================================================ */
+const studyWorks: Work[] = [
   {
     id: 44,
-    title: "Identidad Visual DiVino",
-    category: "diseno",
-    type: "Branding",
+    title: "DiVino — Visual Identity",
+    category: "study",
+    type: "Branding · Fictional brand",
     image: "/images/divino-portada.jpg",
-    description: "Sistema de marca completo: logotipo, paleta, tipografía y aplicaciones con un lenguaje visual coherente de principio a fin.",
+    description:
+      "Full brand system for a fictional winery: logotype, palette, typography and applications with a coherent visual language end to end.",
     link: "https://www.behance.net/gallery/242558367/DiVino",
     size: "tall",
     cardType: "expander",
   },
   {
     id: 45,
-    title: "Diseño UX/UI",
-    category: "diseno",
-    type: "UX/UI Design",
+    title: "DiVino — Web Design",
+    category: "study",
+    type: "UX/UI · Fictional brand",
     image: "/images/divino-onepage.jpg",
     coverImage: "/images/divino-uxui.png",
-    description: "Diseño de interfaz web aplicando la identidad visual de DiVino. One-page que integra tipografía, paleta de colores y elementos gráficos de la marca para una experiencia visual cohesiva.",
+    description:
+      "One-page web interface applying the DiVino identity: typography, colour palette and graphic elements carried into a cohesive layout.",
     size: "normal",
     cardType: "scrollable",
   },
   {
+    id: 1,
+    title: "Buka — Visual Identity",
+    category: "study",
+    type: "Branding · Fictional brand",
+    image: "/gym-branding-design.png",
+    coverImage: "/images/remera-buka.png",
+    description:
+      "Complete visual identity for a fictional gym: logo, one-page site and brand extensions.",
+    link: "https://www.behance.net/gallery/231852521/Identidad-de-marca-BUKA",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 42,
+    title: "Realistic Photomontage",
+    category: "study",
+    type: "Photoshop",
+    image: "/mujer-tattoo.jpg",
+    description:
+      "Compositing exercise: the model was digitally integrated into the background, working light, shadow and colour to blend her realistically into the scene.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
     id: 2,
-    title: "Trabajo realizado con malla",
-    category: "diseno",
-    type: "Illustration",
+    title: "Gradient Mesh Illustration",
+    category: "study",
+    type: "Illustrator",
     image: "/robot-illustration.jpg",
-    description: "Robot realizado con Illustrator, utilizando herramientas de malla, pluma y degradados.",
+    description:
+      "Robot built in Illustrator using gradient mesh, the pen tool and layered gradients.",
     size: "normal",
     cardType: "expander",
   },
   {
     id: 5,
     title: "Collage",
-    category: "diseno",
-    type: "Collage",
+    category: "study",
+    type: "Photoshop",
     image: "/collage-artwork.jpg",
-    description: "Collage realizado en Photoshop con elementos centrados en un molino.",
-    size: "tall",
-    cardType: "expander",
-  },
-  {
-    id: 42,
-    title: "Fotomontaje Realista",
-    category: "diseno",
-    type: "Photomontage",
-    image: "/mujer-tattoo.jpg",
-    description: "Proyecto para la materia Photoshop. Composición donde la modelo fue integrada digitalmente al fondo, trabajando luces, sombras y color para lograr una fusión realista con el entorno.",
+    description: "Photoshop collage composed around a windmill.",
     size: "tall",
     cardType: "expander",
   },
   {
     id: 3,
-    title: "Fotomontaje Photoshop",
-    category: "diseno",
-    type: "Photomontage",
+    title: "Experimental Photomontage",
+    category: "study",
+    type: "Photoshop",
     image: "/photomontage-artwork.jpg",
-    description: "Fotomontaje creativo/experimental realizado con Photoshop.",
+    description: "Experimental photomontage built in Photoshop.",
     size: "wide",
     cardType: "expander",
   },
   {
-    id: 1,
-    title: "Identidad Corporativa Buka",
-    category: "diseno",
-    type: "Branding",
-    image: "/gym-branding-design.png",
-    coverImage: "/images/remera-buka.png",
-    description: "Diseño completo de identidad visual para un gimnasio ficticio, incluyendo logo, una one page y expansiones de la marca.",
-    link: "https://www.behance.net/gallery/231852521/Identidad-de-marca-BUKA",
-    size: "normal",
-    cardType: "expander",
-  },
-  {
     id: 6,
-    title: "Portada película",
-    category: "diseno",
-    type: "Movie Poster",
+    title: "Movie Poster",
+    category: "study",
+    type: "Key Art",
     image: "/movie-poster.jpg",
-    description: "Portada para película infantil realizada con Photoshop e inteligencia artificial.",
+    description: "Poster for a children's film, made in Photoshop with AI-assisted imagery.",
     size: "full",
     cardType: "expander",
   },
   {
     id: 4,
-    title: "Pagina web desde cero",
-    category: "diseno",
-    type: "Web Development",
+    title: "Website From Scratch",
+    category: "study",
+    type: "HTML / CSS",
     image: "/website-project.png",
-    description: "Página web realizada con HTML y CSS en Visual Studio Code para un proyecto de Da Vinci.",
-    link: "https://www.behance.net/gallery/234360823/Web-page-Marandina",
+    description: "Website hand-coded in HTML and CSS for a university project.",
     size: "normal",
     cardType: "expander",
   },
-  // ============ EXPANDER CARDS (Paintings) ============
-  {
-    id: 7,
-    title: "Pintura Acuarela",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/acuarela.jpg",
-    description: "Técnica artística que utiliza pigmentos diluidos en agua, creando transparencias y capas sutiles que permiten que la luz del papel brille a través de los colores.",
-    size: "tall",
-    cardType: "expander",
-  },
-  {
-    id: 8,
-    title: "Cerebro",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/cerebro.jpg",
-    description: "Representación artística del órgano más complejo del cuerpo humano, explorando la conexión entre mente, creatividad y emociones a través del color y la forma.",
-    size: "normal",
-    cardType: "expander",
-  },
-  {
-    id: 9,
-    title: "Dragón",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/dragon.jpg",
-    description: "Criatura mitológica capturada en lienzo, simbolizando poder, sabiduría y la magia que habita en las leyendas ancestrales de diversas culturas.",
-    size: "full",
-    cardType: "expander",
-  },
-  {
-    id: 16,
-    title: "Gorriones",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/gorriones.jpg",
-    description: "Pequeñas aves que representan la libertad y la simplicidad de la naturaleza, capturadas con delicadeza en cada pincelada.",
-    size: "tall",
-    cardType: "expander",
-  },
-  {
-    id: 17,
-    title: "Medusas",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/medusas.jpg",
-    description: "Criaturas marinas etéreas que flotan en las profundidades del océano, sus formas translúcidas danzan con gracia y misterio.",
-    size: "normal",
-    cardType: "expander",
-  },
-  {
-    id: 18,
-    title: "Peces",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/peces.jpg",
-    description: "Vida acuática en movimiento, colores vibrantes que capturan la esencia del mundo submarino y su belleza natural.",
-    size: "full",
-    cardType: "expander",
-  },
-  {
-    id: 19,
-    title: "Tristeza",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/tristeza.jpg",
-    description: "Expresión emocional profunda plasmada en el lienzo, explorando la melancolía como parte esencial de la experiencia humana.",
-    size: "full",
-    cardType: "expander",
-  },
-  {
-    id: 25,
-    title: "Omniman",
-    category: "paintings",
-    type: "Painting",
-    image: "/images/omniman.jpg",
-    description: "Fan art del icónico personaje de Invincible, capturando su presencia imponente y poder absoluto.",
-    size: "tall",
-    cardType: "expander",
-  },
-  // ============ SLIDER CARDS (Digital Art) ============
-  {
-    id: 10,
-    title: "Ilustración en Procreate",
-    category: "digital",
-    type: "Digital Art",
-    image: "/images/moth-violeta.jpg",
-    description: "Serie de polillas ilustradas en Procreate con diferentes paletas de colores.",
-    size: "tall",
-    cardType: "slider",
-    images: ["/images/moth-violeta.jpg", "/images/moth-bordo.jpg", "/images/moth-negra.jpg"],
-  },
+]
+
+/* ============================================================
+   PERSONAL — Marandina · práctica personal de ilustración
+   ============================================================ */
+const personalWorks: Work[] = [
   {
     id: 20,
-    title: "Sketchbook Digital",
+    title: "Procreate Illustration",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/procreate/portada1.JPG",
+    description: "Digital illustration made in Procreate.",
+    size: "normal",
+    cardType: "slider",
+    images: ["/images/procreate/portada1.JPG", "/images/procreate/samurai.JPG", "/images/procreate/formas.JPG"],
+  },
+  {
+    id: 21,
+    title: "Digital Sketchbook",
     category: "digital",
     type: "Digital Art",
     image: "/images/sketchbook/rana.png",
-    description: "",
-    size: "normal",
+    description: "Loose sketches and studies.",
+    size: "tall",
     cardType: "slider",
     images: [
       "/images/sketchbook/rana.png",
@@ -242,13 +452,13 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 21,
+    id: 22,
     title: "Pink Background Series",
     category: "digital",
     type: "Digital Art",
     image: "/images/pinkbg/ave.png",
-    description: "",
-    size: "wide",
+    description: "Illustration series sharing a common palette.",
+    size: "normal",
     cardType: "slider",
     images: [
       "/images/pinkbg/ave.png",
@@ -259,31 +469,24 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 26,
-    title: "Procreate Art",
+    id: 23,
+    title: "Procreate Studies",
     category: "digital",
     type: "Digital Art",
-    image: "/images/procreate/portada1.JPG",
-    description: "Colección de ilustraciones y dibujos creados en Procreate, explorando diferentes estilos y técnicas digitales.",
-    size: "tall",
+    image: "/images/procreate/draw3.png",
+    description: "Drawing studies in Procreate.",
+    size: "normal",
     cardType: "slider",
-    images: [
-      "/images/procreate/portada1.JPG",
-      "/images/procreate/draw1.JPG",
-      "/images/procreate/draw2.JPG",
-      "/images/procreate/draw3.png",
-      "/images/procreate/formas.JPG",
-      "/images/procreate/samurai.JPG",
-    ],
+    images: ["/images/procreate/draw3.png", "/images/procreate/draw1.JPG", "/images/procreate/draw2.JPG"],
   },
   {
-    id: 27,
-    title: "Flash Tattoos",
+    id: 24,
+    title: "Flash Illustrations",
     category: "digital",
     type: "Digital Art",
     image: "/images/flash-tattoos/portada.png",
-    description: "Diseños creados para flash tattoos.",
-    size: "normal",
+    description: "Flash illustration sheets.",
+    size: "tall",
     cardType: "slider",
     images: [
       "/images/flash-tattoos/portada.png",
@@ -292,66 +495,141 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 28,
+    id: 25,
     title: "Anime Fan Art",
     category: "digital",
     type: "Digital Art",
     image: "/images/anime.PNG",
-    description: "Ilustración de personaje anime con estilo digital vibrante.",
-    size: "tall",
-    cardType: "expander",
-  },
-  {
-    id: 29,
-    title: "Geométrico",
-    category: "digital",
-    type: "Digital Art",
-    image: "/images/geometrico.JPG",
-    description: "Composición geométrica abstracta con formas y patrones precisos.",
+    description: "Fan art illustration.",
     size: "normal",
     cardType: "expander",
   },
-  // ============ SLIDER CARDS (Tattoos) ============
+  {
+    id: 26,
+    title: "Geometric",
+    category: "digital",
+    type: "Digital Art",
+    image: "/images/geometrico.JPG",
+    description: "Geometric composition.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 7,
+    title: "Watercolour",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/acuarela.jpg",
+    description: "Watercolour painting.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 8,
+    title: "Brain",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/cerebro.jpg",
+    description: "Painting.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 9,
+    title: "Dragon",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/dragon.jpg",
+    description: "Painting.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 10,
+    title: "Sparrows",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/gorriones.jpg",
+    description: "Painting.",
+    size: "normal",
+    cardType: "expander",
+  },
+  {
+    id: 11,
+    title: "Jellyfish",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/medusas.jpg",
+    description: "Painting.",
+    size: "tall",
+    cardType: "expander",
+  },
+  {
+    id: 12,
+    title: "Fish",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/peces.jpg",
+    description: "Painting.",
+    size: "normal",
+    cardType: "expander",
+  },
   {
     id: 13,
-    title: "Acuarela",
-    category: "tattoos",
-    type: "Watercolor",
-    image: "/images/tattoos/acuarela/portada.jpg",
-    description: "Tatuajes estilo acuarela con colores fluidos y efectos de pintura que simulan el arte tradicional.",
-    size: "tall",
-    cardType: "slider",
-    images: [
-      "/images/tattoos/acuarela/portada.jpg",
-      "/images/tattoos/acuarela/20240929_163147.jpg",
-    ],
+    title: "Sadness",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/tristeza.jpg",
+    description: "Painting.",
+    size: "normal",
+    cardType: "expander",
   },
   {
     id: 14,
-    title: "Anime",
+    title: "Omniman",
+    category: "paintings",
+    type: "Painting",
+    image: "/images/omniman.jpg",
+    description: "Painting.",
+    size: "wide",
+    cardType: "expander",
+  },
+  {
+    id: 15,
+    title: "Watercolour Tattoos",
     category: "tattoos",
-    type: "Anime Style",
+    type: "Tattoo",
+    image: "/images/tattoos/acuarela/portada.jpg",
+    description: "Watercolour-style tattoos.",
+    size: "normal",
+    cardType: "slider",
+    images: ["/images/tattoos/acuarela/portada.jpg", "/images/tattoos/acuarela/20240929_163147.jpg"],
+  },
+  {
+    id: 16,
+    title: "Anime Tattoos",
+    category: "tattoos",
+    type: "Tattoo",
     image: "/images/tattoos/anime/portada.jpg",
-    description: "Tatuajes inspirados en el estilo anime y manga japonés, con personajes y escenas de series favoritas.",
+    description: "Anime-style tattoos.",
     size: "tall",
     cardType: "slider",
     images: [
       "/images/tattoos/anime/portada.jpg",
       "/images/tattoos/anime/20240127_192454.jpg",
       "/images/tattoos/anime/20250111_144822.jpg",
-      "/images/tattoos/anime/Gemini_Generated_Image_iwfmfliwfmfliwfm.png",
       "/images/tattoos/anime/IMG_20211215_215305572_HDR.jpg",
       "/images/tattoos/anime/IMG_20211220_181339245.jpg",
     ],
   },
   {
-    id: 15,
+    id: 17,
     title: "Blackwork",
     category: "tattoos",
-    type: "Black Ink",
+    type: "Tattoo",
     image: "/images/tattoos/blackwork/portada.jpg",
-    description: "Tatuajes en tinta negra sólida con diseños bold, patrones geométricos y alto contraste.",
-    size: "tall",
+    description: "Blackwork tattoos.",
+    size: "normal",
     cardType: "slider",
     images: [
       "/images/tattoos/blackwork/portada.jpg",
@@ -363,13 +641,13 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 16,
-    title: "Color",
+    id: 18,
+    title: "Colour",
     category: "tattoos",
-    type: "Full Color",
+    type: "Tattoo",
     image: "/images/tattoos/color/portada.jpg",
-    description: "Tatuajes a todo color con paletas vibrantes y saturadas que dan vida a cualquier diseño.",
-    size: "tall",
+    description: "Full-colour tattoos.",
+    size: "normal",
     cardType: "slider",
     images: [
       "/images/tattoos/color/portada.jpg",
@@ -379,13 +657,13 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 17,
-    title: "Puntillismo",
+    id: 19,
+    title: "Dotwork",
     category: "tattoos",
-    type: "Dotwork",
+    type: "Tattoo",
     image: "/images/tattoos/puntillismo/portada.jpg",
-    description: "Técnica de puntillismo que crea imágenes y sombras utilizando miles de pequeños puntos.",
-    size: "tall",
+    description: "Dotwork tattoos.",
+    size: "normal",
     cardType: "slider",
     images: [
       "/images/tattoos/puntillismo/portada.jpg",
@@ -394,13 +672,13 @@ const allWorks: Work[] = [
     ],
   },
   {
-    id: 18,
-    title: "Varios",
+    id: 27,
+    title: "Mixed Styles",
     category: "tattoos",
-    type: "Mixed Styles",
+    type: "Tattoo",
     image: "/images/tattoos/varios/portada.JPG",
-    description: "Colección de trabajos diversos que combinan diferentes técnicas y estilos únicos.",
-    size: "tall",
+    description: "Assorted tattoo work.",
+    size: "normal",
     cardType: "slider",
     images: [
       "/images/tattoos/varios/portada.JPG",
@@ -408,287 +686,76 @@ const allWorks: Work[] = [
       "/images/tattoos/varios/20250426_124030.jpg",
     ],
   },
-  // ============ VIDEO CARDS ============
-  {
-    id: 30,
-    title: "Video para TikTok",
-    category: "videos",
-    type: "Social Media",
-    image: "https://img.youtube.com/vi/lO-05i7ye2s/maxresdefault.jpg",
-    description: "Video editado con Premiere Pro para un proyecto de la universidad Da Vinci.",
-    size: "tall",
-    cardType: "video",
-    youtubeId: "lO-05i7ye2s",
-  },
-  {
-    id: 31,
-    title: "Instagram Stories",
-    category: "videos",
-    type: "Social Media",
-    image: "https://img.youtube.com/vi/_Po89Cb6_N0/maxresdefault.jpg",
-    description: "Video diseñado para historias de Instagram, editado con After Effects.",
-    size: "tall",
-    cardType: "video",
-    youtubeId: "_Po89Cb6_N0",
-  },
-  {
-    id: 32,
-    title: "Video Vía Pública",
-    category: "videos",
-    type: "Advertising",
-    image: "https://img.youtube.com/vi/ohnjv39kp-Q/maxresdefault.jpg",
-    description: "Video pensado para un mockup de vía pública, editado con After Effects.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "ohnjv39kp-Q",
-  },
-  {
-    id: 33,
-    title: "No llegues a tu punto de quiebre",
-    category: "videos",
-    type: "Experimental",
-    image: "/videos/portada-clip.png",
-    description: "Clip experimental para la materia Guion y Narrativa, concientizando sobre el estrés laboral. Editado con Premiere Pro.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "hQLif2a9h18",
-  },
-  {
-    id: 34,
-    title: "Portfolio de Video",
-    category: "videos",
-    type: "Showreel",
-    image: "https://img.youtube.com/vi/rBCkVrD6Das/maxresdefault.jpg",
-    description: "Video realizado para el final de la materia Edición. Integra todos los proyectos del cuatrimestre utilizando principalmente After Effects.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "rBCkVrD6Das",
-  },
-  {
-    id: 46,
-    title: "Animación de Íconos",
-    category: "videos",
-    type: "Motion Graphics",
-    image: "https://img.youtube.com/vi/OB2oT-Cd0oc/maxresdefault.jpg",
-    description: "Proyecto de motion graphics desarrollado en Adobe After Effects como parte de mi formación en Diseño Multimedia en Escuela Da Vinci, aplicando principios de animación, composición visual y narrativa audiovisual.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "OB2oT-Cd0oc",
-  },
-  {
-    id: 47,
-    title: "Animación Motion Graphics",
-    category: "videos",
-    type: "Motion Graphics",
-    image: "https://img.youtube.com/vi/rpNlvvr2sb0/maxresdefault.jpg",
-    description: "Proyecto de animación con motion graphics, combinando diseño visual y movimiento para crear una pieza audiovisual dinámica.",
-    size: "tall",
-    cardType: "video",
-    youtubeId: "rpNlvvr2sb0",
-  },
-  {
-    id: 43,
-    title: "Portada de Película Animada",
-    category: "videos",
-    type: "Motion Graphics",
-    image: "/videos/nosferatu.mp4",
-    description: "Póster cinematográfico creado en Photoshop y animado con la herramienta de línea de tiempo de la misma aplicación, dando vida a una composición estática.",
-    size: "tall",
-    cardType: "video",
-    video: "/videos/nosferatu.mp4",
-  },
-  {
-    id: 48,
-    title: "Booster Corporal",
-    category: "videos",
-    type: "Motion Graphics",
-    image: "/videos/video_booster_corporal.mp4",
-    description: "Video publicitario para un producto corporal, realizado con motion graphics y generación de video con inteligencia artificial.",
-    size: "wide",
-    cardType: "video",
-    video: "/videos/video_booster_corporal.mp4",
-  },
-  {
-    id: 49,
-    title: "Animación 3D en Cinema 4D",
-    category: "videos",
-    type: "3D Animation",
-    image: "https://img.youtube.com/vi/skSJUo4qRPY/maxresdefault.jpg",
-    description: "Animación 3D realizada en Cinema 4D.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "skSJUo4qRPY",
-  },
-  {
-    id: 50,
-    title: "Motion Graphics en After Effects",
-    category: "videos",
-    type: "Motion Graphics",
-    image: "https://img.youtube.com/vi/lL8XpviLApY/maxresdefault.jpg",
-    description: "Pieza de motion graphics animada en After Effects.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "lL8XpviLApY",
-  },
-  {
-    id: 51,
-    title: "Edit para Canal de Streaming",
-    category: "videos",
-    type: "Video Editing",
-    image: "/images/insta-streaming-edit.png",
-    description: "Edit de video para un canal de streaming, realizado en Premiere Pro.",
-    link: "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
-    size: "tall",
-    cardType: "link",
-  },
-  {
-    id: 52,
-    title: "Edit para Redes Sociales",
-    category: "videos",
-    type: "Video Editing",
-    image: "/videos/final.mp4",
-    description: "Edit para redes sociales, realizado en Premiere Pro utilizando material enviado por el cliente, con recortes hechos por mí.",
-    size: "wide",
-    cardType: "video",
-    video: "/videos/final.mp4",
-  },
 ]
 
-// ============ TIENDA - PRODUCTOS SEPARADOS ============
-const storeProducts: Work[] = [
-  {
-    id: 35,
-    title: "Bolsas de Tela",
-    category: "tienda",
-    type: "Accesorios",
-    image: "/images/tienda/bolsas/bolsa-1.jpg",
-    description: "Bolsa de tela estampada con diseños de Marandina.",
-    size: "wide",
-    cardType: "store",
-    images: [
-      "/images/tienda/bolsas/bolsa-1.jpg",
-      "/images/tienda/bolsas/bolsa-2.jpg",
-      "/images/tienda/bolsas/bolsa-3.jpg",
-      "/images/tienda/bolsas/bolsa-4.jpg",
-      "/images/tienda/bolsas/bolsa-5.jpg",
-      "/images/tienda/bolsas/bolsa-6.jpg",
-      "/images/tienda/bolsas/bolsa-7.jpg",
-    ],
-    price: 8000,
-    dimensions: "35x40 cm",
-    available: true,
-  },
-  {
-    id: 36,
-    title: "Cuarzos",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/cuarzos.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "tall",
-    cardType: "store",
-    price: 18000,
-    dimensions: "22x27 cm",
-    available: true,
-  },
-  {
-    id: 37,
-    title: "Cactus",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/cactus.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "normal",
-    cardType: "store",
-    price: 13000,
-    dimensions: "15x15 cm",
-    available: true,
-  },
-  {
-    id: 38,
-    title: "Corazón Psicodélico",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/corazon-psicodelico.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "normal",
-    cardType: "store",
-    price: 13000,
-    dimensions: "15x15 cm",
-    available: true,
-  },
-  {
-    id: 39,
-    title: "Mandarinas",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/mandarinas.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "normal",
-    cardType: "store",
-    price: 13000,
-    dimensions: "15x15 cm",
-    available: true,
-  },
-  {
-    id: 40,
-    title: "Ojos",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/ojos.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "normal",
-    cardType: "store",
-    price: 13000,
-    dimensions: "15x15 cm",
-    available: true,
-  },
-  {
-    id: 41,
-    title: "Palmeras",
-    category: "tienda",
-    type: "Cuadro",
-    image: "/images/tienda/cuadros/palmeras.jpg",
-    description: "Cuadro pintado a mano con acrílico, diseño único.",
-    size: "normal",
-    cardType: "store",
-    price: 13000,
-    dimensions: "15x15 cm",
-    available: true,
-  },
-]
-
-const categories = [
-  { id: "diseno", label: "Diseño" },
-  { id: "paintings", label: "Paintings" },
+const personalCategories = [
   { id: "digital", label: "Digital" },
+  { id: "paintings", label: "Paintings" },
   { id: "tattoos", label: "Tattoos" },
-  { id: "videos", label: "Videos" },
 ]
 
-// Skills/herramientas con badge + nivel para los medidores
-const skills = [
-  { name: "Illustrator", badge: "Ai", level: 95 },
-  { name: "Photoshop", badge: "Ps", level: 92 },
-  { name: "Figma", badge: "Fi", level: 88 },
-  { name: "Procreate", badge: "Pc", level: 90 },
-  { name: "After Effects", badge: "Ae", level: 78 },
-  { name: "Premiere Pro", badge: "Pr", level: 80 },
-  { name: "Canva", badge: "Cv", level: 85 },
+// Herramientas — sin niveles inventados
+const tools = [
+  { name: "After Effects", badge: "Ae" },
+  { name: "Premiere Pro", badge: "Pr" },
+  { name: "Photoshop", badge: "Ps" },
+  { name: "Illustrator", badge: "Ai" },
+  { name: "Cinema 4D", badge: "C4" },
+  { name: "Figma", badge: "Fg" },
+  { name: "Procreate", badge: "Pc" },
+  { name: "CapCut", badge: "Cc" },
+  { name: "Canva", badge: "Cv" },
+  { name: "HTML / CSS", badge: "<>" },
+]
+
+const experience = [
+  {
+    period: "Jul 2025 — Present",
+    role: "Content Analyst",
+    org: "MRM · McCann Worldgroup",
+    detail:
+      "Building and publishing pages for global brands under strict brand guidelines: 250+ pages in Sitecore for L'Oréal Germany and Switzerland (Garnier, L'Oréal Paris, Maybelline, Essie, Mixa) and 150+ pages in Adobe Experience Manager for Buick, Cadillac, Chevrolet and GMC (General Motors). Reusable templates, multi-language versioning, image editing and optimisation.",
+  },
+  {
+    period: "2025 — 2026",
+    role: "Freelance Designer & Video Editor",
+    org: "Hot House · Estética Jaz · Cabotia · Vic Mielke · Miss Lupe",
+    detail:
+      "Short-form video editing, motion graphics, ad campaigns and visual identity for independent clients.",
+  },
+  {
+    period: "Aug 2023 — Jul 2025",
+    role: "QA Analyst",
+    org: "MRM · McCann Worldgroup",
+    detail:
+      "QA on 500+ web pages and email campaigns. Automated repetitive checks and wrote templates and documentation.",
+  },
+  {
+    period: "Aug 2019 — Aug 2023",
+    role: "Visual Content Creator",
+    org: "Buenos Aires City Government",
+    detail:
+      "Educational materials, infographics and graphic pieces for training programmes with 500+ participants (Public Space & Urban Hygiene).",
+  },
+  {
+    period: "Since 2024",
+    role: "Multimedia Design student",
+    org: "Universidad Da Vinci · Buenos Aires",
+    detail: "In progress.",
+  },
 ]
 
 const tickerItems = [
-  "DISEÑO GRÁFICO", "ARTE DIGITAL", "TATUAJES", "BRANDING", "UX/UI",
-  "ILUSTRACIÓN", "FOTOMONTAJE", "PINTURA", "MOTION",
+  "MOTION DESIGN", "AFTER EFFECTS", "PREMIERE PRO", "BRAND ASSETS",
+  "CINEMA 4D", "ILLUSTRATOR", "PHOTOSHOP", "VIDEO EDITING", "FIGMA",
 ]
 
 // Etiqueta del CTA según el tipo de card
 function ctaLabel(work: Work) {
-  if (work.cardType === "video") return "Reproducir"
-  if (work.cardType === "store") return "Comprar"
-  if (work.cardType === "link") return "Ver en Instagram"
-  if (work.cardType === "slider") return "Ver galería"
-  return "Ver proyecto"
+  if (work.cardType === "video") return "Play"
+  if (work.cardType === "link") return "View on Instagram"
+  if (work.cardType === "slider") return "View gallery"
+  return "View project"
 }
 
 // Modal con slider de imágenes y zoom
@@ -748,7 +815,7 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
         <h2 className="text-2xl md:text-3xl uppercase text-foreground" style={{ fontFamily: "var(--font-anton)" }}>
           {work.title}
         </h2>
-        <p className="text-sm text-muted mt-1">Click en una imagen para hacer zoom</p>
+        <p className="text-sm text-muted mt-1">Click an image to zoom</p>
       </div>
 
       {/* Mobile: Slider */}
@@ -819,6 +886,83 @@ function SliderModal({ work, onClose }: { work: Work; onClose: () => void }) {
   )
 }
 
+// Lightbox de las piezas de Estética Jaz: carruseles de Instagram y posts sueltos
+function JazModal({ piece, onClose }: { piece: JazPiece; onClose: () => void }) {
+  const [i, setI] = useState(0)
+  const total = piece.slides.length
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "unset" }
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+      if (e.key === "ArrowRight") setI((p) => (p + 1) % total)
+      if (e.key === "ArrowLeft") setI((p) => (p - 1 + total) % total)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [onClose, total])
+
+  return (
+    <div className="jaz-modal" onClick={onClose}>
+      <div className="jaz-sheet" onClick={(e) => e.stopPropagation()}>
+        <header className="jaz-head">
+          <div>
+            <span className="eyebrow">// ESTÉTICA JAZ · {total > 1 ? "CARRUSEL" : "POST"}</span>
+            <h3>{piece.title}</h3>
+          </div>
+          <button className="jaz-x" onClick={onClose} aria-label="Close">
+            <X className="w-5 h-5" />
+          </button>
+        </header>
+
+        <div className="jaz-stage">
+          {total > 1 && (
+            <button
+              className="jaz-nav prev"
+              onClick={() => setI((p) => (p - 1 + total) % total)}
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
+
+          <img src={piece.slides[i]} alt={`${piece.title} — slide ${i + 1} of ${total}`} />
+
+          {total > 1 && (
+            <button
+              className="jaz-nav next"
+              onClick={() => setI((p) => (p + 1) % total)}
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {total > 1 && (
+          <footer className="jaz-foot">
+            <span className="jaz-count">{i + 1} / {total}</span>
+            <div className="jaz-dots">
+              {piece.slides.map((src, n) => (
+                <button
+                  key={src}
+                  className={n === i ? "on" : ""}
+                  onClick={() => setI(n)}
+                  aria-label={`Slide ${n + 1}`}
+                />
+              ))}
+            </div>
+          </footer>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Modal de pantalla completa para trabajos de diseño
 function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void }) {
   useEffect(() => {
@@ -864,7 +1008,7 @@ function FullscreenModal({ work, onClose }: { work: Work; onClose: () => void })
                 rel="noopener noreferrer"
                 className="btn primary w-fit"
               >
-                Ver proyecto completo <ExternalLink className="w-5 h-5" />
+                View full project <ExternalLink className="w-5 h-5" />
               </a>
             )}
           </div>
@@ -954,7 +1098,7 @@ function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
             />
           ) : (
             <video src={work.video} controls autoPlay className="max-w-full max-h-full rounded-lg" style={{ maxHeight: '80vh' }}>
-              Tu navegador no soporta el tag de video.
+              Your browser does not support the video tag.
             </video>
           )}
         </div>
@@ -973,140 +1117,13 @@ function VideoModal({ work, onClose }: { work: Work; onClose: () => void }) {
   )
 }
 
-// Modal para tienda
-function StoreModal({ work, onClose }: { work: Work; onClose: () => void }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const images = work.images || [work.image]
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = 'unset' }
-  }, [])
-
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (images.length > 1) {
-        if (e.key === 'ArrowRight') setCurrentIndex((prev) => (prev + 1) % images.length)
-        if (e.key === 'ArrowLeft') setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
-      }
-    }
-    window.addEventListener('keydown', handleEsc)
-    return () => window.removeEventListener('keydown', handleEsc)
-  }, [onClose, images.length])
-
-  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length)
-  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price)
-
-  const whatsappLink = `https://wa.me/5491134249079?text=Hola! Me interesa ${work.title}`
-
-  return (
-    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
-      >
-        <X className="w-6 h-6" />
-      </button>
-
-      <div className="h-full overflow-y-auto">
-        <div className="min-h-full flex flex-col md:flex-row">
-          <div className="md:w-1/2 lg:w-3/5 h-[50vh] md:h-screen md:sticky md:top-0 bg-surface flex items-center justify-center p-8 relative">
-            {images.length > 1 && (
-              <>
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-4 z-10 w-10 h-10 rounded-full bg-background/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-4 z-10 w-10 h-10 rounded-full bg-background/80 border border-border flex items-center justify-center text-muted hover:text-foreground hover:border-primary transition-all"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </>
-            )}
-
-            <div className="relative w-full h-full max-w-2xl">
-              {images.map((img, index) => (
-                <div
-                  key={index}
-                  className={`absolute inset-0 transition-all duration-500 ${
-                    index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  <Image src={img} alt={`${work.title} - ${index + 1}`} fill className="object-contain" />
-                </div>
-              ))}
-            </div>
-
-            {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentIndex ? "bg-primary w-8" : "bg-muted hover:bg-foreground"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="md:w-1/2 lg:w-2/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-            <span className="inline-block px-4 py-2 mb-4 text-xs uppercase tracking-[0.2em] bg-primary/20 text-lilac rounded-full w-fit mono">
-              {work.type}
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl uppercase text-foreground mb-4" style={{ fontFamily: "var(--font-anton)" }}>
-              {work.title}
-            </h2>
-            {work.price && <p className="text-3xl md:text-4xl font-bold text-secondary mb-4">{formatPrice(work.price)}</p>}
-            {work.dimensions && (
-              <p className="text-muted mb-2">
-                <span className="font-medium text-foreground">Medidas:</span> {work.dimensions}
-              </p>
-            )}
-            <p className="mb-6">
-              {work.available ? (
-                <span className="text-green-500 font-medium">✓ Disponible</span>
-              ) : (
-                <span className="text-red-500 font-medium">✗ No disponible</span>
-              )}
-            </p>
-            <p className="text-muted leading-relaxed mb-8">{work.description}</p>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-full font-medium transition-colors w-fit"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              Contactame
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Tarjeta flip para el grid de trabajo
+// Tarjeta flip para los grids de trabajo
 function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: Work) => void }) {
   const sizeClass =
     work.size === "wide" ? "wide" : work.size === "full" ? "full" : work.size === "tall" ? "tall" : ""
   const dir = idx % 2 === 0 ? "from-l" : "from-r"
   const cover = work.coverImage || work.image
   const isLocalVideo = work.cardType === "video" && work.video && !work.youtubeId
-  const catLabel = categories.find((c) => c.id === work.category)?.label || work.category
 
   return (
     <div
@@ -1134,6 +1151,7 @@ function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: 
                 muted
                 loop
                 playsInline
+                preload="metadata"
                 onMouseEnter={(e) => e.currentTarget.play()}
                 onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
               />
@@ -1150,80 +1168,13 @@ function WorkCard({ work, idx, onOpen }: { work: Work; idx: number; onOpen: (w: 
         {/* DORSO */}
         <div className="face back">
           <div>
-            <span className="cat">{String(idx + 1).padStart(2, "0")} · {catLabel}</span>
+            <span className="cat">{String(idx + 1).padStart(2, "0")} · {work.type}</span>
             <h3>{work.title}</h3>
-            {work.description ? <p>{work.description}</p> : <p>Pieza de la serie {work.title}.</p>}
-            <div className="tools">
-              <i>{work.type}</i>
-              <i>{catLabel}</i>
-            </div>
+            <p>{work.description}</p>
           </div>
           <span className="go">{ctaLabel(work)} <b>↗</b></span>
         </div>
       </div>
-    </div>
-  )
-}
-
-// Trazas del circuito (PCB) que entran de los costados y convergen al centro
-const INTRO_TRACES = [
-  // izquierda — protagonistas horizontales que llegan al borde del gajo
-  { d: "M0,350 H400", delay: 0.1, color: "#8C5CF2" },
-  { d: "M0,150 H320 V300 H430", delay: 0.0, color: "#7FD2FF" },
-  { d: "M0,560 H340 V400 H435", delay: 0.05, color: "#F2B33D" },
-  // derecha — protagonistas
-  { d: "M1000,350 H600", delay: 0.1, color: "#A87BFF" },
-  { d: "M1000,170 H690 V300 H570", delay: 0.03, color: "#7FD2FF" },
-  { d: "M1000,540 H660 V400 H565", delay: 0.06, color: "#F28322" },
-  // arriba / abajo — apoyo
-  { d: "M470,0 V250", delay: 0.14, color: "#8C5CF2" },
-  { d: "M700,0 V180 H560 V270", delay: 0.12, color: "#F2B33D" },
-  { d: "M540,700 V450", delay: 0.14, color: "#A87BFF" },
-  { d: "M300,700 V520 H445 V430", delay: 0.1, color: "#7FD2FF" },
-]
-const INTRO_NODES = [
-  [400, 350], [430, 300], [435, 400], [600, 350], [570, 300],
-  [565, 400], [470, 250], [560, 270], [540, 450], [445, 430],
-]
-
-function CircuitIntro({ out }: { out: boolean }) {
-  return (
-    <div className={`intro ${out ? "out" : ""}`}>
-      <svg className="intro-circuit" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g>
-          {INTRO_TRACES.map((t, i) => (
-            <path
-              key={i}
-              d={t.d}
-              pathLength={1}
-              className="intro-trace"
-              style={{ stroke: t.color, animationDelay: `${t.delay}s`, filter: `drop-shadow(0 0 5px ${t.color})` }}
-            />
-          ))}
-        </g>
-        <g>
-          {INTRO_NODES.map((n, i) => (
-            <rect
-              key={i}
-              x={n[0] - 5}
-              y={n[1] - 5}
-              width={10}
-              height={10}
-              className="intro-node"
-              transform={`rotate(45 ${n[0]} ${n[1]})`}
-              style={{ animationDelay: `${0.6 + i * 0.05}s` }}
-            />
-          ))}
-        </g>
-      </svg>
-      <div className="intro-core">
-        <span className="intro-glow" />
-        <span className="intro-spark" />
-        <span className="intro-flash" />
-        <span className="intro-flash r2" />
-        <img src="/images/gajo.png" className="intro-gajo" alt="Marandina" />
-      </div>
-      <div className="intro-hud">CONECTANDO <b>▮</b></div>
     </div>
   )
 }
@@ -1252,18 +1203,18 @@ function BeforeAfterSlider({ before, after, tag }: { before: string; after: stri
       onPointerMove={onMove}
       onPointerDown={onDown}
     >
-      <img className="ba-img" src={after} alt="Después — retoque con IA" loading="lazy" draggable={false} />
+      <img className="ba-img" src={after} alt="After — AI retouch" loading="lazy" draggable={false} />
       <img
         className="ba-img ba-before"
         src={before}
-        alt="Antes — foto original"
+        alt="Before — original photo"
         loading="lazy"
         draggable={false}
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
       />
       <span className="ba-cat">{tag}</span>
-      <span className="ba-tag ba-tag-b">Antes</span>
-      <span className="ba-tag ba-tag-a">Después</span>
+      <span className="ba-tag ba-tag-b">Before</span>
+      <span className="ba-tag ba-tag-a">After</span>
       <div className="ba-divider" style={{ left: `${pos}%` }}>
         <span className="ba-grip">
           <b>‹</b>
@@ -1275,10 +1226,10 @@ function BeforeAfterSlider({ before, after, tag }: { before: string; after: stri
 }
 
 const IA_PAIRS = [
-  { before: "/images/vic-mielke/antes2.webp", after: "/images/vic-mielke/despues2.webp", tag: "Circuitos" },
-  { before: "/images/vic-mielke/antes3.webp", after: "/images/vic-mielke/despues3.webp", tag: "Energía" },
+  { before: "/images/vic-mielke/antes2.webp", after: "/images/vic-mielke/despues2.webp", tag: "Circuits" },
+  { before: "/images/vic-mielke/antes3.webp", after: "/images/vic-mielke/despues3.webp", tag: "Energy" },
   { before: "/images/vic-mielke/antes1.webp", after: "/images/vic-mielke/despues1.webp", tag: "Pedestal" },
-  { before: "/images/vic-mielke/antes4.webp", after: "/images/vic-mielke/despues4.webp", tag: "Deconstrucción" },
+  { before: "/images/vic-mielke/antes4.webp", after: "/images/vic-mielke/despues4.webp", tag: "Deconstruction" },
 ]
 
 function BeforeAfterCarousel() {
@@ -1290,7 +1241,7 @@ function BeforeAfterCarousel() {
   return (
     <div className="ba-carousel reveal">
       <div className="ba-stage">
-        <button className="ba-nav" onClick={() => go(-1)} aria-label="Anteriores">‹</button>
+        <button className="ba-nav prev" onClick={() => go(-1)} aria-label="Previous">‹</button>
         <div className="ba-viewport">
           <div className="ba-track" style={{ transform: `translateX(-${i * 100}%)` }}>
             {pages.map((pg, idx) => (
@@ -1304,7 +1255,7 @@ function BeforeAfterCarousel() {
             ))}
           </div>
         </div>
-        <button className="ba-nav" onClick={() => go(1)} aria-label="Siguientes">›</button>
+        <button className="ba-nav next" onClick={() => go(1)} aria-label="Next">›</button>
       </div>
       <div className="ba-dots">
         {pages.map((_, idx) => (
@@ -1312,7 +1263,7 @@ function BeforeAfterCarousel() {
             key={idx}
             className={`ba-dot ${idx === i ? "on" : ""}`}
             onClick={() => setI(idx)}
-            aria-label={`Ir a la página ${idx + 1}`}
+            aria-label={`Go to page ${idx + 1}`}
           />
         ))}
       </div>
@@ -1320,44 +1271,29 @@ function BeforeAfterCarousel() {
   )
 }
 
-export default function MarandinaPortfolio() {
-  const [activeFilter, setActiveFilter] = useState("diseno")
+export default function Portfolio() {
+  const [personalFilter, setPersonalFilter] = useState("digital")
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
-  const [selectedStoreProduct, setSelectedStoreProduct] = useState<Work | null>(null)
+  const [jazPiece, setJazPiece] = useState<JazPiece | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [showIntro, setShowIntro] = useState(true)
-  const [introOut, setIntroOut] = useState(false)
+  // Experiencia colapsada: 2 puestos visibles, el resto detrás de "Show all"
+  const [expOpen, setExpOpen] = useState(false)
   const sbarRef = useRef<HTMLDivElement>(null)
   const shudRef = useRef<HTMLSpanElement>(null)
 
-  const filteredWorks = allWorks.filter((work) => work.category === activeFilter)
+  const filteredPersonal = personalWorks.filter((w) => w.category === personalFilter)
 
   const handleCardClick = (work: Work) => {
     if (work.cardType === "link" && work.link) {
       window.open(work.link, "_blank", "noopener,noreferrer")
       return
     }
-    if (["expander", "slider", "video", "store", "scrollable"].includes(work.cardType || "")) {
+    if (["expander", "slider", "video", "scrollable"].includes(work.cardType || "")) {
       setSelectedWork(work)
     }
   }
 
-  // Intro de circuito: enciende el gajo y se desvanece
-  useEffect(() => {
-    document.body.style.overflow = "hidden"
-    const t1 = setTimeout(() => setIntroOut(true), 2900)
-    const t2 = setTimeout(() => {
-      setShowIntro(false)
-      document.body.style.overflow = ""
-    }, 3700)
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-      document.body.style.overflow = ""
-    }
-  }, [])
-
-  // Reveal al entrar en pantalla (re-observa al cambiar de filtro)
+  // Reveal al entrar en pantalla (re-observa al cambiar de filtro o expandir la experiencia)
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -1372,17 +1308,16 @@ export default function MarandinaPortfolio() {
     )
     document.querySelectorAll(".reveal").forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [activeFilter])
+  }, [personalFilter, expOpen])
 
   // Parallax + scroll bar + HUD + auras (una vez)
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const parY = Array.from(document.querySelectorAll<HTMLElement>("[data-par]"))
     const parX = Array.from(document.querySelectorAll<HTMLElement>("[data-parx]"))
-    const stage = document.getElementById("stage")
     const bgfx = document.getElementById("bgfx")
     const auras = bgfx ? (Array.from(bgfx.children) as HTMLElement[]) : []
-    let mx = 0, my = 0, ticking = false
+    let ticking = false
 
     const frame = () => {
       ticking = false
@@ -1395,17 +1330,22 @@ export default function MarandinaPortfolio() {
         if (auras[1]) auras[1].style.transform = `translate3d(${p * -10}vw, ${p * 22}vh, 0)`
         if (auras[2]) auras[2].style.transform = `translate3d(${p * 14}vw, ${p * -18}vh, 0)`
         if (bgfx) bgfx.style.filter = `hue-rotate(${(p * 46).toFixed(1)}deg)`
+        // `off` es la distancia del elemento al centro de la pantalla, y no tiene tope:
+        // para un elemento que está 10 pantallas más abajo vale miles de px. Sin acotarlo,
+        // los títulos terminan desplazados cientos de px y ensanchan la página (scroll
+        // horizontal en mobile). Fuera de la pantalla el parallax no se ve, así que
+        // limitarlo a ±media pantalla no cambia nada visible y elimina el desborde.
+        const clamp = (v: number) => Math.max(-mid, Math.min(mid, v))
         parY.forEach((el) => {
-          const r = el.getBoundingClientRect(), off = r.top + r.height / 2 - mid
+          const r = el.getBoundingClientRect(), off = clamp(r.top + r.height / 2 - mid)
           const sp = parseFloat(el.dataset.par || "0"), base = el.dataset.base || ""
           el.style.transform = `translateY(${(off * sp).toFixed(1)}px) ${base}`
         })
         parX.forEach((el) => {
-          const r = el.getBoundingClientRect(), off = r.top + r.height / 2 - mid
+          const r = el.getBoundingClientRect(), off = clamp(r.top + r.height / 2 - mid)
           const sp = parseFloat(el.dataset.parx || "0")
           el.style.transform = `translateX(${(off * sp).toFixed(1)}px)`
         })
-        if (stage) stage.style.transform = `translate(${mx * 22}px,${my * 22}px) rotate(${mx * 4}deg)`
       }
       if (sbarRef.current) sbarRef.current.style.width = p * 100 + "%"
       if (shudRef.current) shudRef.current.textContent = String(Math.round(p * 100)).padStart(3, "0") + "%"
@@ -1413,25 +1353,15 @@ export default function MarandinaPortfolio() {
     const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame) } }
     window.addEventListener("scroll", req, { passive: true })
     window.addEventListener("resize", req)
-    const onMove = (e: MouseEvent) => {
-      mx = e.clientX / window.innerWidth - 0.5
-      my = e.clientY / window.innerHeight - 0.5
-      req()
-    }
-    if (!reduce) window.addEventListener("mousemove", onMove)
     frame()
     return () => {
       window.removeEventListener("scroll", req)
       window.removeEventListener("resize", req)
-      window.removeEventListener("mousemove", onMove)
     }
   }, [])
 
   return (
     <>
-      {/* Intro de circuito */}
-      {showIntro && <CircuitIntro out={introOut} />}
-
       {/* Fondo ambiental */}
       <div className="bg-fx" id="bgfx">
         <span className="aura a" />
@@ -1445,25 +1375,21 @@ export default function MarandinaPortfolio() {
       {selectedWork && selectedWork.cardType === "slider" && <SliderModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
       {selectedWork && selectedWork.cardType === "expander" && <FullscreenModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
       {selectedWork && selectedWork.cardType === "video" && <VideoModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
-      {selectedWork && selectedWork.cardType === "store" && <StoreModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
       {selectedWork && selectedWork.cardType === "scrollable" && <ScrollableModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
-      {selectedStoreProduct && <StoreModal work={selectedStoreProduct} onClose={() => setSelectedStoreProduct(null)} />}
+      {jazPiece && <JazModal piece={jazPiece} onClose={() => setJazPiece(null)} />}
 
       {/* NAV / HUD */}
       <header className="site-header">
         <div className="nav">
-          <a href="#inicio" className="brand">
-            <span className="glyph">
-              <Image src="/images/gajo.png" alt="Marandina" width={62} height={34} />
-            </span>
-            <span>MARANDINA</span>
+          <a href="#top" className="brand brand-name">
+            <span>NATALIA ESPAIN</span>
           </a>
           <nav className="links">
             {navLinks.map((l) => (
               <a key={l.href} href={l.href}>{l.label}</a>
             ))}
           </nav>
-          <button className="menu-btn" onClick={() => setMobileMenuOpen((v) => !v)}>MENÚ</button>
+          <button className="menu-btn" onClick={() => setMobileMenuOpen((v) => !v)}>MENU</button>
         </div>
         <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
           {navLinks.map((l) => (
@@ -1473,51 +1399,57 @@ export default function MarandinaPortfolio() {
       </header>
 
       {/* HERO */}
-      <section className="hero" id="inicio">
-        <div className="ghost-word" data-par="0.10" data-base="rotate(90deg)">MARANDINA</div>
+      <section className="hero" id="top">
         <div className="wrap">
           <div className="hero-grid">
             <div className="hero-left reveal">
               <div className="hero-meta">
-                <span className="tag"><span className="dot" />ARTE</span>
-                <span className="tag mono">AMOR</span>
-                <span className="tag mono">CONEXIÓN</span>
+                <span className="tag"><span className="dot" />MOTION</span>
+                <span className="tag mono">BRAND ASSETS</span>
+                <span className="tag mono">VIDEO</span>
               </div>
               <h1>NATALIA<span className="l2">ESPAIN</span></h1>
-              <div className="role">Artista Multimedia</div>
+              <div className="role">Multimedia Designer · Motion &amp; Brand Assets</div>
               <p className="bio">
-                Soy una artista multidisciplinaria apasionada que cree en el poder del <b>color, la forma y la emoción</b> para transformar espacios y almas.
+                I produce <b>static and animated assets for brands</b>. Currently Content Analyst at <b>MRM (McCann Worldgroup)</b>, where I build and publish pages for global brands — L&apos;Oréal, Maybelline, Garnier, Buick, Cadillac, Chevrolet, GMC — working inside strict brand guidelines.
               </p>
-              <p className="bio" style={{ marginTop: "16px" }}>
-                Mi trayectoria abarca <b>pinturas tradicionales, arte digital de vanguardia y diseños de tatuajes</b> significativos. Cada medio ofrece un lenguaje único para expresar las historias vibrantes que viven dentro de todos nosotros.
+              <p className="bio" style={{ marginTop: "14px" }}>
+                Alongside that, I work freelance on <b>motion graphics, video editing and ad campaigns</b> in After Effects, Premiere Pro, Cinema 4D and the Adobe suite.
               </p>
+              <div className="tool-strip">
+                {tools.slice(0, 6).map((t) => (
+                  <span className="tool-chip" key={t.name} title={t.name}>{t.badge}</span>
+                ))}
+              </div>
               <div className="hero-cta">
-                <a href="#trabajo" className="btn primary">Ver trabajo <span aria-hidden="true">↘</span></a>
-                <a href="#contacto" className="btn ghost">Trabajemos juntxs</a>
+                <a href="#motion" className="btn primary">Watch the reel <span aria-hidden="true">↘</span></a>
+                {/* `download` tiene que llevar el nombre explícito: sin valor, algunos
+                    navegadores guardan el archivo con un UUID y sin extensión .pdf. */}
+                {CV_URL && (
+                  <a href={CV_URL} className="btn ghost" download={CV_FILENAME}>
+                    Download CV
+                  </a>
+                )}
+                <a href="#contact" className="btn ghost">Get in touch</a>
               </div>
             </div>
 
             <div className="hero-right reveal">
-              <div className="hud-note tr">COLOR · FORMA<br />EMOCIÓN</div>
-              <div className="hud-note bl">ÓLEO · PÍXEL · TINTA<br />HECHO CON EL ALMA</div>
-              <div className="stage" id="stage">
-                <div className="orbit" />
-                <div className="orbit two" />
-                <span className="chip a" />
-                <span className="chip b" />
-                <span className="chip c" />
-                <div className="glow" />
-                <div className="palette-wrap">
-                  <div className="palette" />
-                  <span className="blob v" />
-                  <span className="blob o" />
-                  <span className="blob p" />
-                  <span className="blob c" />
-                  <span className="blob m" />
-                  <span className="blob w" />
-                  <div className="brush"><span className="tip" /><span className="ferrule" /><span className="handle" /></div>
+              <div className="reel-frame">
+                <div className="reel-bar">
+                  <span className="reel-dot" />
+                  <span className="reel-name">REEL</span>
+                  <span className="reel-meta">AE · PR · C4D</span>
                 </div>
-                <span className="star" style={{ ["--s" as string]: "26px", position: "absolute", top: "-14px", left: "8%" }} />
+                <div className="reel-view">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${SHOWREEL.youtubeId}?rel=0&modestbranding=1`}
+                    title="Showreel"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+                <span className="reel-cap">{SHOWREEL.label}</span>
               </div>
             </div>
           </div>
@@ -1532,14 +1464,42 @@ export default function MarandinaPortfolio() {
         </div>
       </div>
 
-      {/* DESTACADO — proyecto colaborativo con web + 3D en vivo */}
-      <section id="destacado" className="wrap">
+      {/* MOTION */}
+      <section id="motion" className="wrap">
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// COLABORACIÓN · PROYECTO DESTACADO</span>
-            <h2 data-parx="0.05">DESTA<em>CADO</em></h2>
+            <span className="eyebrow">// ANIMATION · VIDEO EDITING</span>
+            <h2 data-parx="0.05">MO<em>TION</em></h2>
           </div>
-          <span className="idx reveal">[ WEB + 3D / EN VIVO ]</span>
+          <span className="idx reveal">[ {motionClient.length + motionStudy.length} PIECES / AE · PR · C4D ]</span>
+        </div>
+
+        <h3 className="sub-head reveal">Client work</h3>
+        <div className="work">
+          {motionClient.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
+        </div>
+
+        <h3 className="sub-head reveal">
+          Studies &amp; personal practice
+          <span className="sub-note">Coursework and self-initiated pieces — not client commissions.</span>
+        </h3>
+        <div className="work">
+          {motionStudy.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
+        </div>
+      </section>
+
+      {/* SELECTED WORK — clientes */}
+      <section id="work" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// COMMISSIONED PROJECTS</span>
+            <h2 data-parx="0.05">SELECTED <em>WORK</em></h2>
+          </div>
+          <span className="idx reveal">[ CLIENTS / 2025–2026 ]</span>
         </div>
 
         <a
@@ -1549,22 +1509,22 @@ export default function MarandinaPortfolio() {
           className="spotlight reveal"
         >
           <div className="spotlight-info">
-            <span className="tag"><span className="dot" />EN VIVO</span>
+            <span className="tag"><span className="dot" />LIVE</span>
             <h3>Miss Lupe</h3>
             <p>
-              Sitio web para <b>Miss Lupe</b> (DJ · productora · cantante), con <b>objetos 3D integrados</b> que se pueden rotar en tiempo real. Diseño, desarrollo y modelado 3D — hecho en colaboración.
+              Website for <b>Miss Lupe</b> (DJ · producer · singer), with <b>3D objects you can rotate in real time</b>. Design, build and 3D modelling — made together with a fellow student.
             </p>
             <div className="spot-tools">
-              <i>Three.js</i><i>WebGL</i><i>Diseño Web</i><i>Modelado 3D</i>
+              <i>Three.js</i><i>WebGL</i><i>Web Design</i><i>3D Modelling</i>
             </div>
-            <span className="spot-cta">Entrar al sitio <b>↗</b></span>
+            <span className="spot-cta">Open the site <b>↗</b></span>
           </div>
 
           <div className="browser">
             <div className="browser-view">
               <Image
                 src="/images/misslupe-banner.png"
-                alt="Banner de la web de Miss Lupe"
+                alt="Miss Lupe website banner"
                 fill
                 className="browser-img"
                 sizes="(max-width: 900px) 100vw, 55vw"
@@ -1572,10 +1532,91 @@ export default function MarandinaPortfolio() {
             </div>
           </div>
         </a>
+
+        <div className="client-grid">
+          {/* Estética Jaz */}
+          <article className="client reveal from-l">
+            <span className="eyebrow">// ESTÉTICA JAZ · 2025</span>
+            <h3>Meta Ads campaign &amp; visual pieces</h3>
+            <p>
+              Ad campaign and visual assets for a beauty clinic, including the <b>Booster</b> product video (motion graphics + AI-generated footage).
+            </p>
+            <div className="metric"><b>+40%</b><span>in sales</span></div>
+            {JAZ_PIECES.length > 0 && (
+              <>
+                <div className="jaz-grid">
+                  {JAZ_PIECES.map((piece) => (
+                    <button
+                      key={piece.title}
+                      className="jaz-thumb"
+                      onClick={() => setJazPiece(piece)}
+                      aria-label={`Open ${piece.title}`}
+                    >
+                      <img src={piece.slides[0]} alt={piece.title} loading="lazy" />
+                      {piece.slides.length > 1 && (
+                        <span className="jaz-badge">
+                          <Layers className="w-3 h-3" />
+                          {piece.slides.length}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <span className="jaz-hint">Click a piece to open it · carousels swipe through every slide</span>
+              </>
+            )}
+            <div className="spot-tools"><i>Meta Ads</i><i>After Effects</i><i>Illustrator</i></div>
+          </article>
+
+          {/* Hot House */}
+          <article className="client reveal from-r">
+            <span className="eyebrow">// HOT HOUSE STREAMING · 2026</span>
+            <h3>Short-form video editing</h3>
+            <p>
+              Highlights, Reels and promo clips cut in <b>Premiere Pro</b>, plus graphics in Illustrator, for a streaming channel.
+            </p>
+            <div className="metric-row">
+              <div className="metric"><b>2×</b><span>followers</span></div>
+              <div className="metric"><b>40k</b><span>organic views</span></div>
+            </div>
+            <div className="client-links">
+              {HOTHOUSE_REELS.map((url, i) => (
+                <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                  Reel {String(i + 1).padStart(2, "0")} ↗
+                </a>
+              ))}
+            </div>
+            <div className="spot-tools"><i>Premiere Pro</i><i>Illustrator</i></div>
+          </article>
+
+          {/* Cabotia */}
+          <article className="client reveal from-l">
+            <span className="eyebrow">// CABOTIA · AI STARTUP · 2025</span>
+            <h3>Visual identity</h3>
+            <p>
+              Full visual identity for an AI startup: logo, colour palette and visual system.
+            </p>
+            <a className="client-cta" href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer">
+              See it on Behance <b>↗</b>
+            </a>
+            <div className="spot-tools"><i>Illustrator</i><i>Brand System</i></div>
+          </article>
+
+          {/* Vic Mielke → ancla a la sección de abajo */}
+          <article className="client reveal from-r">
+            <span className="eyebrow">// VIC MIELKE · DJ · 2025</span>
+            <h3>Generative AI visuals</h3>
+            <p>
+              A futuristic visual world for an emerging DJ&apos;s Instagram, generated from her own photo shoot — same body, another dimension.
+            </p>
+            <a className="client-cta" href="#ai">See the before / after <b>↓</b></a>
+            <div className="spot-tools"><i>Generative AI</i><i>Photoshop</i></div>
+          </article>
+        </div>
       </section>
 
-      {/* IA — VIC MIELKE */}
-      <section id="ia" className="wrap">
+      {/* VIC MIELKE — antes/después */}
+      <section id="ai" className="wrap">
         <div className="ia-deco" aria-hidden="true">
           <span className="ia-ring ia-ring1" />
           <span className="ia-ring ia-ring2" />
@@ -1591,56 +1632,192 @@ export default function MarandinaPortfolio() {
 
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// PARA VIC MIELKE · DJ EMERGENTE</span>
-            <h2 data-parx="0.05">IA <em>GENERATIVA</em></h2>
+            <span className="eyebrow">// FOR VIC MIELKE · EMERGING DJ</span>
+            <h2 data-parx="0.05">GENERATIVE <em>AI</em></h2>
           </div>
-          <span className="idx reveal">[ ANTES / DESPUÉS · 2025 ]</span>
+          <span className="idx reveal">[ BEFORE / AFTER · 2025 ]</span>
         </div>
 
         <p className="ia-intro reveal">
-          <b>Vic Mielke</b>, DJ emergente, buscaba una identidad visual futurista y original para su Instagram. A partir de una producción de fotos, generé con IA un universo propio para ella — mismo cuerpo, otra dimensión. <span>Pasá el cursor sobre cada imagen para revelar el antes y el después.</span>
+          <b>Vic Mielke</b>, an emerging DJ, needed a futuristic visual identity for her Instagram. Starting from a photo shoot, I generated a whole visual world for her with AI — same body, another dimension. <span>Hover over each image to reveal the before and after.</span>
         </p>
 
         <BeforeAfterCarousel />
 
         <div className="ia-featured reveal">
           <div className="ia-feat-head">
-            <span className="eyebrow">// UNA TOMA, DOS UNIVERSOS</span>
-            <p>De una misma foto de estudio, dos resultados posibles.</p>
+            <span className="eyebrow">// ONE SHOT, TWO UNIVERSES</span>
+            <p>From the same studio photo, two possible outcomes.</p>
           </div>
           <div className="ia-trip">
             <figure className="ia-shot">
-              <img src="/images/vic-mielke/antes.webp" alt="Vic Mielke — toma de estudio original" loading="lazy" />
-              <figcaption><span className="ia-cap ia-cap-b">Antes</span></figcaption>
+              <img src="/images/vic-mielke/antes.webp" alt="Vic Mielke — original studio shot" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-b">Before</span></figcaption>
             </figure>
             <figure className="ia-shot ia-shot-after">
-              <img src="/images/vic-mielke/despues.webp" alt="Vic Mielke — resultado con IA, opción A" loading="lazy" />
-              <figcaption><span className="ia-cap ia-cap-a">Después · A</span></figcaption>
+              <img src="/images/vic-mielke/despues.webp" alt="Vic Mielke — AI result, option A" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-a">After · A</span></figcaption>
             </figure>
             <figure className="ia-shot ia-shot-after">
-              <img src="/images/vic-mielke/despues-opcion.webp" alt="Vic Mielke — resultado con IA, opción B" loading="lazy" />
-              <figcaption><span className="ia-cap ia-cap-a">Después · B</span></figcaption>
+              <img src="/images/vic-mielke/despues-opcion.webp" alt="Vic Mielke — AI result, option B" loading="lazy" />
+              <figcaption><span className="ia-cap ia-cap-a">After · B</span></figcaption>
             </figure>
           </div>
         </div>
       </section>
 
-      {/* TRABAJO */}
-      <section id="trabajo" className="wrap">
+      {/* BRANDS — producción a escala en MRM/McCann */}
+      <section id="brands" className="wrap">
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// ARCHIVO SELECCIONADO</span>
-            <h2 data-parx="0.05">TRABA<em>JO</em></h2>
+            <span className="eyebrow">// MRM · McCANN WORLDGROUP</span>
+            <h2 data-parx="-0.05">BRANDS AT <em>SCALE</em></h2>
           </div>
-          <span className="idx reveal">[ {filteredWorks.length} PIEZAS / 2024–2025 ]</span>
+          <span className="idx reveal">[ 2023 — PRESENT ]</span>
         </div>
 
+        <p className="brands-intro reveal">
+          My day job is production under brand guidelines: building, localising and publishing pages for global brands, with reusable templates and multi-language versioning — and editing and optimising the imagery that goes into them.
+        </p>
+
+        <div className="bstats">
+          <div className="bstat reveal from-l">
+            <b>250+</b>
+            <span className="bstat-k">pages in Sitecore</span>
+            <span className="bstat-v">L&apos;Oréal Germany &amp; Switzerland — Garnier, L&apos;Oréal Paris, Maybelline, Essie, Mixa</span>
+          </div>
+          <div className="bstat reveal">
+            <b>150+</b>
+            <span className="bstat-k">pages in Adobe Experience Manager</span>
+            <span className="bstat-v">General Motors — Buick, Cadillac, Chevrolet, GMC</span>
+          </div>
+          <div className="bstat reveal from-r">
+            <b>500+</b>
+            <span className="bstat-k">pages QA&apos;d</span>
+            <span className="bstat-v">Web pages and email campaigns, as QA Analyst (2023–2025)</span>
+          </div>
+        </div>
+
+        <div className="certs reveal">
+          <span className="eyebrow">// CERTIFICATIONS</span>
+          <div className="cert-list">
+            {CERTS.map((c) => (
+              <div className="cert" key={c.name}>
+                <span className="cert-name">{c.name}</span>
+                <span className="cert-meta">{c.issuer} · {c.year}</span>
+                {c.verify && (
+                  <a href={c.verify} target="_blank" rel="noopener noreferrer" className="cert-verify">
+                    Verify ↗
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {MRM_SHOTS.length > 0 && (
+          <div className="mrm-shots reveal">
+            {MRM_SHOTS.map((s) => (
+              <figure key={s.src}>
+                <a href={s.href} target="_blank" rel="noopener noreferrer" title="Open live page">
+                  <img src={s.src} alt={s.caption} loading="lazy" />
+                </a>
+                <figcaption>
+                  {s.caption}{" "}
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" className="mrm-live">
+                    Live ↗
+                  </a>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ABOUT — herramientas + experiencia */}
+      <section id="about" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// TOOLS &amp; EXPERIENCE</span>
+            <h2 data-parx="0.05">A<em>BOUT</em></h2>
+          </div>
+          <span className="idx reveal">[ BUENOS AIRES / AR ]</span>
+        </div>
+
+        <div className="about-grid">
+          <div className="spec reveal">
+            <h4>Software</h4>
+            <div className="tool-list">
+              {tools.map((t) => (
+                <div className="tool-row" key={t.name}>
+                  <span className="name"><span className="badge">{t.badge}</span>{t.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="timeline">
+            {(expOpen ? experience : experience.slice(0, 2)).map((e) => (
+              <div className="tl-item reveal from-r" key={e.role + e.period}>
+                <span className="tl-period">{e.period}</span>
+                <h4>{e.role}</h4>
+                <span className="tl-org">{e.org}</span>
+                <p>{e.detail}</p>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="tl-toggle"
+              onClick={() => setExpOpen((v) => !v)}
+              aria-expanded={expOpen}
+            >
+              {expOpen ? "Show less ↑" : `Show all roles (${experience.length}) ↓`}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* STUDIES & SPEC */}
+      <section id="studies" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// COURSEWORK &amp; SELF-INITIATED</span>
+            <h2 data-parx="0.05">STUDIES <em>&amp; SPEC</em></h2>
+          </div>
+          <span className="idx reveal">[ NOT CLIENT WORK ]</span>
+        </div>
+
+        <p className="sub-note block reveal">
+          Design projects made for university or on my own initiative. The brands here are fictional — they are exercises, not commissions.
+        </p>
+
+        <div className="work">
+          {studyWorks.map((work, idx) => (
+            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+          ))}
+        </div>
+      </section>
+
+      {/* PERSONAL — Marandina */}
+      <section id="personal" className="wrap">
+        <div className="sec-head">
+          <div className="l">
+            <span className="eyebrow">// MARANDINA · PERSONAL ILLUSTRATION PRACTICE</span>
+            <h2 data-parx="-0.05">PER<em>SONAL</em></h2>
+          </div>
+          <span className="idx reveal">[ A HOBBY, NOT A BUSINESS ]</span>
+        </div>
+
+        <p className="sub-note block reveal">
+          Illustration, painting and tattoo design I make for myself, under the name <b>Marandina</b>. It keeps my drawing sharp — it is not commissioned work.
+        </p>
+
         <div className="filters">
-          {categories.map((cat) => (
+          {personalCategories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setActiveFilter(cat.id)}
-              className={`filter-pill ${activeFilter === cat.id ? "active" : ""}`}
+              onClick={() => setPersonalFilter(cat.id)}
+              className={`filter-pill ${personalFilter === cat.id ? "active" : ""}`}
             >
               {cat.label}
             </button>
@@ -1648,97 +1825,24 @@ export default function MarandinaPortfolio() {
         </div>
 
         <div className="work">
-          {filteredWorks.map((work, idx) => (
+          {filteredPersonal.map((work, idx) => (
             <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
           ))}
         </div>
+
+        <a
+          className="client-cta reveal"
+          href="https://www.instagram.com/marandina.tt/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          More on Instagram — @marandina.tt <b>↗</b>
+        </a>
       </section>
 
-      {/* STACK */}
-      <section id="stack" className="wrap">
-        <div className="sec-head">
-          <div className="l">
-            <span className="eyebrow">// HERRAMIENTAS QUE DOMINO</span>
-            <h2 data-parx="-0.05">STA<em>CK</em></h2>
-          </div>
-          <span className="idx reveal">[ SW / SUITE CREATIVA ]</span>
-        </div>
-
-        <div className="stack">
-          <div className="spec reveal">
-            <h4>Software</h4>
-            {skills.map((s) => (
-              <div className="tool-row" key={s.name}>
-                <span className="name"><span className="badge">{s.badge}</span>{s.name}</span>
-                <span className="meter"><i style={{ width: `${s.level}%` }} /></span>
-              </div>
-            ))}
-          </div>
-          <div className="aside-cards">
-            <div className="mini reveal from-r"><span className="big">6+</span><span className="lab">Disciplinas creativas</span></div>
-            <div className="mini reveal from-r"><span className="big">∞</span><span className="lab">Ideas por proyecto</span></div>
-            <div className="mini reveal from-r" style={{ background: "radial-gradient(120% 120% at 100% 0%, rgba(242,131,34,.16), transparent 60%), var(--panel)" }}>
-              <span className="lab" style={{ margin: "0 0 10px", color: "var(--lilac)" }}>Estudiante en</span>
-              <div className="display" style={{ fontSize: "30px", lineHeight: 1 }}>Escuela Da Vinci</div>
-              <span className="lab">Diseño Multimedia</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TIENDA */}
-      <section id="tienda" className="wrap">
-        <div className="sec-head">
-          <div className="l">
-            <span className="eyebrow">// OBRA DISPONIBLE</span>
-            <h2 data-parx="0.05">TIEN<em>DA</em></h2>
-          </div>
-          <span className="idx reveal">[ PIEZAS ÚNICAS / 2025 ]</span>
-        </div>
-
-        <div className="shop-note reveal">
-          <span><b>Envíos</b> a todo el país</span><span className="sep" />
-          <span><b>Pagos</b> por WhatsApp</span><span className="sep" />
-          <span><b>Piezas</b> pintadas a mano</span>
-        </div>
-
-        <div className="shop">
-          {storeProducts.map((product, idx) => {
-            const soldOut = product.available === false
-            return (
-              <article
-                key={product.id}
-                className={`prod reveal ${idx % 2 === 0 ? "from-l" : "from-r"} ${soldOut ? "sold" : ""}`}
-                style={{ transitionDelay: `${(idx % 4) * 0.06}s` }}
-                onClick={() => !soldOut && setSelectedStoreProduct(product)}
-              >
-                <div className="art">
-                  <span className="status"><span className="live" />{soldOut ? "Agotada" : "Disponible"}</span>
-                  <div className="pic" style={{ backgroundImage: `url("${product.image}")` }} />
-                  {!soldOut && (
-                    <span className="buy">Comprar <span aria-hidden="true">↗</span></span>
-                  )}
-                </div>
-                <div className="info">
-                  <span className="medium">{product.type}</span>
-                  <h3>{product.title}</h3>
-                  <div className="row">
-                    {product.price && (
-                      <span className="price">${product.price.toLocaleString("es-AR")} <small>ARS</small></span>
-                    )}
-                    {product.dimensions && <span className="dim">{product.dimensions}</span>}
-                  </div>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* CONTACTO */}
-      <section id="contacto" className="wrap">
+      {/* CONTACT */}
+      <section id="contact" className="wrap">
         <div className="contact reveal">
-          {/* deco geométrica cyberpunk de fondo */}
           <div className="contact-deco" aria-hidden="true">
             <span className="deco-grid" />
             <span className="deco-ring r1" />
@@ -1752,58 +1856,42 @@ export default function MarandinaPortfolio() {
             <span className="deco-dot" />
           </div>
           <span className="hud-note" style={{ top: "20px", right: "26px" }}>
-            © 2026 · MARANDINA <span className="star" style={{ ["--s" as string]: "12px", verticalAlign: "-2px" }} />
+            © 2026 · NATALIA ESPAIN <span className="star" style={{ ["--s" as string]: "12px", verticalAlign: "-2px" }} />
           </span>
           <div className="contact-in">
             <div>
-              <h2>HAGAMOS<br /><span className="l2">ALGO ÚNICO</span></h2>
-              <p>Si buscás identidad visual, arte digital o una pieza que la gente recuerde — escribime. Cada proyecto es un lenguaje nuevo.</p>
+              <h2>LET&apos;S<br /><span className="l2">WORK TOGETHER</span></h2>
+              <p>
+                Open to multimedia and motion design roles. If you need static and animated assets produced at pace and on brand — get in touch.
+              </p>
               <a href="mailto:nataliaespain97@gmail.com" className="btn primary">nataliaespain97@gmail.com <span aria-hidden="true">↗</span></a>
-              <a
-                href="https://www.instagram.com/marandina.tt/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="qr"
-                aria-label="Escaneá el QR para seguirme en Instagram"
-              >
-                <div className="qr-card">
-                  <QRCodeSVG
-                    value="https://www.instagram.com/marandina.tt/"
-                    size={124}
-                    level="H"
-                    bgColor="#ffffff"
-                    fgColor="#3B1E6E"
-                    marginSize={1}
-                    imageSettings={{ src: "/images/gajo.png", height: 21, width: 38, excavate: true }}
-                  />
-                </div>
-                <span className="qr-cap">
-                  <span className="eyebrow">// ESCANEÁ</span>
-                  <span className="qr-cap-main">Seguime en Instagram<br />@marandina.tt <span aria-hidden="true">↗</span></span>
-                </span>
-              </a>
+              {CV_URL && (
+                <a href={CV_URL} className="btn ghost" download={CV_FILENAME} style={{ marginLeft: "12px" }}>
+                  Download CV
+                </a>
+              )}
             </div>
             <div className="socials">
               <a className="social" href="mailto:nataliaespain97@gmail.com">
                 <span className="social-k">EMAIL</span><span className="social-v">nataliaespain97</span><b className="social-go">↗</b>
               </a>
-              <a className="social" href="https://www.instagram.com/marandina.tt/" target="_blank" rel="noopener noreferrer">
-                <span className="social-k">INSTAGRAM</span><span className="social-v">@marandina.tt</span><b className="social-go">↗</b>
+              <a className="social" href="https://www.linkedin.com/in/nataliaespain" target="_blank" rel="noopener noreferrer">
+                <span className="social-k">LINKEDIN</span><span className="social-v">/nataliaespain</span><b className="social-go">↗</b>
               </a>
               <a className="social" href="https://www.behance.net/nataliaespain" target="_blank" rel="noopener noreferrer">
                 <span className="social-k">BEHANCE</span><span className="social-v">/nataliaespain</span><b className="social-go">↗</b>
               </a>
-              <a className="social" href="https://www.linkedin.com/in/natalia-espain-0b1a5817a/" target="_blank" rel="noopener noreferrer">
-                <span className="social-k">LINKEDIN</span><span className="social-v">/natalia-espain</span><b className="social-go">↗</b>
+              <a className="social" href="tel:+5491134249079">
+                <span className="social-k">PHONE</span><span className="social-v">+54 11 3424 9079</span><b className="social-go">↗</b>
               </a>
             </div>
           </div>
         </div>
 
         <footer className="site-footer">
-          <span>NATALIA ESPAIN © 2026 — TODOS LOS DERECHOS RESERVADOS</span>
+          <span>NATALIA ESPAIN © 2026</span>
           <span className="star" />
-          <span>DISEÑO · DA VINCI · BUENOS AIRES_AR</span>
+          <span>MULTIMEDIA DESIGN · BUENOS AIRES_AR</span>
         </footer>
       </section>
     </>

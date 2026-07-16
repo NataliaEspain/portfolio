@@ -39,3 +39,11 @@ next-env.d.ts
 
 # fuentes pesadas (no van a la web, ya optimizadas en public/images/vic-mielke)
 imagenes con ia/
+
+# Archivos personales que NO se publican (certificados, originales)
+private-assets/
+
+# Notas internas de trabajo — el repo es público, esto no se sube
+ASSETS-PENDIENTES.md
+natalia-espain-redesign.html
+.playwright-mcp/
