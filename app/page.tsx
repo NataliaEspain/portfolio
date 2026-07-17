@@ -1570,27 +1570,6 @@ export default function Portfolio() {
         </div>
 
         <div className="client-grid">
-          {/* Hot House */}
-          <article className="client reveal from-r">
-            <span className="eyebrow">// HOT HOUSE STREAMING · 2026</span>
-            <h3>Short-form video editing</h3>
-            <p>
-              Highlights, Reels and promo clips cut in <b>Premiere Pro</b>, plus graphics in Illustrator, for a streaming channel.
-            </p>
-            <div className="metric-row">
-              <div className="metric"><b>2×</b><span>followers</span></div>
-              <div className="metric"><b>40k</b><span>organic views</span></div>
-            </div>
-            <div className="client-links">
-              {HOTHOUSE_REELS.map((url, i) => (
-                <a key={url} href={url} target="_blank" rel="noopener noreferrer">
-                  Reel {String(i + 1).padStart(2, "0")} ↗
-                </a>
-              ))}
-            </div>
-            <div className="spot-tools"><i>Premiere Pro</i><i>Illustrator</i></div>
-          </article>
-
           {/* Cabotia */}
           <article className="client reveal from-l">
             <span className="eyebrow">// CABOTIA · AI STARTUP · 2025</span>
@@ -1708,10 +1687,32 @@ export default function Portfolio() {
         </div>
 
         <h3 className="sub-head reveal">Client work</h3>
-        <div className="work">
-          {motionClient.map((work, idx) => (
-            <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
-          ))}
+        <div className="hh-pair">
+          <div className="hh-pair-media">
+            {motionClient.map((work, idx) => (
+              <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+            ))}
+          </div>
+          {/* Hot House — índice de reels, al lado del reel destacado */}
+          <article className="client reveal from-r">
+            <span className="eyebrow">// HOT HOUSE STREAMING · 2026</span>
+            <h3>Short-form video editing</h3>
+            <p>
+              Highlights, Reels and promo clips cut in <b>Premiere Pro</b>, plus graphics in Illustrator, for a streaming channel.
+            </p>
+            <div className="metric-row">
+              <div className="metric"><b>2×</b><span>followers</span></div>
+              <div className="metric"><b>40k</b><span>organic views</span></div>
+            </div>
+            <div className="client-links">
+              {HOTHOUSE_REELS.map((url, i) => (
+                <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                  Reel {String(i + 1).padStart(2, "0")} ↗
+                </a>
+              ))}
+            </div>
+            <div className="spot-tools"><i>Premiere Pro</i><i>Illustrator</i></div>
+          </article>
         </div>
 
         <h3 className="sub-head reveal">

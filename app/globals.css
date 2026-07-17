@@ -662,6 +662,11 @@ section { position: relative; z-index: 2; }
   border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px;
   margin-top: -2px; }
 
+/* Hot House — reel destacado + índice de reels, lado a lado */
+.hh-pair { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px; align-items: center; }
+.hh-pair-media .card { margin-bottom: 0; }
+
 /* ===== STACK / skills ===== */
 .stack { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: stretch; }
 .spec { border: 1px solid var(--line-soft); border-radius: 14px; padding: 26px; background: var(--panel); }
@@ -1069,6 +1074,7 @@ body { top: 0 !important; }
   .spotlight.jaz { grid-template-columns: 1fr; }
   .spotlight.jaz .jaz-media { order: 2; }
   .motion-feature { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
+  .hh-pair { grid-template-columns: 1fr; gap: 18px; }
 }
 @media (max-width: 520px) {
   .tool-list { grid-template-columns: 1fr; }
