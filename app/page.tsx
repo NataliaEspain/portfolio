@@ -1702,6 +1702,7 @@ export default function Portfolio() {
             <span className="eyebrow">// FEATURED · NGO PROJECT</span>
             <h3>{MOTION_FEATURE.title}</h3>
             <p>{MOTION_FEATURE.description}</p>
+            <p className="mf-note">University project.</p>
             <div className="spot-tools"><i>After Effects</i><i>Illustrator</i></div>
           </div>
         </div>
