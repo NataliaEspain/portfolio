@@ -226,7 +226,7 @@ const HOTHOUSE_POST: Work = {
   type: "Graphic Design · Hot House",
   image: "/images/hothouse/recomienda-01.jpg",
   description:
-    "Instagram carousel picking the four best parties of the weekend: a cover plus one card per date, each with venue, line-up and set time, built on the Hot House brand palette.",
+    "Instagram carousel picking the four best parties of the weekend: a cover plus one card per date, each with venue, line-up and set time. Designed in Illustrator on the Hot House brand palette.",
   link: "https://www.instagram.com/p/DbbYrskCVEs/",
   size: "tall",
   cardType: "slider",
@@ -1903,6 +1903,7 @@ export default function Portfolio() {
             <a className="client-cta" href={HOTHOUSE_POST.link} target="_blank" rel="noopener noreferrer">
               View the post on Instagram <b>↗</b>
             </a>
+            <div className="spot-tools"><i>Illustrator</i></div>
           </article>
         </div>
         </>)}
