@@ -91,7 +91,12 @@ const CERTS: { name: string; issuer: string; year: string; verify?: string }[] =
 
 // Hot House → reels editados por ella. La captura de métricas se descartó:
 // el reel de las 40k vistas ya está linkeado acá, la cifra se sostiene sola.
+// Los dos reels destacados (motionClient) NO van en este índice: ya tienen card propia.
 const HOTHOUSE_REELS: string[] = [
+  "https://www.instagram.com/reel/DbtTfmXx-aZ/",
+  "https://www.instagram.com/reel/DboM8Ygpb09/",
+  "https://www.instagram.com/reel/DbTqslLpvjA/",
+  "https://www.instagram.com/reel/DbBhdujxkJy/",
   "https://www.instagram.com/reel/DavfmIDRZrF/",
   "https://www.instagram.com/reel/Dan0YjTR3YJ/",
   "https://www.instagram.com/reel/Dado2D6pnjH/",
@@ -99,7 +104,6 @@ const HOTHOUSE_REELS: string[] = [
   "https://www.instagram.com/reel/DaDtOr9Rx63/",
   "https://www.instagram.com/reel/DZ-15KUprUg/",
   "https://www.instagram.com/reel/DZ5mvpppD2b/",
-  "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
 ]
 
 // Estética Jaz → piezas gráficas de la campaña (public/images/jaz/*).
@@ -131,13 +135,36 @@ const JAZ_PIECES: JazPiece[] = [
   { title: "Cursos de medicina estética", slides: ["/images/jaz/cursos-medicina-estetica.jpg"] },
 ]
 
-const navLinks = [
-  { href: "#work", label: "WORK" },
-  { href: "#motion", label: "MOTION" },
-  { href: "#brands", label: "BRANDS" },
-  { href: "#about", label: "ABOUT" },
-  { href: "#personal", label: "PERSONAL" },
-  { href: "#contact", label: "CONTACT" },
+// Mapa único de secciones: lo usan el nav, el menú mobile y el índice lateral.
+// El orden es el mismo en el que aparecen en la página, así que el índice
+// numerado no puede desincronizarse del scroll.
+// Antes el nav listaba 6 de 9 secciones: a "ai" y "studies" sólo se llegaba scrolleando.
+const SECTIONS = [
+  { id: "work", label: "WORK", short: "Selected work" },
+  { id: "ai", label: "AI", short: "Generative AI" },
+  { id: "motion", label: "MOTION", short: "Motion" },
+  { id: "brands", label: "BRANDS", short: "Brands at scale" },
+  { id: "about", label: "ABOUT", short: "About" },
+  { id: "studies", label: "STUDIES", short: "Studies & spec" },
+  { id: "personal", label: "PERSONAL", short: "Personal" },
+  { id: "contact", label: "CONTACT", short: "Contact" },
+]
+
+// Filtros de Motion. La sección mezcla bloques con layout propio (destacado,
+// cliente) con una grilla de cards, así que el filtro decide qué bloque se ve,
+// no sólo qué cards.
+const MOTION_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "client", label: "Client work" },
+  { id: "sound", label: "Sound" },
+  { id: "study", label: "Coursework" },
+]
+
+const STUDY_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "branding", label: "Branding" },
+  { id: "web", label: "Web & UI" },
+  { id: "image", label: "Illustration & compositing" },
 ]
 
 interface Work {
@@ -154,6 +181,8 @@ interface Work {
   video?: string
   youtubeId?: string
   coverImage?: string
+  // Grupo al que responde el filtro de su sección (ver MOTION_FILTERS / STUDY_FILTERS).
+  track?: string
 }
 
 /* ============================================================
@@ -162,6 +191,18 @@ interface Work {
 // El video Booster de Estética Jaz vive en el spotlight de la campaña
 // (sección Selected Work) — acá quedaría duplicado.
 const motionClient: Work[] = [
+  {
+    id: 54,
+    title: "Electronic Music History — Part 1",
+    category: "motion",
+    type: "Video Editing · Hot House",
+    image: "/images/hothouse/disco-history.jpg",
+    description:
+      "Opening episode of Hot House's electronic music history series, on disco and the mark it left. Split-screen edit with kinetic captions, cut in Premiere Pro from the studio recording.",
+    link: "https://www.instagram.com/reel/DbJQi-MRFwG/",
+    size: "tall",
+    cardType: "link",
+  },
   {
     id: 51,
     title: "Streaming Channel Edit",
@@ -176,12 +217,47 @@ const motionClient: Work[] = [
   },
 ]
 
+// Hot House → pieza gráfica destacada: el carrusel de recomendaciones del finde.
+// Se abre en el slider con las 5 placas; el link al posteo va en el bloque de al lado.
+const HOTHOUSE_POST: Work = {
+  id: 55,
+  title: "Weekend Picks — Carousel",
+  category: "motion",
+  type: "Graphic Design · Hot House",
+  image: "/images/hothouse/recomienda-01.jpg",
+  description:
+    "Instagram carousel picking the four best parties of the weekend: a cover plus one card per date, each with venue, line-up and set time, built on the Hot House brand palette.",
+  link: "https://www.instagram.com/p/DbbYrskCVEs/",
+  size: "tall",
+  cardType: "slider",
+  images: [
+    "/images/hothouse/recomienda-01.jpg",
+    "/images/hothouse/recomienda-02.jpg",
+    "/images/hothouse/recomienda-03.jpg",
+    "/images/hothouse/recomienda-04.jpg",
+    "/images/hothouse/recomienda-05.jpg",
+  ],
+}
+
 /* ============================================================
    MOTION — piezas de cursada / spec (etiquetadas como tales)
    ============================================================ */
 // El Módulo Sanitario no está acá: es la pieza destacada (MOTION_FEATURE)
 // y se muestra grande al inicio de la sección Motion.
 const motionStudy: Work[] = [
+  {
+    id: 53,
+    title: "Sound Redesign — Corpse Bride",
+    category: "motion",
+    type: "Sound Design · Foley & Dubbing",
+    image: "https://img.youtube.com/vi/DqbRwzwMbx8/maxresdefault.jpg",
+    description:
+      "Full sound redesign of a scene from Tim Burton's Corpse Bride: the original track was stripped out and rebuilt from scratch in Audition and Premiere Pro. Foley recorded and performed by me, voice acting and dubbing by me too — only the music comes from an external source.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "DqbRwzwMbx8",
+    track: "sound",
+  },
   {
     id: 52,
     title: "Social Media Edit",
@@ -319,6 +395,7 @@ const studyWorks: Work[] = [
     id: 44,
     title: "DiVino — Visual Identity",
     category: "study",
+    track: "branding",
     type: "Branding · Fictional brand",
     image: "/images/divino-portada.jpg",
     description:
@@ -331,6 +408,7 @@ const studyWorks: Work[] = [
     id: 45,
     title: "DiVino — Web Design",
     category: "study",
+    track: "web",
     type: "UX/UI · Fictional brand",
     image: "/images/divino-onepage.jpg",
     coverImage: "/images/divino-uxui.png",
@@ -343,6 +421,7 @@ const studyWorks: Work[] = [
     id: 1,
     title: "Buka — Visual Identity",
     category: "study",
+    track: "branding",
     type: "Branding · Fictional brand",
     image: "/gym-branding-design.png",
     coverImage: "/images/remera-buka.png",
@@ -356,6 +435,7 @@ const studyWorks: Work[] = [
     id: 42,
     title: "Realistic Photomontage",
     category: "study",
+    track: "image",
     type: "Photoshop",
     image: "/mujer-tattoo.jpg",
     description:
@@ -367,6 +447,7 @@ const studyWorks: Work[] = [
     id: 2,
     title: "Gradient Mesh Illustration",
     category: "study",
+    track: "image",
     type: "Illustrator",
     image: "/robot-illustration.jpg",
     description:
@@ -378,6 +459,7 @@ const studyWorks: Work[] = [
     id: 5,
     title: "Collage",
     category: "study",
+    track: "image",
     type: "Photoshop",
     image: "/collage-artwork.jpg",
     description: "Photoshop collage composed around a windmill.",
@@ -388,6 +470,7 @@ const studyWorks: Work[] = [
     id: 3,
     title: "Experimental Photomontage",
     category: "study",
+    track: "image",
     type: "Photoshop",
     image: "/photomontage-artwork.jpg",
     description: "Experimental photomontage built in Photoshop.",
@@ -398,6 +481,7 @@ const studyWorks: Work[] = [
     id: 6,
     title: "Movie Poster",
     category: "study",
+    track: "image",
     type: "Key Art",
     image: "/movie-poster.jpg",
     description: "Poster for a children's film, made in Photoshop with AI-assisted imagery.",
@@ -408,6 +492,7 @@ const studyWorks: Work[] = [
     id: 4,
     title: "Website From Scratch",
     category: "study",
+    track: "web",
     type: "HTML / CSS",
     image: "/website-project.png",
     description: "Website hand-coded in HTML and CSS for a university project.",
@@ -695,6 +780,7 @@ const personalCategories = [
 const tools = [
   { name: "After Effects", badge: "Ae" },
   { name: "Premiere Pro", badge: "Pr" },
+  { name: "Audition", badge: "Au" },
   { name: "Photoshop", badge: "Ps" },
   { name: "Illustrator", badge: "Ai" },
   { name: "Cinema 4D", badge: "C4" },
@@ -744,7 +830,7 @@ const experience = [
 
 const tickerItems = [
   "BRANDING", "MOTION DESIGN", "UX/UI", "VIDEO EDITING", "3D",
-  "ILLUSTRATION", "WEB DESIGN", "GENERATIVE AI", "BRAND ASSETS",
+  "SOUND DESIGN", "ILLUSTRATION", "WEB DESIGN", "GENERATIVE AI", "BRAND ASSETS",
 ]
 
 // Etiqueta del CTA según el tipo de card
@@ -1270,6 +1356,9 @@ function BeforeAfterCarousel() {
 
 export default function Portfolio() {
   const [personalFilter, setPersonalFilter] = useState("digital")
+  const [motionFilter, setMotionFilter] = useState("all")
+  const [studyFilter, setStudyFilter] = useState("all")
+  const [activeSection, setActiveSection] = useState("")
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [jazPiece, setJazPiece] = useState<JazPiece | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -1277,8 +1366,37 @@ export default function Portfolio() {
   const [expOpen, setExpOpen] = useState(false)
   const sbarRef = useRef<HTMLDivElement>(null)
   const shudRef = useRef<HTMLSpanElement>(null)
+  const activeRef = useRef("")
 
   const filteredPersonal = personalWorks.filter((w) => w.category === personalFilter)
+
+  /* ---- Motion: qué bloque se ve según el filtro ---- */
+  const soundPieces = motionStudy.filter((w) => w.track === "sound")
+  const coursePieces = motionStudy.filter((w) => w.track !== "sound")
+  const showMotionFeature = motionFilter === "all" || motionFilter === "study"
+  const showMotionClient = motionFilter === "all" || motionFilter === "client"
+  const motionGrid =
+    motionFilter === "client" ? [] :
+    motionFilter === "sound" ? soundPieces :
+    motionFilter === "study" ? coursePieces :
+    motionStudy
+  // El destacado (Módulo Sanitario) es cursada, y el posteo de Hot House es de cliente:
+  // por eso los conteos no salen de los arrays sueltos.
+  const motionCounts: Record<string, number> = {
+    all: motionClient.length + 1 + motionStudy.length + 1,
+    client: motionClient.length + 1,
+    sound: soundPieces.length,
+    study: coursePieces.length + 1,
+  }
+
+  const filteredStudy =
+    studyFilter === "all" ? studyWorks : studyWorks.filter((w) => w.track === studyFilter)
+  const studyCounts: Record<string, number> = {
+    all: studyWorks.length,
+    branding: studyWorks.filter((w) => w.track === "branding").length,
+    web: studyWorks.filter((w) => w.track === "web").length,
+    image: studyWorks.filter((w) => w.track === "image").length,
+  }
 
   const handleCardClick = (work: Work) => {
     if (work.cardType === "link" && work.link) {
@@ -1305,7 +1423,7 @@ export default function Portfolio() {
     )
     document.querySelectorAll(".reveal").forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [personalFilter, expOpen])
+  }, [personalFilter, motionFilter, studyFilter, expOpen])
 
   // Parallax + scroll bar + HUD + auras (una vez)
   useEffect(() => {
@@ -1346,6 +1464,19 @@ export default function Portfolio() {
       }
       if (sbarRef.current) sbarRef.current.style.width = p * 100 + "%"
       if (shudRef.current) shudRef.current.textContent = String(Math.round(p * 100)).padStart(3, "0") + "%"
+
+      // Sección activa: la última cuyo tope ya cruzó el 38% de la pantalla.
+      // Queda vacío en el hero (ninguna cruzó todavía) para no encender WORK antes de tiempo.
+      let cur = ""
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id)
+        if (el && el.getBoundingClientRect().top <= vh * 0.38) cur = s.id
+      }
+      // El scroll dispara esto en cada frame: sin este guard, un setState por frame.
+      if (cur !== activeRef.current) {
+        activeRef.current = cur
+        setActiveSection(cur)
+      }
     }
     const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame) } }
     window.addEventListener("scroll", req, { passive: true })
@@ -1382,19 +1513,40 @@ export default function Portfolio() {
             <span>NATALIA ESPAIN</span>
           </a>
           <nav className="links">
-            {navLinks.map((l) => (
-              <a key={l.href} href={l.href}>{l.label}</a>
+            {SECTIONS.map((s) => (
+              <a key={s.id} href={`#${s.id}`}
+                className={activeSection === s.id ? "on" : ""}
+                aria-current={activeSection === s.id ? "true" : undefined}>
+                {s.label}
+              </a>
             ))}
           </nav>
           <span className="nav-status" aria-hidden="true"><i className="st-dot" />BUE · ONLINE</span>
           <button className="menu-btn" onClick={() => setMobileMenuOpen((v) => !v)}>MENU</button>
         </div>
         <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
-          {navLinks.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setMobileMenuOpen(false)}>{l.label}</a>
+          {SECTIONS.map((s) => (
+            <a key={s.id} href={`#${s.id}`}
+              className={activeSection === s.id ? "on" : ""}
+              onClick={() => setMobileMenuOpen(false)}>
+              {s.label}
+            </a>
           ))}
         </div>
       </header>
+
+      {/* Índice lateral — dónde estoy y cuánto falta. Se oculta en pantallas chicas. */}
+      <nav className="sec-rail" aria-label="Section index">
+        {SECTIONS.map((s, i) => (
+          <a key={s.id} href={`#${s.id}`}
+            className={activeSection === s.id ? "on" : ""}
+            aria-current={activeSection === s.id ? "true" : undefined}>
+            <i aria-hidden="true" />
+            <span className="n">{String(i + 1).padStart(2, "0")}</span>
+            <span className="t">{s.short}</span>
+          </a>
+        ))}
+      </nav>
 
       {/* HERO */}
       <section className="hero" id="top">
@@ -1661,13 +1813,26 @@ export default function Portfolio() {
         </div>
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// ANIMATION · VIDEO EDITING</span>
+            <span className="eyebrow">// ANIMATION · VIDEO EDITING · SOUND</span>
             <h2 data-parx="0.05">MO<em>TION</em></h2>
           </div>
-          <span className="idx reveal">[ {motionClient.length + motionStudy.length + 1} PIECES / AE · PR · C4D ]</span>
+          <span className="idx reveal">[ {motionCounts.all} PIECES / AE · PR · C4D ]</span>
+        </div>
+
+        <div className="filters">
+          {MOTION_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setMotionFilter(f.id)}
+              className={`filter-pill ${motionFilter === f.id ? "active" : ""}`}
+            >
+              {f.label} <i className="pill-n">{motionCounts[f.id]}</i>
+            </button>
+          ))}
         </div>
 
         {/* Pieza destacada — player embebido, no card */}
+        {showMotionFeature && (
         <div className="motion-feature reveal">
           <div className="mf-view">
             <iframe
@@ -1685,7 +1850,9 @@ export default function Portfolio() {
             <div className="spot-tools"><i>After Effects</i><i>Illustrator</i></div>
           </div>
         </div>
+        )}
 
+        {showMotionClient && (<>
         <h3 className="sub-head reveal">Client work</h3>
         <div className="hh-pair">
           <div className="hh-pair-media">
@@ -1715,15 +1882,42 @@ export default function Portfolio() {
           </article>
         </div>
 
+        {/* Hot House — pieza gráfica destacada: carrusel de recomendaciones */}
+        <div className="hh-post">
+          <WorkCard work={HOTHOUSE_POST} idx={0} onOpen={handleCardClick} />
+          <article className="client reveal from-r">
+            <span className="eyebrow">// HOT HOUSE · WEEKEND PICKS</span>
+            <h3>Recommendations carousel</h3>
+            <p>
+              A recurring format for the channel: the weekend&apos;s best dates, one card each, with
+              venue, line-up and set time. Cover first, so the post reads at a glance in the feed.
+            </p>
+            <div className="hh-slides">
+              {(HOTHOUSE_POST.images || []).slice(1).map((src, i) => (
+                <button key={src} type="button" onClick={() => handleCardClick(HOTHOUSE_POST)}
+                  aria-label={`Open the carousel on slide ${i + 2}`}>
+                  <img src={src} alt={`Weekend picks carousel, slide ${i + 2}`} loading="lazy" />
+                </button>
+              ))}
+            </div>
+            <a className="client-cta" href={HOTHOUSE_POST.link} target="_blank" rel="noopener noreferrer">
+              View the post on Instagram <b>↗</b>
+            </a>
+          </article>
+        </div>
+        </>)}
+
+        {motionGrid.length > 0 && (<>
         <h3 className="sub-head reveal">
-          Studies &amp; personal practice
+          {motionFilter === "sound" ? "Sound design" : "Studies & personal practice"}
           <span className="sub-note">Coursework and self-initiated pieces — not client commissions.</span>
         </h3>
         <div className="work">
-          {motionStudy.map((work, idx) => (
+          {motionGrid.map((work, idx) => (
             <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
           ))}
         </div>
+        </>)}
       </section>
 
       {/* BRANDS — producción a escala en MRM/McCann */}
@@ -1883,8 +2077,20 @@ export default function Portfolio() {
           Design projects made for university or on my own initiative. The brands here are fictional — they are exercises, not commissions.
         </p>
 
+        <div className="filters">
+          {STUDY_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setStudyFilter(f.id)}
+              className={`filter-pill ${studyFilter === f.id ? "active" : ""}`}
+            >
+              {f.label} <i className="pill-n">{studyCounts[f.id]}</i>
+            </button>
+          ))}
+        </div>
+
         <div className="work">
-          {studyWorks.map((work, idx) => (
+          {filteredStudy.map((work, idx) => (
             <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
           ))}
         </div>
