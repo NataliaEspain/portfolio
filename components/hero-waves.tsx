@@ -9,7 +9,8 @@ import * as THREE from "three"
    (violeta cerca → naranja al fondo) y reacciona al mouse con
    una onda. Va detrás del texto, full-width, sin interacción
    directa (pointer-events: none; se escucha el mouse en window).
-   Con prefers-reduced-motion las olas quedan quietas.
+   Con prefers-reduced-motion las olas siguen derivando, pero a un tercio
+   de velocidad: movimiento suave en vez de imagen congelada.
    ============================================================ */
 
 const C_NEAR = new THREE.Color("#8C5CF2")  // violeta (cerca)
@@ -107,9 +108,13 @@ export default function HeroWaves() {
     const pos = geo.attributes.position as THREE.BufferAttribute
     let t = 0
     let raf = 0
+    // Con reduced-motion el oleaje no se congela: sigue derivando, pero a un
+    // tercio de velocidad. El movimiento queda suave y sin sobresaltos, que es
+    // lo que la preferencia pide — no una imagen quieta.
+    const speed = reduce ? 0.0045 : 0.014
     const tick = () => {
       raf = requestAnimationFrame(tick)
-      if (!reduce) t += 0.014
+      t += speed
       for (let i = 0; i < count; i++) {
         const x = pos.getX(i)
         const z = pos.getZ(i)

@@ -464,7 +464,10 @@ nav.links a.on::after { width: 100%; background: linear-gradient(90deg, var(--vi
 .hero-right { position: relative; height: min(72vh, 620px); display: grid; place-items: center; }
 .hero-right.copy { height: auto; display: flex; flex-direction: column; align-items: flex-start;
   justify-content: center; padding: 30px; border: 1px solid var(--line-soft); border-radius: 18px;
-  background: rgba(8, 6, 14, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  /* Sin backdrop-filter a propósito: el blur convierte el terreno de partículas
+     en una masa difusa y la card se ve opaca. Con el fondo al 50% los puntos
+     pasan nítidos por detrás, que es como tiene que verse. */
+  background: rgba(8, 6, 14, 0.5); }
 .hero-right.copy p.bio { max-width: 52ch; }
 .stage { position: relative; width: min(46vw, 460px); aspect-ratio: 1; }
 .glow { position: absolute; inset: 6%; border-radius: 50%; pointer-events: none;
