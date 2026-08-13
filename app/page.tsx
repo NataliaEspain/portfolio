@@ -143,6 +143,9 @@ const SECTIONS = [
   { id: "work", label: "WORK", short: "Selected work" },
   { id: "ai", label: "AI", short: "Generative AI" },
   { id: "motion", label: "MOTION", short: "Motion" },
+  // El 3D vive dentro de la sección Motion (después de Client work), pero tiene
+  // entrada propia en el nav: es un cuerpo de trabajo, no una pieza suelta.
+  { id: "threed", label: "3D", short: "3D" },
   { id: "brands", label: "BRANDS", short: "Brands at scale" },
   { id: "about", label: "ABOUT", short: "About" },
   { id: "studies", label: "STUDIES", short: "Studies & spec" },
@@ -156,6 +159,7 @@ const SECTIONS = [
 const MOTION_FILTERS = [
   { id: "all", label: "All" },
   { id: "client", label: "Client work" },
+  { id: "3d", label: "3D" },
   { id: "sound", label: "Sound" },
   { id: "study", label: "Coursework" },
 ]
@@ -283,17 +287,6 @@ const motionStudy: Work[] = [
     youtubeId: "OB2oT-Cd0oc",
   },
   {
-    id: 49,
-    title: "3D Animation — Cinema 4D",
-    category: "motion",
-    type: "3D Animation",
-    image: "https://img.youtube.com/vi/skSJUo4qRPY/maxresdefault.jpg",
-    description: "3D animation modelled and animated in Cinema 4D.",
-    size: "wide",
-    cardType: "video",
-    youtubeId: "skSJUo4qRPY",
-  },
-  {
     id: 47,
     title: "Motion Graphics Animation",
     category: "motion",
@@ -386,6 +379,62 @@ const motionStudy: Work[] = [
     youtubeId: "rBCkVrD6Das",
   },
 ]
+
+/* ============================================================
+   3D — sección propia
+   Estas piezas arrancan en una escena vacía: modelado, texturizado,
+   luces y animación son todo trabajo suyo. Son las más largas de
+   producir, así que no van mezcladas en la grilla de Motion.
+   ============================================================ */
+type ThreeDPiece = {
+  youtubeId: string
+  title: string
+  eyebrow: string
+  description: string
+  note: string
+  tools: string[]
+}
+
+const THREED_FEATURE: ThreeDPiece = {
+  youtubeId: "EHxkZU-58tM",
+  title: "Peruvian Culture",
+  eyebrow: "// FEATURED · BUILT FROM SCRATCH",
+  description:
+    "Three floating islands drifting above the clouds, linked by rope bridges, each one carrying an icon of Peruvian culture. Modelled and animated in Cinema 4D, textured and rendered with Arnold, then edited with its sound design in After Effects.",
+  note: "University project",
+  tools: ["Cinema 4D", "Arnold", "After Effects"],
+}
+
+// Stills del render final: hacen de desglose de la escena, cada uno nombra
+// el elemento que aparece. Extraídos del master en 1080p.
+const THREED_STILLS: { src: string; caption: string }[] = [
+  { src: "/images/3d/seco-tumi.jpg", caption: "Seco con frijoles, with a tumi planted beside the plate" },
+  { src: "/images/3d/machu-picchu.jpg", caption: "Machu Picchu — terraces, peak and the flag on top" },
+  { src: "/images/3d/amazonas.jpg", caption: "Stilt house from the Peruvian Amazon, over the water" },
+  { src: "/images/3d/islas.jpg", caption: "The three islands, bridged together above the clouds" },
+]
+
+// El pipeline es el argumento de la sección: no es "una animación",
+// es una escena construida entera de cero.
+const THREED_PIPELINE = [
+  { step: "01", label: "Modelling", detail: "Every asset built from primitives — no stock geometry" },
+  { step: "02", label: "Texturing & lighting", detail: "Materials authored and rendered with Arnold" },
+  { step: "03", label: "Animation", detail: "Camera moves and scene animation keyframed by hand" },
+  { step: "04", label: "Comp & sound", detail: "Final edit, effects and sound design in After Effects" },
+]
+
+// Las dos piezas 3D: alimenta el contador del filtro de Motion.
+const THREED_COUNT = 2
+
+const THREED_SECOND: ThreeDPiece = {
+  youtubeId: "skSJUo4qRPY",
+  title: "Alien Bee",
+  eyebrow: "// CREATURE DESIGN · CINEMA 4D",
+  description:
+    "An alien bee inside its hive: the creature, the larvae and the honeycomb are all custom geometry, modelled and animated from scratch in Cinema 4D and lit around the red glow of the hive. Post-production and finishing in After Effects.",
+  note: "University project",
+  tools: ["Cinema 4D", "After Effects"],
+}
 
 /* ============================================================
    STUDIES & SPEC — diseño gráfico (cursada / proyectos ficticios)
@@ -1354,6 +1403,37 @@ function BeforeAfterCarousel() {
   )
 }
 
+/* Bloque de pieza 3D: player embebido + ficha al lado.
+   `flip` invierte las columnas para que la segunda pieza no repita el ritmo. */
+function ThreeDBlock({ piece, flip }: { piece: ThreeDPiece; flip?: boolean }) {
+  return (
+    <div className={`td-block reveal${flip ? " flip" : ""}`}>
+      <div className="td-view">
+        <iframe
+          src={`https://www.youtube.com/embed/${piece.youtubeId}?rel=0&modestbranding=1`}
+          title={piece.title}
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          // los embeds pesan: si cargan de entrada le roban hilo principal a la
+          // animación del hero. Se cargan recién al acercarse al viewport.
+          loading="lazy"
+        />
+      </div>
+      <div className="td-info">
+        <span className="eyebrow">{piece.eyebrow}</span>
+        <h3>{piece.title}</h3>
+        <p>{piece.description}</p>
+        <div className="spot-tools">
+          {piece.tools.map((t) => (
+            <i key={t}>{t}</i>
+          ))}
+        </div>
+        <p className="mf-note">{piece.note}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function Portfolio() {
   const [personalFilter, setPersonalFilter] = useState("digital")
   const [motionFilter, setMotionFilter] = useState("all")
@@ -1375,16 +1455,19 @@ export default function Portfolio() {
   const coursePieces = motionStudy.filter((w) => w.track !== "sound")
   const showMotionFeature = motionFilter === "all" || motionFilter === "study"
   const showMotionClient = motionFilter === "all" || motionFilter === "client"
+  // El bloque 3D es un cuerpo aparte: sólo se ve en "All" y en su propio filtro.
+  const showThreeD = motionFilter === "all" || motionFilter === "3d"
   const motionGrid =
-    motionFilter === "client" ? [] :
+    motionFilter === "client" || motionFilter === "3d" ? [] :
     motionFilter === "sound" ? soundPieces :
     motionFilter === "study" ? coursePieces :
     motionStudy
   // El destacado (Módulo Sanitario) es cursada, y el posteo de Hot House es de cliente:
   // por eso los conteos no salen de los arrays sueltos.
   const motionCounts: Record<string, number> = {
-    all: motionClient.length + 1 + motionStudy.length + 1,
+    all: motionClient.length + 1 + motionStudy.length + 1 + THREED_COUNT,
     client: motionClient.length + 1,
+    "3d": THREED_COUNT,
     sound: soundPieces.length,
     study: coursePieces.length + 1,
   }
@@ -1816,7 +1899,7 @@ export default function Portfolio() {
             <span className="eyebrow">// ANIMATION · VIDEO EDITING · SOUND</span>
             <h2 data-parx="0.05">MO<em>TION</em></h2>
           </div>
-          <span className="idx reveal">[ {motionCounts.all} PIECES / AE · PR · C4D ]</span>
+          <span className="idx reveal">[ {motionCounts.all} PIECES / AE · PR · AU ]</span>
         </div>
 
         <div className="filters">
@@ -1907,6 +1990,58 @@ export default function Portfolio() {
           </article>
         </div>
         </>)}
+
+        {/* 3D — bloque propio dentro de Motion: va después del trabajo de cliente
+            y antes de la cursada, porque es la producción más pesada de las tres.
+            Sin sec-deco: hereda el wrap y la decoración de la sección Motion. */}
+        {showThreeD && (
+        <section id="threed" className="td-sec">
+          <div className="sec-head">
+            <div className="l">
+              <span className="eyebrow">// MODELLING · TEXTURING · LIGHTING · ANIMATION</span>
+              <h2 data-parx="0.05">3<em>D</em></h2>
+            </div>
+            <span className="idx reveal">[ 2 PIECES / C4D · ARNOLD · AE ]</span>
+          </div>
+
+          <p className="sub-note block td-lead">
+            Both pieces start from an empty scene: <b>every model, material, light and camera move is mine</b>.
+            No stock geometry, no downloaded assets — the slowest work in here, and the part that shows the
+            whole pipeline rather than just the animation.
+          </p>
+
+          <ThreeDBlock piece={THREED_FEATURE} />
+
+          {/* Desglose de la escena: qué hay modelado ahí adentro */}
+          <h3 className="sub-head reveal">
+            Inside the scene
+            <span className="sub-note">Stills from the final render.</span>
+          </h3>
+          <div className="td-stills reveal">
+            {THREED_STILLS.map((s, i) => (
+              <figure key={s.src}>
+                <img src={s.src} alt={s.caption} loading="lazy" />
+                <figcaption>
+                  <b>{String(i + 1).padStart(2, "0")}</b> {s.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <ol className="td-pipe reveal">
+            {THREED_PIPELINE.map((p) => (
+              <li key={p.step}>
+                <b>{p.step}</b>
+                <h4>{p.label}</h4>
+                <span>{p.detail}</span>
+              </li>
+            ))}
+          </ol>
+
+          <h3 className="sub-head reveal">Also in 3D</h3>
+          <ThreeDBlock piece={THREED_SECOND} flip />
+        </section>
+        )}
 
         {motionGrid.length > 0 && (<>
         <h3 className="sub-head reveal">
