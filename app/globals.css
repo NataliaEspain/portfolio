@@ -376,7 +376,13 @@ body::after {
   backdrop-filter: blur(14px);
   background: linear-gradient(180deg, rgba(5, 4, 9, 0.92), rgba(5, 4, 9, 0.35));
   border-bottom: 1px solid var(--line-soft);
+  will-change: transform;
+  transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.24s ease;
 }
+/* Al bajar el nav se retira y queda sólo la barra de progreso (z-index 100, por
+   encima del header, así que ya estaba visible por delante). Vuelve al subir. */
+.site-header.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
 /* luz que barre el borde inferior del header */
 .site-header::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 160px;
   background: linear-gradient(90deg, transparent, var(--violet-hi), var(--gold), transparent);
@@ -1203,3 +1209,8 @@ body { top: 0 !important; }
   .td-stills { grid-template-columns: 1fr; }
   .td-pipe { grid-template-columns: 1fr; }
 }
+
+/* Etiqueta de tipo de encargo en Selected work: la sección mezcla comisiones con
+   colaboraciones, así que cada pieza declara cuál es. */
+.spot-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tag.kind { color: var(--gold); border-color: rgba(242, 179, 61, 0.4); letter-spacing: 0.16em; }

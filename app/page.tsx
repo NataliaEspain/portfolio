@@ -851,9 +851,9 @@ const experience = [
   {
     period: "2025 — 2026",
     role: "Freelance Designer & Video Editor",
-    org: "Hot House · Estética Jaz · Cabotia · Vic Mielke · Miss Lupe",
+    org: "Hot House · Estética Jaz · Cabotia",
     detail:
-      "Short-form video editing, motion graphics, ad campaigns and visual identity for independent clients.",
+      "Short-form video editing, motion graphics, ad campaigns and visual identity for independent clients. Alongside these, collaborations with the artists Vic Mielke and Miss Lupe.",
   },
   {
     period: "Aug 2023 — Jul 2025",
@@ -1447,6 +1447,18 @@ export default function Portfolio() {
   const sbarRef = useRef<HTMLDivElement>(null)
   const shudRef = useRef<HTMLSpanElement>(null)
   const activeRef = useRef("")
+  // Nav que se retira al bajar. El header se toca por classList y no por estado:
+  // el handler corre en cada frame de scroll y un setState ahí re-renderiza la
+  // página entera (que es larga) sesenta veces por segundo.
+  const headerRef = useRef<HTMLElement>(null)
+  const lastYRef = useRef(0)
+  const menuOpenRef = useRef(false)
+
+  // Con el menú mobile abierto el header no puede esconderse: el menú vive dentro.
+  useEffect(() => {
+    menuOpenRef.current = mobileMenuOpen
+    if (mobileMenuOpen) headerRef.current?.classList.remove("hidden")
+  }, [mobileMenuOpen])
 
   const filteredPersonal = personalWorks.filter((w) => w.category === personalFilter)
 
@@ -1545,6 +1557,20 @@ export default function Portfolio() {
           el.style.transform = `translateX(${(off * sp).toFixed(1)}px)`
         })
       }
+      // Nav: al bajar se retira y queda sólo la barra de progreso; al subir vuelve.
+      // Arriba de todo siempre está visible. El umbral de 4px evita que el temblor
+      // de un trackpad lo haga parpadear.
+      const y = h.scrollTop
+      const hdr = headerRef.current
+      if (hdr) {
+        const dy = y - lastYRef.current
+        if (Math.abs(dy) > 4) {
+          hdr.classList.toggle("hidden", y > 90 && dy > 0 && !menuOpenRef.current)
+          lastYRef.current = y
+        }
+        if (y <= 90) hdr.classList.remove("hidden")
+      }
+
       if (sbarRef.current) sbarRef.current.style.width = p * 100 + "%"
       if (shudRef.current) shudRef.current.textContent = String(Math.round(p * 100)).padStart(3, "0") + "%"
 
@@ -1590,7 +1616,7 @@ export default function Portfolio() {
       {jazPiece && <JazModal piece={jazPiece} onClose={() => setJazPiece(null)} />}
 
       {/* NAV / HUD */}
-      <header className="site-header">
+      <header className="site-header" ref={headerRef}>
         <div className="nav">
           <a href="#top" className="brand brand-name">
             <span>NATALIA ESPAIN</span>
@@ -1720,11 +1746,17 @@ export default function Portfolio() {
         </div>
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// COMMISSIONED PROJECTS</span>
+            <span className="eyebrow">// CLIENT WORK &amp; COLLABORATIONS</span>
             <h2 data-parx="0.05">SELECTED <em>WORK</em></h2>
           </div>
-          <span className="idx reveal">[ CLIENTS / 2025–2026 ]</span>
+          <span className="idx reveal">[ REAL BRIEFS / 2025–2026 ]</span>
         </div>
+
+        {/* No todo acá fue comisionado: Miss Lupe y Vic Mielke son colaboraciones.
+            Cada pieza lleva su etiqueta para que la sección no prometa de más. */}
+        <p className="sub-note block reveal">
+          Projects made for real people and real brands. Some were <b>commissioned</b>; others are <b>collaborations</b> I took on with — and for — artists I wanted to work with. Each piece says which.
+        </p>
 
         <a
           href="https://magenta-churros-b179d9.netlify.app/"
@@ -1733,7 +1765,10 @@ export default function Portfolio() {
           className="spotlight reveal"
         >
           <div className="spotlight-info">
-            <span className="tag"><span className="dot" />LIVE</span>
+            <div className="spot-tags">
+              <span className="tag"><span className="dot" />LIVE</span>
+              <span className="tag kind">Collaboration</span>
+            </div>
             <h3>Miss Lupe</h3>
             <p>
               Website for <b>Miss Lupe</b> (DJ · producer · singer), with <b>3D objects you can rotate in real time</b>. Design, build and 3D modelling — made together with a fellow student.
@@ -1771,7 +1806,7 @@ export default function Portfolio() {
           </div>
 
           <div className="spotlight-info">
-            <span className="eyebrow">// ESTÉTICA JAZ · 2025</span>
+            <span className="eyebrow">// ESTÉTICA JAZ · COMMISSIONED · 2025</span>
             <h3>Estética Jaz</h3>
             <p>
               Meta Ads campaign and visual assets for a beauty clinic — including the <b>Booster</b> product video (motion graphics + AI-generated footage) and a system of carousels and posts for Instagram.
@@ -1807,7 +1842,7 @@ export default function Portfolio() {
         <div className="client-grid">
           {/* Cabotia */}
           <article className="client reveal from-l">
-            <span className="eyebrow">// CABOTIA · AI STARTUP · 2025</span>
+            <span className="eyebrow">// CABOTIA · AI STARTUP · COMMISSIONED · 2025</span>
             <h3>Visual identity</h3>
             <p>
               Full visual identity for an AI startup: logo, colour palette and visual system.
@@ -1820,7 +1855,7 @@ export default function Portfolio() {
 
           {/* Vic Mielke → ancla a la sección de abajo */}
           <article className="client reveal from-r">
-            <span className="eyebrow">// VIC MIELKE · DJ · 2025</span>
+            <span className="eyebrow">// VIC MIELKE · DJ · COLLABORATION · 2025</span>
             <h3>Generative AI visuals</h3>
             <p>
               A futuristic visual world for an emerging DJ&apos;s Instagram, generated from her own photo shoot — same body, another dimension.
@@ -1848,14 +1883,14 @@ export default function Portfolio() {
 
         <div className="sec-head">
           <div className="l">
-            <span className="eyebrow">// FOR VIC MIELKE · EMERGING DJ</span>
+            <span className="eyebrow">// WITH VIC MIELKE · EMERGING DJ · COLLABORATION</span>
             <h2 data-parx="0.05">GENERATIVE <em>AI</em></h2>
           </div>
           <span className="idx reveal">[ BEFORE / AFTER · 2025 ]</span>
         </div>
 
         <p className="ia-intro reveal">
-          <b>Vic Mielke</b>, an emerging DJ, needed a futuristic visual identity for her Instagram. Starting from a photo shoot, I generated a whole visual world for her with AI — same body, another dimension. <span>Hover over each image to reveal the before and after.</span>
+          A collaboration with <b>Vic Mielke</b>, an emerging DJ who wanted a futuristic visual identity for her Instagram. Starting from a photo shoot, I generated a whole visual world for her with AI — same body, another dimension. <span>Hover over each image to reveal the before and after.</span>
         </p>
 
         <BeforeAfterCarousel />
