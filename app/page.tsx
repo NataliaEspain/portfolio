@@ -1739,10 +1739,10 @@ export default function Portfolio() {
             {/* texto al lado del nombre — el hero es 100% tipográfico */}
             <div className="hero-right copy reveal">
               <p className="bio">
-                I design across media: <b>branding, motion graphics, video, web and 3D</b>. Currently Content Analyst at <b>MRM (McCann Worldgroup)</b>, where I build and publish pages for global brands — L&apos;Oréal, Maybelline, Garnier, Buick, Cadillac, Chevrolet, GMC — working inside strict brand guidelines.
+                I design across media: <b>branding, motion graphics, video, web and 3D</b>. Currently Content Analyst at <b>MRM (McCann Worldgroup)</b>, where I build and publish pages for L&apos;Oréal&apos;s brands — L&apos;Oréal Paris, Maybelline, Garnier — and previously for General Motors (Buick, Cadillac, Chevrolet, GMC), working inside strict brand guidelines.
               </p>
               <p className="bio" style={{ marginTop: "14px" }}>
-                Alongside that, I take on freelance projects end to end — <b>visual identities, ad campaigns, short-form video and interactive 3D websites</b> — with the Adobe suite, Cinema 4D and Figma.
+                Alongside that, I manage social media for two electronic music brands as part of a two-person team, and take on freelance projects — <b>visual identities, ad campaigns and short-form video</b> — with the Adobe suite, Cinema 4D and Figma.
               </p>
               <div className="tool-strip">
                 {tools.slice(0, 6).map((t) => (
@@ -1816,7 +1816,7 @@ export default function Portfolio() {
               Website for <b>Miss Lupe</b> (DJ · producer · singer), with <b>3D objects you can rotate in real time</b>. Interface design, navigation and layout — made together with a fellow student.
             </p>
             <div className="spot-tools">
-              <i>Web Design</i><i>3D Modelling</i>
+              <i>Web Design</i>
             </div>
             <span className="spot-cta">Open the site <b>↗</b></span>
           </div>
