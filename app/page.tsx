@@ -214,7 +214,7 @@ const motionClient: Work[] = [
     type: "Video Editing · Hot House",
     image: "/images/insta-streaming-edit.png",
     description:
-      "Short-form edit for the Hot House streaming channel, cut in Premiere Pro. The account doubled its followers and clips reached up to 40k organic views.",
+      "Short-form edit for the Hot House streaming channel, cut in Premiere Pro. The account grew from 150 to ~500 followers and clips reached up to 40k organic views. Ongoing, as part of a two-person team with another designer. We also write the captions and reply to comments.",
     link: "https://www.instagram.com/hothouse.ntv/reel/DZioNv8pWvO/",
     size: "tall",
     cardType: "link",
@@ -243,6 +243,36 @@ const HOTHOUSE_POST: Work = {
   ],
 }
 
+// Niche → gestión de redes (mismo tipo de trabajo que Hot House, por eso va justo después).
+// Las piezas son las que Instagram deja bajar sin login: la placa de portada del
+// carrusel "Niche Set" y el frame de portada de un reel. Los videos se abren en Instagram.
+const NICHE_WORKS: Work[] = [
+  {
+    id: 56,
+    title: "Niche Set — Carousel",
+    category: "motion",
+    type: "Social Design · Niche",
+    image: "/images/niche/niche-set-cover.jpg",
+    description:
+      "Instagram carousel for a Niche Set session: a cover card followed by video slides from the set.",
+    link: "https://www.instagram.com/niche_sounds/p/Ddr3rsrFUTD/",
+    size: "tall",
+    cardType: "link",
+  },
+  {
+    id: 57,
+    title: "Interview Reel",
+    category: "motion",
+    type: "Reels Editing · Niche",
+    image: "/images/niche/niche-reel-debate.jpg",
+    description:
+      "Reel cut from one of Niche's artist interviews.",
+    link: "https://www.instagram.com/niche_sounds/reel/DeaEMq6SF15/",
+    size: "tall",
+    cardType: "link",
+  },
+]
+
 /* ============================================================
    MOTION — piezas de cursada / spec (etiquetadas como tales)
    ============================================================ */
@@ -261,6 +291,18 @@ const motionStudy: Work[] = [
     cardType: "video",
     youtubeId: "DqbRwzwMbx8",
     track: "sound",
+  },
+  {
+    id: 58,
+    title: "Projection Mapping",
+    category: "motion",
+    type: "Projection Mapping · University",
+    image: "https://img.youtube.com/vi/99Bu5_JbWks/maxresdefault.jpg",
+    description:
+      "University projection mapping project, animated in After Effects to fit the faces of a stacked-cube structure.",
+    size: "wide",
+    cardType: "video",
+    youtubeId: "99Bu5_JbWks",
   },
   {
     id: 52,
@@ -1477,8 +1519,8 @@ export default function Portfolio() {
   // El destacado (Módulo Sanitario) es cursada, y el posteo de Hot House es de cliente:
   // por eso los conteos no salen de los arrays sueltos.
   const motionCounts: Record<string, number> = {
-    all: motionClient.length + 1 + motionStudy.length + 1 + THREED_COUNT,
-    client: motionClient.length + 1,
+    all: motionClient.length + 1 + NICHE_WORKS.length + motionStudy.length + 1 + THREED_COUNT,
+    client: motionClient.length + 1 + NICHE_WORKS.length,
     "3d": THREED_COUNT,
     sound: soundPieces.length,
     study: coursePieces.length + 1,
@@ -1771,10 +1813,10 @@ export default function Portfolio() {
             </div>
             <h3>Miss Lupe</h3>
             <p>
-              Website for <b>Miss Lupe</b> (DJ · producer · singer), with <b>3D objects you can rotate in real time</b>. Design, build and 3D modelling — made together with a fellow student.
+              Website for <b>Miss Lupe</b> (DJ · producer · singer), with <b>3D objects you can rotate in real time</b>. Interface design, navigation and layout — made together with a fellow student.
             </p>
             <div className="spot-tools">
-              <i>Three.js</i><i>WebGL</i><i>Web Design</i><i>3D Modelling</i>
+              <i>Web Design</i><i>3D Modelling</i>
             </div>
             <span className="spot-cta">Open the site <b>↗</b></span>
           </div>
@@ -1986,9 +2028,12 @@ export default function Portfolio() {
               Highlights, Reels and promo clips cut in <b>Premiere Pro</b>, plus graphics in Illustrator, for a streaming channel.
             </p>
             <div className="metric-row">
-              <div className="metric"><b>2×</b><span>followers</span></div>
+              <div className="metric"><b>150 → ~500</b><span>followers</span></div>
               <div className="metric"><b>40k</b><span>organic views</span></div>
             </div>
+            <a className="client-cta" href="https://www.instagram.com/hothouse.ntv/" target="_blank" rel="noopener noreferrer">
+              @hothouse.ntv on Instagram <b>↗</b>
+            </a>
             <div className="client-links">
               {HOTHOUSE_REELS.map((url, i) => (
                 <a key={url} href={url} target="_blank" rel="noopener noreferrer">
@@ -2022,6 +2067,32 @@ export default function Portfolio() {
               View the post on Instagram <b>↗</b>
             </a>
             <div className="spot-tools"><i>Illustrator</i></div>
+          </article>
+        </div>
+
+        {/* Niche — gestión de redes; mismo formato que el bloque de Hot House */}
+        <div className="hh-pair">
+          <div className="hh-pair-media">
+            {NICHE_WORKS.map((work, idx) => (
+              <WorkCard key={work.id} work={work} idx={idx} onOpen={handleCardClick} />
+            ))}
+          </div>
+          <article className="client reveal from-r">
+            <span className="eyebrow">// NICHE · ELECTRONIC MUSIC · COMMISSIONED</span>
+            <h3>Niche — Social Media Management</h3>
+            <p>
+              Ongoing social media management for Niche, an electronic music production company that
+              also produces interviews with artists. I work as part of a two-person team with another
+              designer: we plan the content, design the posts, edit Reels tailored to the theme of each
+              party, write the captions and reply to comments. All organic, no paid ads. The account
+              already had around 15k followers when we started; it gained +800 in our first two months.
+            </p>
+            <a className="client-cta" href="https://www.instagram.com/niche_sounds/" target="_blank" rel="noopener noreferrer">
+              @niche_sounds on Instagram <b>↗</b>
+            </a>
+            <div className="spot-tools">
+              <i>Content planning</i><i>Social design</i><i>Reels editing</i><i>Copywriting</i><i>Premiere</i><i>CapCut</i><i>Illustrator</i>
+            </div>
           </article>
         </div>
         </>)}

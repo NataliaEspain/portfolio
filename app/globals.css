@@ -724,6 +724,8 @@ section { position: relative; z-index: 2; }
 .hh-post { display: grid; grid-template-columns: minmax(0, 0.52fr) minmax(0, 1fr);
   gap: 24px; align-items: center; margin-top: 24px; }
 .hh-post .card { margin-bottom: 0; }
+/* Niche — mismo bloque que Hot House, con la misma separación */
+.hh-post + .hh-pair { margin-top: 24px; }
 /* tira con el resto de las placas del carrusel */
 .hh-slides { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .hh-slides button { padding: 0; border: 1px solid var(--line-soft); border-radius: 10px; overflow: hidden;
